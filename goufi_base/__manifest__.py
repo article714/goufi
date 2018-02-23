@@ -7,7 +7,7 @@
     'version': u'10.0.1.0.0',
     'category': u'Applications',
     'author': u'Article714',
-    'license': u'LGPL-3',
+    'license': u'AGPL-3',
     'website': u'https://www.article714.org',
     'description': u"""
 Goufi: Base module
