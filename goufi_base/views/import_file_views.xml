@@ -9,7 +9,7 @@
 		<field name="mode">primary</field>
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
-			<tree string="Fichiers d'import" default_order="id asc" create="false"'>
+			<tree string="Fichiers d'import" default_order="id asc" create="false" >
 				<field name="partner_id"/>
 				<field name="filename"/>
 				<field name="filesize"/>
