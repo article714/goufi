@@ -4,7 +4,7 @@
 
 	<record model="ir.ui.view" id="view_goufi_import_configuration_tree">
 		<field name="name">view_goufi_import_configuration_tree</field>
-		<field name="model">goufi.import_file</field>
+		<field name="model">goufi.import_configuration</field>
 		<field name="priority" eval="16" />
 		<field name="mode">primary</field>
 		<field name="type">tree</field>
@@ -19,7 +19,7 @@
 	
 	<record model="ir.ui.view" id="view_goufi_import_configuration_form">
 		<field name="name">view_goufi_import_configuration_form</field>
-		<field name="model">goufi.import_file</field>
+		<field name="model">goufi.import_configuration</field>
 		<field name="priority" eval="16" />
 		<field name="mode">primary</field>
 		<field name="type">form</field>
