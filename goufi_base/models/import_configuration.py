@@ -9,7 +9,7 @@ import re
 import sys
 
 
-class ImportFile(models.Model):
+class ImportConfiguration(models.Model):
     _inherit = ['mail.thread']
     _name = 'goufi.import_configuration'
     _description = u"Import Configuration"
