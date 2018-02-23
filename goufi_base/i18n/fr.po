@@ -88,12 +88,12 @@ msgstr "Genre"
 #. module: goufi_base
 #: model:res.groups,name:goufi_base.group_goufi_admin
 msgid "Goufi Admins"
-msgstr "Administrateur"
+msgstr "Administrateur (Configuration des imports Goufi)"
 
 #. module: goufi_base
 #: model:res.groups,name:goufi_base.group_goufi_user
 msgid "Goufi User"
-msgstr "Utilisateur "
+msgstr "Utilisateur (imports de fchiers - Goufi)"
 
 #. module: goufi_base
 #: code:addons/goufi_base/models/import_file.py:27
