@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-	</record>
-		<record id="goufi_detect_files_automation" model="ir.cron">
+	<record id="goufi_detect_files_automation" model="ir.cron">
 		<field name="name">Goufi: Detection of files to import</field>
 		<field name="priority">1</field>
 		<field name="interval_number">1</field>
