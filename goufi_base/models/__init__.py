@@ -2,4 +2,6 @@
 # ©2017 - C. Guychard
 # License: AGPL v3
 
+from . import import_configuration
 from . import import_file
+

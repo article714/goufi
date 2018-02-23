@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+	<record model="ir.ui.view" id="view_goufi_import_configuration_tree">
+		<field name="name">view_goufi_import_configuration_tree</field>
+		<field name="model">goufi.import_file</field>
+		<field name="priority" eval="16" />
+		<field name="mode">primary</field>
+		<field name="type">tree</field>
+		<field name="arch" type="xml">
+			<tree string="Fichiers d'import" default_order="id asc" create="false" >
+				<field name="name"/>
+				<field name="files_location"/>
+				<field name="filename_pattern"/>
+			</tree>
+		</field>
+	</record>
+	
+	<record model="ir.ui.view" id="view_goufi_import_configuration_form">
+		<field name="name">view_goufi_import_configuration_form</field>
+		<field name="model">goufi.import_file</field>
+		<field name="priority" eval="16" />
+		<field name="mode">primary</field>
+		<field name="type">form</field>
+		<field name="arch" type="xml">
+			<form string="Genre">
+				<sheet>
+					<h2><field name="name"/></h2>
+					<group name="File(s) detection" string="File(s) detection">
+						<field name="files_location"/>
+						<field name="filename_pattern"/>
+					</group>
+					<group name="Processing configuration" string="Processing configuration">
+						<field name="default_header_line_index" />
+					</group>
+				</sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+			</form>
+		</field>
+	</record>
+	
+
+</odoo>
+           

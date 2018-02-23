@@ -16,13 +16,15 @@ class ImportFile(models.Model):
 
     filesize = fields.Float(string = _(u"File size"))
 
-    partner_id = fields.Many2one(comodel_name = 'res.partner', track_visibility = 'onchange')
+    partner_id = fields.Many2one(string = _(u'Related Partner'), comodel_name = 'res.partner', track_visibility = 'onchange')
 
-    date_addition = fields.Datetime(string = _(u"Date d'ajout"))
+    date_addition = fields.Datetime(string = _(u"Date d'ajout"), track_visibility = 'onchange')
 
     # parametrage du traitement
 
-    to_process = fields.Boolean(string = _(u"File is to be processed"), default = True)
+    import_config = fields.Many2one(string = _(u'Related import configuration'), comodel_name = 'goufi.import_configuration', track_visibility = 'onchange')
+
+    to_process = fields.Boolean(string = _(u"File is to be processed"), default = True, track_visibility = 'onchange')
 
     header_line_index = fields.Integer(string = _(u"Header line"), help = _(u"Fixes the index of the header line in import file"))
 

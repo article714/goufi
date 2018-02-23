@@ -16,8 +16,14 @@ TODO
 Configuration
 =============
 
+TODO
+
 Usage
 =====
+
+Goufi users can read and update import files
+
+Goufi admins can delete import files and define import configurations
 
 Known issues / Roadmap
 ======================

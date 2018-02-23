@@ -11,5 +11,14 @@
 		<field name="view_mode">tree,form</field>
 	</record>
 	
+	<record id="goufi_import_configuration_show_action" model="ir.actions.act_window">
+		<field name="name">Import files</field>
+		<field name="target">current</field>
+		<field name="res_model">goufi.import_configuration</field>
+		<field name="limit">100</field>
+		<field name="auto_search" eval="True" />
+		<field name="view_type">form</field>
+		<field name="view_mode">tree,form</field>
+	</record>
 	
 </odoo>
