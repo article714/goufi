@@ -13,6 +13,8 @@
 				<field name="partner_id"/>
 				<field name="filename"/>
 				<field name="filesize"/>
+				<field name="import_config" />
+				<field name="partner_id"/>
 				<field name="date_addition"/>
 				<field name="date_updated"/>
 				<field name="date_start_processing"/>

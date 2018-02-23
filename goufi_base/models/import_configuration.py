@@ -80,7 +80,7 @@ class ImportConfiguration(models.Model):
                         iFile = existing_found[0]
                         modtime = os.path.getmtime(cur_path)
 
-                        if modtime > timegm(iFile.date_updated.timetuple()):
+                        if modtime > timegm(datetime.strptime(iFile.date_updated, DEFAULT_SERVER_DATETIME_FORMAT).timetuple()):
                             iFile.write({'date_updated':str_date})
 
                     elif nb_found == 0:
@@ -94,7 +94,6 @@ class ImportConfiguration(models.Model):
                         logging.error("Goufi: multiple import files found for :" + cur_path)
 
                     if iFile != None:
-                        logging.info('created file in Odoo:' + str(iFile))
                         self.env.cr.commit()
 
                 else:
