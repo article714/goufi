@@ -3,6 +3,11 @@
 # License: AGPL v3
 
 from odoo import models, fields, _, api
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT
+
+import logging
+import os
+import sys
 
 
 class ImportFile(models.Model):
@@ -18,13 +23,17 @@ class ImportFile(models.Model):
 
     partner_id = fields.Many2one(string = _(u'Related Partner'), comodel_name = 'res.partner', track_visibility = 'onchange')
 
-    date_addition = fields.Datetime(string = _(u"Date d'ajout"), track_visibility = 'onchange')
+    date_addition = fields.Datetime(string = _(u"Addition date"), track_visibility = 'onchange', required = True)
+
+    date_updated = fields.Datetime(string = _(u"Last updated on"), track_visibility = 'onchange', required = True)
 
     # parametrage du traitement
 
     import_config = fields.Many2one(string = _(u'Related import configuration'), comodel_name = 'goufi.import_configuration', track_visibility = 'onchange')
 
     to_process = fields.Boolean(string = _(u"File is to be processed"), default = True, track_visibility = 'onchange')
+
+    process_when_updated = fields.Boolean(string = _(u"File is to be re-processed when updated"), default = True, track_visibility = 'onchange')
 
     header_line_index = fields.Integer(string = _(u"Header line"), help = _(u"Fixes the index of the header line in import file"))
 
@@ -43,8 +52,14 @@ class ImportFile(models.Model):
     processing_logs = fields.Binary(string = _(u'Processing logs'), prefetch = False, attachment = False)
 
     #-------------------------------
-    # automation of file detection
+    # file detection
+    def _process_file(self):
+        logging.error("Goufi: not implemented")
+
+    #-------------------------------
+    # automation of file processing
 
     @api.model
-    def detect(self):
-        print("TODO")
+    def process_files(self):
+        logging.warning("TODO " + self.filename)
+        logging.error("Goufi: not implemented")

@@ -14,6 +14,7 @@
 				<field name="filename"/>
 				<field name="filesize"/>
 				<field name="date_addition"/>
+				<field name="date_updated"/>
 				<field name="date_start_processing"/>
 				<field name="date_stop_processing"/>
 			</tree>
@@ -36,9 +37,12 @@
 						<field name="filename" attrs="{'readonly':True}"/>
 						<field name="filesize" attrs="{'readonly':True}" />
 						<field name="date_addition" attrs="{'readonly':True}" />
+						<field name="date_updated" attrs="{'readonly':True}" />
 					</group>
 					<group name="Processing configuration" string="Processing configuration">
+						<field name="import_config" />
 						<field name="to_process" />
+						<field name="process_when_updated" />
 						<field name="header_line_index" />
 					</group>
 					<group name="Status" string="status">
