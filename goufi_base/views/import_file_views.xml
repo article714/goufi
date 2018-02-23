@@ -10,12 +10,12 @@
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
 			<tree string="Fichiers d'import" default_order="id asc">
-				<field name="partenaire"/>
-				<field name="fichier"/>
+				<field name="partner_id"/>
+				<field name="filename"/>
 				<field name="filesize"/>
-				<field name="date_ajout"/>
-				<field name="date_traitement"/>
-				<field name="etat_traitement"/>
+				<field name="date_addition"/>
+				<field name="date_start_processing"/>
+				<field name="date_stop_processing"/>
 			</tree>
 		</field>
 	</record>
