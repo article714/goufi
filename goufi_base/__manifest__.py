@@ -6,7 +6,7 @@
     'name': u'Goufi: Generic, user-friendly, data import application',
     'version': u'10.0.1.0.0',
     'category': u'Applications',
-    'author': u'Openflexo',
+    'author': u'Article714',
     'license': u'LGPL-3',
     'website': u'https://www.article714.org',
     'description': u"""
