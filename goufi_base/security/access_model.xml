@@ -4,10 +4,10 @@
     
  		<!-- only admins should be able to read import data --> 
  		
-        <record id="access_certificare_import_file_admin" model="ir.model.access">
-            <field name="name">access.certificare.import_file.admin</field>
-        	<field name="model_id" ref="model_certificare_import_file"/>
-        	<field name="group_id" eval="ref('certificare_app.group_certificare_admin')"/>
+        <record id="access_goufi_import_file_admin" model="ir.model.access">
+            <field name="name">access.goufi.import_file.admin</field>
+        	<field name="model_id" ref="model_goufi_import_file"/>
+        	<field name="group_id" eval="ref('goufi_app.group_goufi_admin')"/>
         	<field name="perm_read">1</field>
         	<field name="perm_write">1</field>
         	<field name="perm_create">1</field>

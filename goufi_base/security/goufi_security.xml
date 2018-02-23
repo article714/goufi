@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+	<data>
+	
+	    <record id="group_goufi_user" model="res.groups">
+	        <field name="name">Goufi User</field>
+	        <field name="category_id" ref="base.module_category_applications"/>
+        	<field name="users" eval="[(4, ref('base.default_user'))]"/>
+        </record>
+		
+		
+		<!-- default users are goufi Users -->
+	    <record id="group_goufi_admin" model="res.groups">
+	        <field name="name">Goufi Admins</field>
+	        <field name="category_id" ref="base.module_category_applications"/>
+        	<field name="implied_ids" eval="[(4, ref('group_goufi_user'))]"/>
+	    </record>
+	
+		
+		<!-- admins are goufi Admins -->
+	    <record id="base.group_system" model="res.groups">
+        	<field name="implied_ids" eval="[(4, ref('group_goufi_admin'))]"/>
+        </record>
+	</data>        
+        
+</odoo>

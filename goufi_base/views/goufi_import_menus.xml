@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<!-- Goufi specific menus -->
+
+	<menuitem id="goufi_base_menu" name="Import Files"
+		groups="group_goufi_user" sequence="0" />
+
+
+	<menuitem id="goufi_admin_menu" name="Configuration" 
+		parent="goufi_base_menu"
+		groups="group_goufi_admin"
+		sequence="300" />
+
+	<menuitem id="goufi_import_menu" name="Import Files"
+		parent="goufi_app.goufi_admin_menu" sequence="320"
+		action="goufi_import_file_show_action" />
+
+</odoo>

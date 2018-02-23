@@ -1,42 +1,42 @@
 # -*- coding: utf-8 -*-
-# ©2017 Openflexo, Certificare
-# License: TBD
-
+# ©2017 - C. Guychard
+# License: AGPL v3
 
 from odoo import models, fields, _
 
+
 class ImportFile(models.Model):
     _inherit = ['mail.thread']
-    _name = 'certificare.import_file'
-    _description = u"Fichier d'import"
-    _rec_name = "fichier"
+    _name = 'goufi.import_file'
+    _description = u"Import File"
+    _rec_name = "filename"
 
-    # identification du fichier
-    fichier = fields.Char(string = _(u'Nom du fichier'), required = True, track_visibility = 'onchange')
+    # File identification
+    filename = fields.Char(string = _(u'File name'), required = True, track_visibility = 'onchange')
 
-    filesize = fields.Float(string = _(u"Taille du fichier"))
+    filesize = fields.Float(string = _(u"File size"))
 
-    partenaire = fields.Many2one(comodel_name = 'res.partner', track_visibility = 'onchange')
+    partner_id = fields.Many2one(comodel_name = 'res.partner', track_visibility = 'onchange')
 
-    date_ajout = fields.Datetime(string = _(u"Date d'ajout"))
+    date_addition = fields.Datetime(string = _(u"Date d'ajout"))
 
     # parametrage du traitement
 
-    to_process = fields.Boolean(string = _(u"Fichier à Traiter?"), default = True)
+    to_process = fields.Boolean(string = _(u"File is to be processed"), default = True)
 
-    num_ligne_entete = fields.Integer(string = _("Indice en-tête"), help = "Indique le numéro de la ligne d'en-tête")
+    header_line_index = fields.Integer(string = _(u"Header line"), help = _(u"Fixes the index of the header line in import file"))
 
     # etat du traitement
-    date_traitement = fields.Datetime(string = _(u"Début du traitement"), track_visibility = 'onchange')
-    date_fin_traitement = fields.Datetime(string = _(u"Fin du traitement"), track_visibility = 'onchange')
+    date_start_processing = fields.Datetime(string = _(u"Processing started on"), track_visibility = 'onchange')
+    date_stop_processing = fields.Datetime(string = _(u"Processing ended on"), track_visibility = 'onchange')
 
-    etat_traitement = fields.Selection([('new', 'new'),
-                                (u'en cours', u'en cours'),
-                                (u'termine', u'terminé'),
-                                (u'echec', u'échec')],
-                                string = _(u"Etat du traitement"), default = 'new', track_visibility = 'onchange')
+    processing_status = fields.Selection([('new', 'new'),
+                                (u'running', u'running'),
+                                (u'ended', u'ended'),
+                                (u'failure', u'failure')],
+                                string = _(u"Processing status"), default = 'new', track_visibility = 'onchange')
 
-    resultat_traitement = fields.Text()
+    processing_result = fields.Text()
 
-    log_traitement = fields.Binary(string = _(u'Logs des traitements'), prefetch = False, attachment = False)
+    processing_logs = fields.Binary(string = _(u'Processing logs'), prefetch = False, attachment = False)
 

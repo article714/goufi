@@ -1,30 +1,27 @@
 # -*- coding: utf-8 -*-
-# ©2016 Openflexo
-# License: TBD
-
+# ©2017 - C. Guychard
+# License: AGPL v3
 
 {
-    'name': u'Certificare Data import Application',
+    'name': u'Goufi: Generic, user-friendly, data import application',
     'version': u'10.0.1.0.0',
     'category': u'Applications',
     'author': u'Openflexo',
     'license': u'LGPL-3',
-    'website': u'https://www.certificare.fr',
+    'website': u'https://www.article714.org',
     'description': u"""
-Certificare
+Goufi: Base module
 ======================
 
-Un module importer les données de l'application certificare
-
-Nécessite l'installation de nouvelles bibliothèques Python:
+TODO
 
 
-**Credits:** Certificare.
+**Credits:** .
 """,
-    'depends': ['certificare_app', 'mail' ],
+    'depends': [ 'mail' ],
     'data': ['security/access_model.xml',
-            'views/certificare_import_actions.xml',
-            'views/certificare_import_menus.xml',
+            'views/goufi_import_actions.xml',
+            'views/goufi_import_menus.xml',
             'views/import_file_views.xml', ],
     'installable': True,
     'images': [],
