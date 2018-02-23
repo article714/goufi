@@ -2,7 +2,7 @@
 # ©2017 - C. Guychard
 # License: AGPL v3
 
-from odoo import models, fields, _
+from odoo import models, fields, _, api
 
 
 class ImportFile(models.Model):
@@ -40,3 +40,9 @@ class ImportFile(models.Model):
 
     processing_logs = fields.Binary(string = _(u'Processing logs'), prefetch = False, attachment = False)
 
+    #-------------------------------
+    # automation of file detection
+
+    @api.model
+    def detect(self):
+        print("TODO")

@@ -19,8 +19,10 @@ TODO
 **Credits:** .
 """,
     'depends': [ 'mail' ],
-    'data': ['security/access_model.xml',
-            'views/goufi_import_actions.xml',
+    'data': ['security/goufi_security.xml',
+             'security/access_model.xml',
+            'actions/goufi_base_actions.xml',
+            'actions/goufi_automation.xml',
             'views/goufi_import_menus.xml',
             'views/import_file_views.xml', ],
     'installable': True,
