@@ -7,9 +7,8 @@ Created on 23 deb. 2018
 @license: AGPL v3
 '''
 
+import importlib
 import logging
-import os
-import sys
 
 from odoo import models, fields, _, api
 
@@ -58,12 +57,42 @@ class ImportFile(models.Model):
     #-------------------------------
     # file detection
     def _process_file(self):
-        logging.error("Goufi: not implemented")
+        for aFile in self:
+            if aFile.import_config:
+                cls = None
+                mod = None
+                if aFile.import_config.processor:
+                    # Resolve processor class
+                    try:
+                        processor = aFile.import_config.processor
+                        mod = importlib.import_module(processor.processor_module)
+                        if mod:
+                            cls = getattr(mod, processor.processor_class)
+                        if cls == None:
+                            logging.error("Goufi: Cannot process file, no processor class found " + aFile.filename)
+                            return None
+                    except Exception as e:
+                        logging.error("Goufi: Cannot process file, error when evaluating processor module" + aFile.filename + "(" + str(e) + "-" + str(e.message) + ")")
+
+                    # Process File
+                    if mod and cls:
+                        proc_inst = cls(aFile.import_config)
+                        proc_inst.process_file(self)
+                else:
+                    logging.error("Goufi: Cannot process file, no processor given " + aFile.filename)
+
+            else:
+                logging.error("Goufi: Cannot process file, no import config given " + aFile.filename)
 
     #-------------------------------
     # automation of file processing
 
     @api.model
-    def process_files(self):
-        logging.warning("TODO " + self.filename)
-        logging.error("Goufi: not implemented")
+    def process_files(self, criteria = []):
+
+        import_file_model = self.env['goufi.import_file']
+
+        if import_file_model != None :
+            records = import_file_model.search(criteria, limit = None)
+            for rec in records:
+                rec._process_file()

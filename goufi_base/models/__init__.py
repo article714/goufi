@@ -7,7 +7,9 @@ Created on 23 deb. 2018
 @license: AGPL v3
 '''
 
+from . import import_column_mapping
 from . import import_configuration
 from . import import_file
 from . import import_processor
+from . import import_tab_mapping
 

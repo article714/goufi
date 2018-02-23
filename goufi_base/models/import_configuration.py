@@ -16,7 +16,7 @@ import re
 from odoo import models, fields, _, api
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
-from .converters import dateToOdooString
+from odoo.addons.goufi_base.utils.converters import dateToOdooString
 
 
 #------------------------------------------------------------
@@ -46,6 +46,27 @@ class ImportConfiguration(models.Model):
                                 comodel_name = 'goufi.import_processor',
                                 required = True)
 
+    needs_mappings = fields.Boolean(string = _(u"Needs mappings"),
+                                    help = _(u"Does the selected processor needs column mappings"),
+                                    related = "processor.needs_mappings",
+                                    required = True, default = False)
+
+    tab_support = fields.Boolean(string = _(u"Supports multi tabs"),
+                                    help = _(u"Does the selected processor can process multiple tabs"),
+                                    related = "processor.tab_support",
+                                    required = True, default = False)
+
+    column_mappings = fields.One2many(string = _(u"Column mappings"),
+                                    help = _(u"Mapping configuration needed by this processor"),
+                                      comodel_name = "goufi.column_mapping",
+                                      inverse_name = "parent_configuration")
+
+    tab_mappings = fields.One2many(string = _(u"Tab mappings"),
+                                    help = _(u"Mapping configuration needed by this processor"),
+                                      comodel_name = "goufi.tab_mapping",
+                                      inverse_name = "parent_configuration")
+
+    #-------------------------------
     #-------------------------------
     # file detection
     def _detect_files(self):

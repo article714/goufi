@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-#@author: C. Guychard
-#@copyright: ©2018 Article 714
-#@license: AGPL v3
-
+# @author: C. Guychard
+# @copyright: ©2018 Article 714
+# @license: AGPL v3
 
 {
     'name': u'Goufi: Generic, user-friendly, data import application',
@@ -23,10 +22,12 @@ TODO
     'depends': [ 'mail' ],
     'data': ['security/goufi_security.xml',
              'security/access_model.xml',
+             'data/import_processors.xml',
             'actions/goufi_base_actions.xml',
             'actions/goufi_automation.xml',
             'views/goufi_import_menus.xml',
             'views/import_file_views.xml',
+            'views/import_column_mapping_views.xml',
             'views/import_configuration_views.xml', ],
     'installable': True,
     'images': [],

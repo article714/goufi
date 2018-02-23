@@ -1,0 +1,30 @@
+<odoo>
+	<record id="do_nothing_processor" model="goufi.import_processor">
+		<field name="name">Processor that does nothing</field>
+		<field name="needs_mappings">False</field>
+		<field name="tab_support">False</field>
+		<field name="processor_module">odoo.addons.goufi_base.processors.do_nothing</field>
+		<field name="processor_class">Processor</field>
+	</record>
+	<record id="simple_csv_mappings_processor" model="goufi.import_processor">
+		<field name="name">Processor with Simple Mappings (CSV)</field>
+		<field name="needs_mappings">True</field>
+		<field name="tab_support">False</field>
+		<field name="processor_module">odoo.addons.goufi_base.processors.simple_mappings</field>
+		<field name="processor_class">Processor</field>
+	</record>
+	<record id="simple_mappings_processor (xls*))" model="goufi.import_processor">
+		<field name="name">Processor with Simple Mappings (XLS*)</field>
+		<field name="needs_mappings">True</field>
+		<field name="tab_support">True</field>
+		<field name="processor_module">odoo.addons.goufi_base.processors.simple_mappings</field>
+		<field name="processor_class">Processor</field>
+	</record>
+	<record id="advanced_mappings_processor (xls*)" model="goufi.import_processor">
+		<field name="name">Processor with Advanced Mappings (XLS*)</field>
+		<field name="needs_mappings">True</field>
+		<field name="tab_support">True</field>
+		<field name="processor_module">odoo.addons.goufi_base.processors.advanced_mappings</field>
+		<field name="processor_class">Processor</field>
+	</record>
+</odoo>

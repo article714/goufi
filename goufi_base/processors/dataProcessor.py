@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 23 deb. 2018
+Created on 23 feb. 2018
 
 @author: C. Guychard
 @copyright: ©2018 Article 714
@@ -15,7 +15,7 @@ import os
 import re
 import xlrd
 
-from .converters import toString
+from odoo.addons.goufi_base.utils.converters  import toString
 
 #-------------------------------------------------------------------------------------
 # CONSTANTS

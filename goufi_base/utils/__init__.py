@@ -7,6 +7,6 @@ Created on 23 deb. 2018
 @license: AGPL v3
 '''
 
-from . import models
-from . import processors
-from . import utils
+from . import converters
+from .converters import dateToOdooString
+

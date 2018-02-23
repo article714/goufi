@@ -7,9 +7,7 @@ Created on 23 deb. 2018
 @license: AGPL v3
 '''
 
-from odoo import models, fields, _, api
-
-import logging
+from odoo import models, fields, _
 
 
 class ImportProcessor(models.Model):
@@ -18,4 +16,16 @@ class ImportProcessor(models.Model):
     _rec_name = "name"
 
     # Processor identification
-    name = fields.Char(string = _(u'Name'), required = True, track_visibility = 'onchange')
+    name = fields.Char(string = _(u'Name'), required = True)
+
+    needs_mappings = fields.Boolean(string = _(u"Needs mappings"),
+                                    help = _(u"Does this processor needs column mappings"),
+                                    required = True, default = False)
+
+    tab_support = fields.Boolean(string = _(u"Supports multi tabs"),
+                                    help = _(u"Does the processor can process multiple tabs"),
+                                    required = True, default = False)
+
+    processor_module = fields.Char(string = _(u'Module containing Processor Class'), required = True)
+
+    processor_class = fields.Char(string = _(u'Name of Processor Class'), required = True)
