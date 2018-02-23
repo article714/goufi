@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<menuitem 
+	id="certificare_import_menu"
+	name="Fichiers d'import"
+	parent="certificare_app.certificare_admin_menu"
+	sequence="320"
+	action="certificare_import_file_show_action" />
+
+</odoo>

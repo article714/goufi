@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data >
+    
+ 		<!-- only admins should be able to read import data --> 
+ 		
+        <record id="access_certificare_import_file_admin" model="ir.model.access">
+            <field name="name">access.certificare.import_file.admin</field>
+        	<field name="model_id" ref="model_certificare_import_file"/>
+        	<field name="group_id" eval="ref('certificare_app.group_certificare_admin')"/>
+        	<field name="perm_read">1</field>
+        	<field name="perm_write">1</field>
+        	<field name="perm_create">1</field>
+        	<field name="perm_unlink">1</field>
+        </record>
+        
+    </data>
+</odoo>

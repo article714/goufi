@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+	<record model="ir.ui.view" id="view_certificare_import_file_tree">
+		<field name="name">view_certificare_import_file_tree</field>
+		<field name="model">certificare.import_file</field>
+		<field name="priority" eval="16" />
+		<field name="mode">primary</field>
+		<field name="type">tree</field>
+		<field name="arch" type="xml">
+			<tree string="Fichiers d'import" default_order="id asc">
+				<field name="partenaire"/>
+				<field name="fichier"/>
+				<field name="filesize"/>
+				<field name="date_ajout"/>
+				<field name="date_traitement"/>
+				<field name="etat_traitement"/>
+			</tree>
+		</field>
+	</record>
+	
+	<record model="ir.ui.view" id="view_certificare_import_file_form">
+		<field name="name">view_certificare_import_file_form</field>
+		<field name="model">certificare.import_file</field>
+		<field name="priority" eval="16" />
+		<field name="mode">primary</field>
+		<field name="type">form</field>
+		<field name="arch" type="xml">
+			<form string="Genre">
+				<sheet>
+					<group name="Source" string="Source">
+						<field name="partenaire" />
+					</group>
+					<group name="Fichier" string="Fichier" attrs="{'readonly':True}">
+						<field name="fichier" attrs="{'readonly':True}"/>
+						<field name="filesize" attrs="{'readonly':True}" />
+						<field name="date_ajout" attrs="{'readonly':True}" />
+					</group>
+					<group name="Paramètres traitement" string="Paramètres traitement">
+						<field name="to_process" />
+						<field name="num_ligne_entete" />
+					</group>
+					<group name="Etat traitement" string="Etat traitement">
+						<field name="etat_traitement"  attrs="{'readonly':True}" />
+						<field name="date_traitement"  attrs="{'readonly':True}" />
+						<field name="date_fin_traitement"  attrs="{'readonly':True}" />
+						<field name="resultat_traitement"  attrs="{'readonly':True}" />
+						<field name="log_traitement"  attrs="{'readonly':True}" />
+					</group>
+				</sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+			</form>
+		</field>
+	</record>
+	
+
+</odoo>
+           

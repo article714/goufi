@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<record id="certificare_import_file_show_action" model="ir.actions.act_window">
+		<field name="name">Fichiers d'import</field>
+		<field name="target">current</field>
+		<field name="res_model">certificare.import_file</field>
+		<field name="limit">100</field>
+		<field name="auto_search" eval="True" />
+		<field name="view_type">form</field>
+		<field name="view_mode">tree,form</field>
+	</record>
+	
+	
+</odoo>
