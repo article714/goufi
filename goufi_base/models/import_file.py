@@ -7,12 +7,11 @@ Created on 23 deb. 2018
 @license: AGPL v3
 '''
 
-from odoo import models, fields, _, api
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT
-
 import logging
 import os
 import sys
+
+from odoo import models, fields, _, api
 
 
 class ImportFile(models.Model):

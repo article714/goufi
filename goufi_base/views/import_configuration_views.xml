@@ -32,6 +32,7 @@
 						<field name="filename_pattern"/>
 					</group>
 					<group name="Processing configuration" string="Processing configuration">
+						<field name="processor" />
 						<field name="default_header_line_index" />
 					</group>
 				</sheet>

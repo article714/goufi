@@ -8,14 +8,15 @@ Created on 23 deb. 2018
 '''
 
 from calendar import timegm
-from datetime import date, datetime
-from odoo import models, fields, _, api
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT
+from datetime import datetime
 import logging
 import os
 import re
 
-from .Converters import dateToOdooString
+from odoo import models, fields, _, api
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
+
+from .converters import dateToOdooString
 
 
 #------------------------------------------------------------

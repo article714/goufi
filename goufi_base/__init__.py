@@ -6,4 +6,5 @@ Created on 23 deb. 2018
 @copyright: ©2018 Article 714
 @license: AGPL v3
 '''
-import models
+
+from . import models
