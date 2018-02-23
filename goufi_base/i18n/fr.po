@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 10.0-20171121\n"
+"Project-Id-Version: Odoo Server 10.0-20180122\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-02 10:31+0000\n"
-"PO-Revision-Date: 2017-12-02 10:31+0000\n"
+"POT-Creation-Date: 2018-02-23 07:53+0000\n"
+"PO-Revision-Date: 2018-02-23 07:53+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,12 +16,9 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/product.py:18
-#: model:ir.model.fields,help:goufi_base.field_product_product_import_processed
-#: model:ir.model.fields,help:goufi_base.field_product_template_import_processed
-#, python-format
-msgid "Champs technique utilisé dans certains traitements en 2 phases"
-msgstr "Champs technique utilisé dans certains traitements en 2 phases"
+#: model:ir.ui.menu,name:goufi_base.goufi_admin_menu
+msgid "Configuration"
+msgstr "Configuration"
 
 #. module: goufi_base
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_create_uid
@@ -35,31 +32,10 @@ msgstr "Créé le"
 
 #. module: goufi_base
 #: code:addons/goufi_base/models/import_file.py:21
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_date_ajout
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_date_addition
 #, python-format
 msgid "Date d'ajout"
 msgstr "Date d'ajout"
-
-#. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:21
-#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_date_ajout
-#, python-format
-msgid "Date d'ajout du fichier à la base"
-msgstr "Date d'ajout du fichier à la base"
-
-#. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:34
-#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_date_traitement
-#, python-format
-msgid "Date de démarrage du traitement de ce fichier"
-msgstr "Date de démarrage du traitement de ce fichier"
-
-#. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:37
-#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_date_fin_traitement
-#, python-format
-msgid "Date de fin de traitement du fichier"
-msgstr "Date de fin de traitement du fichier"
 
 #. module: goufi_base
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_display_name
@@ -67,63 +43,42 @@ msgid "Display Name"
 msgstr "Nom affiché"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:33
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_date_traitement
-#, python-format
-msgid "Début du traitement"
-msgstr "Début du traitement"
-
-#. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:44
-#: code:addons/goufi_base/models/import_file.py:45
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_etat_traitement
-#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_etat_traitement
-#, python-format
-msgid "Etat du traitement"
-msgstr "Etat du traitement"
-
-#. module: goufi_base
-#: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_form
-msgid "Etat traitement"
-msgstr "Etat traitement"
-
-#. module: goufi_base
-#: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_form
-msgid "Fichier"
-msgstr "Fichier"
-
-#. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:52
-#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_log_traitement
-#, python-format
-msgid "Fichier contenant la trace complète du traitement du fichier"
-msgstr "Fichier contenant la trace complète du traitement du fichier"
-
-#. module: goufi_base
-#: model:ir.model,name:goufi_base.model_goufi_import_file
-msgid "Fichier d'import"
-msgstr "Fichier d'import"
-
-#. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:25
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_to_process
-#, python-format
-msgid "Fichier à Traiter?"
-msgstr "Fichier à Traiter?"
-
-#. module: goufi_base
-#: model:ir.actions.act_window,name:goufi_base.goufi_import_file_show_action
-#: model:ir.ui.menu,name:goufi_base.goufi_import_menu
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_tree
 msgid "Fichiers d'import"
 msgstr "Fichiers d'import"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:36
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_date_fin_traitement
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_form
+msgid "File"
+msgstr "File"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_file.py:25
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_to_process
 #, python-format
-msgid "Fin du traitement"
-msgstr "Fin du traitement"
+msgid "File is to be processed"
+msgstr "File is to be processed"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_file.py:15
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_filename
+#, python-format
+msgid "File name"
+msgstr "File name"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_file.py:17
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_filesize
+#, python-format
+msgid "File size"
+msgstr "File size"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_file.py:27
+#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_header_line_index
+#, python-format
+msgid "Fixes the index of the header line in import file"
+msgstr "Fixes the index of the header line in import file"
 
 #. module: goufi_base
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_form
@@ -131,30 +86,42 @@ msgid "Genre"
 msgstr "Genre"
 
 #. module: goufi_base
+#: model:res.groups,name:goufi_base.group_goufi_admin
+msgid "Goufi Admins"
+msgstr "Goufi Admins"
+
+#. module: goufi_base
+#: model:res.groups,name:goufi_base.group_goufi_user
+msgid "Goufi User"
+msgstr "Goufi User"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_file.py:27
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_header_line_index
+#, python-format
+msgid "Header line"
+msgstr "Header line"
+
+#. module: goufi_base
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_id
 msgid "ID"
 msgstr "ID"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:29
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_num_ligne_entete
-#, python-format
-msgid "Indice en-tête"
-msgstr "Indice en-tête"
+#: model:ir.model,name:goufi_base.model_goufi_import_file
+msgid "Import File"
+msgstr "Import File"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:30
-#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_num_ligne_entete
-#, python-format
-msgid "Indique le numéro de la ligne d'en-tête, i.e. la ligne du fichier contient l'identification des colonnes/données à importer"
-msgstr "Indique le numéro de la ligne d'en-tête, i.e. la ligne du fichier contient l'identification des colonnes/données à importer"
+#: model:ir.ui.menu,name:goufi_base.goufi_base_menu
+#: model:ir.ui.menu,name:goufi_base.goufi_import_menu
+msgid "Import Files"
+msgstr "Import Files"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:26
-#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_to_process
-#, python-format
-msgid "Indique si le fichier est à traiter ou non"
-msgstr "Indique si le fichier est à traiter ou non"
+#: model:ir.actions.act_window,name:goufi_base.goufi_import_file_show_action
+msgid "Import files"
+msgstr "Import files"
 
 #. module: goufi_base
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file___last_update
@@ -172,84 +139,75 @@ msgid "Last Updated on"
 msgstr "Dernière mise à jour le"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:51
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_log_traitement
-#, python-format
-msgid "Logs des traitements"
-msgstr "Logs des traitements"
-
-#. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:15
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_fichier
-#, python-format
-msgid "Nom du fichier"
-msgstr "Nom du fichier"
-
-#. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:16
-#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_fichier
-#, python-format
-msgid "Nom du fichier à importer"
-msgstr "Nom du fichier à importer"
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_partner_id
+msgid "Partner id"
+msgstr "Partner id"
 
 #. module: goufi_base
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_form
-msgid "Paramètres traitement"
-msgstr "Paramètres traitement"
+msgid "Processing configuration"
+msgstr "Processing configuration"
 
 #. module: goufi_base
-#: model:ir.model,name:goufi_base.model_product_template
-msgid "Product Template"
-msgstr "Modèle d'article"
-
-#. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:48
-#: code:addons/goufi_base/models/import_file.py:49
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_resultat_traitement
-#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_resultat_traitement
+#: code:addons/goufi_base/models/import_file.py:31
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_date_stop_processing
 #, python-format
-msgid "Synthèse du résultat du traitement"
-msgstr "Synthèse du résultat du traitement"
+msgid "Processing ended on"
+msgstr "Processing ended on"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:19
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_filesize
+#: code:addons/goufi_base/models/import_file.py:41
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_processing_logs
 #, python-format
-msgid "Taille du fichier"
-msgstr "Taille du fichier"
+msgid "Processing logs"
+msgstr "Processing logs"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:19
-#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_filesize
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_processing_result
+msgid "Processing result"
+msgstr "Processing result"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_file.py:30
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_date_start_processing
 #, python-format
-msgid "Taille du fichier à importer, calculé depuis le système de fichiers"
-msgstr "Taille du fichier à importer, calculé depuis le système de fichiers"
+msgid "Processing started on"
+msgstr "Processing started on"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/product.py:17
-#: model:ir.model.fields,field_description:goufi_base.field_product_product_import_processed
-#: model:ir.model.fields,field_description:goufi_base.field_product_template_import_processed
+#: code:addons/goufi_base/models/import_file.py:37
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_processing_status
 #, python-format
-msgid "Traité par import"
-msgstr "Traité par import"
+msgid "Processing status"
+msgstr "Processing status"
 
 #. module: goufi_base
-#: selection:goufi.import_file,etat_traitement:0
-msgid "en cours"
-msgstr "en cours"
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_form
+msgid "Source"
+msgstr "Origine"
 
 #. module: goufi_base
-#: selection:goufi.import_file,etat_traitement:0
+#: selection:goufi.import_file,processing_status:0
+msgid "ended"
+msgstr "ended"
+
+#. module: goufi_base
+#: selection:goufi.import_file,processing_status:0
+msgid "failure"
+msgstr "failure"
+
+#. module: goufi_base
+#: selection:goufi.import_file,processing_status:0
 msgid "new"
-msgstr "nouveau"
+msgstr "new"
 
 #. module: goufi_base
-#: selection:goufi.import_file,etat_traitement:0
-msgid "terminé"
-msgstr "terminé"
+#: selection:goufi.import_file,processing_status:0
+msgid "running"
+msgstr "running"
 
 #. module: goufi_base
-#: selection:goufi.import_file,etat_traitement:0
-msgid "échec"
-msgstr "échec"
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_form
+msgid "status"
+msgstr "status"
 
