@@ -1,0 +1,12 @@
+eclipse.preferences.version=1
+encoding//goufi_base/__init__.py=utf-8
+encoding//goufi_base/__manifest__.py=utf-8
+encoding//goufi_base/models/__init__.py=utf-8
+encoding//goufi_base/models/converters.py=utf-8
+encoding//goufi_base/models/dataProcessor.py=utf-8
+encoding//goufi_base/models/import_column_mapping.py=utf-8
+encoding//goufi_base/models/import_configuration.py=utf-8
+encoding//goufi_base/models/import_file.py=utf-8
+encoding//goufi_base/models/import_processor.py=utf-8
+encoding//goufi_base/tests/__init__.py=utf-8
+encoding//goufi_base/tests/test_import_file.py=utf-8

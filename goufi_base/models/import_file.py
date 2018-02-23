@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
-# ©2017 - C. Guychard
-# License: AGPL v3
+'''
+Created on 23 deb. 2018
+
+@author: C. Guychard
+@copyright: ©2018 Article 714
+@license: AGPL v3
+'''
 
 from odoo import models, fields, _, api
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT

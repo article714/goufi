@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
-# ©2017 - C. Guychard
-# License: AGPL v3
+'''
+Created on 23 deb. 2018
 
-from . import models
+@author: C. Guychard
+@copyright: ©2018 Article 714
+@license: AGPL v3
+'''
+import models

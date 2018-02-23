@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
-# ©2017 - C. Guychard
-# License: AGPL v3
+'''
+Created on 23 deb. 2018
+
+@author: C. Guychard
+@copyright: ©2018 Article 714
+@license: AGPL v3
+'''
 
 from calendar import timegm
 from datetime import date, datetime
@@ -10,35 +15,11 @@ import logging
 import os
 import re
 
+from .Converters import dateToOdooString
 
-#----
-# utility functions
-def toString(value):
-    avalue = ""
-    if isinstance(value, str):
-        try:
-            avalue = unicode(value)
-        except UnicodeError:
-            avalue = unicode(value.decode('iso-8859-1'))
-    elif isinstance(value, unicode):
-        avalue = value
-    else:
-        avalue = unicode("" + str(value))
-    return avalue
-
-
-def dateToOdooString(val):
-    if isinstance(val, datetime):
-        return val.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
-    elif isinstance(val, date):
-        return val.strftime(DEFAULT_SERVER_DATE_FORMAT)
-    else:
-        return toString(val)
 
 #------------------------------------------------------------
 # main class
-
-
 class ImportConfiguration(models.Model):
     _inherit = ['mail.thread']
     _name = 'goufi.import_configuration'
@@ -59,6 +40,10 @@ class ImportConfiguration(models.Model):
                                  )
 
     default_header_line_index = fields.Integer(string = _(u"Default Header line"), help = _(u"Fixes the index of the header line in import file"))
+
+    processor = fields.Many2one(string = _(u"Import processor"),
+                                comodel_name = 'goufi.import_processor',
+                                required = True)
 
     #-------------------------------
     # file detection
@@ -88,17 +73,14 @@ class ImportConfiguration(models.Model):
                                                'date_addition':str_date,
                                                'date_updated':str_date,
                                                'filesize':filesize,
-                                               'import_config': self.id
+                                               'import_config': self.id,
+                                               'header_line_index':self.default_header_line_index
                                                })
                     else:
                         logging.error("Goufi: multiple import files found for :" + cur_path)
 
                     if iFile != None:
                         self.env.cr.commit()
-
-                else:
-                    logging.warning("Goufi: Would not process :" + cur_path)
-
         else:
             logging.error ("GOUFI: No files location for configuration " + self.name)
 
