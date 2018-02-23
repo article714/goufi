@@ -40,10 +40,14 @@
 						<field name="date_updated" attrs="{'readonly':True}" />
 					</group>
 					<group name="Processing configuration" string="Processing configuration">
-						<field name="import_config" />
-						<field name="to_process" />
-						<field name="process_when_updated" />
-						<field name="header_line_index" />
+						<group>
+							<field name="import_config" />
+							<field name="header_line_index" />
+						</group>
+						<group>
+							<field name="to_process" />
+							<field name="process_when_updated" />
+						</group>
 					</group>
 					<group name="Status" string="status">
 						<field name="processing_status"  attrs="{'readonly':True}" />
