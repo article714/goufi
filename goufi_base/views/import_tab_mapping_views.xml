@@ -2,9 +2,9 @@
 <odoo>
 
 
-	<record model="ir.ui.view" id="view_goufi_column_mapping_tree">
-		<field name="name">view_goufi_column_mapping_tree</field>
-		<field name="model">goufi.column_mapping</field>
+	<record model="ir.ui.view" id="view_goufi_tab_mapping_tree">
+		<field name="name">view_goufi_tab_mapping_tree</field>
+		<field name="model">goufi.tab_mapping</field>
 		<field name="priority" eval="16" />
 		<field name="mode">primary</field>
 		<field name="type">tree</field>
@@ -18,9 +18,9 @@
 		</field>
 	</record>
 	
-	<record model="ir.ui.view" id="view_goufi_column_mapping_form">
-		<field name="name">view_goufi_column_mapping_form</field>
-		<field name="model">goufi.column_mapping</field>
+	<record model="ir.ui.view" id="view_goufi_tab_mapping_form">
+		<field name="name">view_goufi_tab_mapping_form</field>
+		<field name="model">goufi.tab_mapping</field>
 		<field name="priority" eval="16" />
 		<field name="mode">primary</field>
 		<field name="type">form</field>
