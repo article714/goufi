@@ -37,10 +37,12 @@ class ImportConfiguration(models.Model):
     files_location = fields.Char(string = _(u'Files Location'),
                                  help = _(u""" The place where we should try to find files that will be processed according to the current config
                                  """),
-                                 required = True
+                                 required = True, default = "/odoo/file_imports"
                                  )
 
-    default_header_line_index = fields.Integer(string = _(u"Default Header line"), help = _(u"Fixes the index of the header line in import file"))
+    default_header_line_index = fields.Integer(string = _(u"Default Header line"),
+                                               help = _(u"Fixes the index of the header line in import file"),
+                                               required = True, default = 0)
 
     processor = fields.Many2one(string = _(u"Import processor"),
                                 comodel_name = 'goufi.import_processor',
@@ -51,20 +53,32 @@ class ImportConfiguration(models.Model):
                                     related = "processor.needs_mappings",
                                     required = True, default = False)
 
+    # Single Tab configuration => a single mapping and target object needed for config.
+
+    target_object = fields.Many2one(string = _(u"Target object"),
+                                    help = _(u"Odoo object that will be targeted by import: create, update or delete instances"),
+                                    comodel_name = "ir.model",
+                                    required = False)
+
+    column_mappings = fields.One2many(string = _(u"Column mappings"),
+                                    help = _(u"Mapping configuration needed by this processor"),
+                                      comodel_name = "goufi.column_mapping",
+                                      inverse_name = "parent_configuration",
+                                      required = False)
+
+    # Multi-Tab configuration => several mappings and targets object needed for config.
+    #   there will be a target object per tab-mapping
+
     tab_support = fields.Boolean(string = _(u"Supports multi tabs"),
                                     help = _(u"Does the selected processor can process multiple tabs"),
                                     related = "processor.tab_support",
                                     required = True, default = False)
 
-    column_mappings = fields.One2many(string = _(u"Column mappings"),
-                                    help = _(u"Mapping configuration needed by this processor"),
-                                      comodel_name = "goufi.column_mapping",
-                                      inverse_name = "parent_configuration")
-
     tab_mappings = fields.One2many(string = _(u"Tab mappings"),
                                     help = _(u"Mapping configuration needed by this processor"),
                                       comodel_name = "goufi.tab_mapping",
-                                      inverse_name = "parent_configuration")
+                                      inverse_name = "parent_configuration",
+                                      required = False)
 
     #-------------------------------
     #-------------------------------

@@ -14,13 +14,18 @@ from odoo import models, fields, _, api
 
 class TabMapping(models.Model):
     _name = 'goufi.tab_mapping'
-    _description = u"Import File"
+    _description = u"Mappings configuration for a tab"
     _rec_name = "name"
 
-    # Processor identification
-    name = fields.Char(string = _(u'Name'), required = True, track_visibility = 'onchange')
+    # Tab Name
+    name = fields.Char(string = _(u'Tab name'),
+                       help = _(u"Name of the tab to process with this mapping"),
+                       required = True, track_visibility = 'onchange')
 
-    target_object = fields.Many2one(comodel_name = 'ir.model')
+    target_object = fields.Many2one(string = _(u"Target object"),
+                                    help = _(u"Odoo object that will be targeted by import: create, update or delete instances"),
+                                    comodel_name = "ir.model",
+                                    required = False)
 
     parent_configuration = fields.Many2one(string = _(u"Parent configuration"),
                                       comodel_name = "goufi.import_configuration")
