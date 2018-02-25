@@ -13,7 +13,7 @@
 				<field name="name"/>
 				<field name="mapping_expression"/>
 				<field name="is_identifier"/>
-				<field name="tab_support"/>
+				<field name="is_deletion_marker"/>
 			</tree>
 		</field>
 	</record>

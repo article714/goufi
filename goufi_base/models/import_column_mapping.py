@@ -51,6 +51,6 @@ class ColumnMapping(models.Model):
                                     related = "parent_configuration.tab_support",
                                     required = True, default = False)
 
-    parent_tab = fields.Many2one(string = _(u"Parent Tab (when multi tabs"),
+    parent_tab = fields.Many2one(string = _(u"Parent Tab (when multi tabs)"),
                                       comodel_name = "goufi.tab_mapping")
 

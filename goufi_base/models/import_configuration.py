@@ -41,7 +41,7 @@ class ImportConfiguration(models.Model):
                                  )
 
     default_header_line_index = fields.Integer(string = _(u"Default Header line"),
-                                               help = _(u"Fixes the index of the header line in import file"),
+                                               help = _(u"Provides the index of the header line in import file. Header line contains name of columns to be mapped."),
                                                required = True, default = 0)
 
     processor = fields.Many2one(string = _(u"Import processor"),

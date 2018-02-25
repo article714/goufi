@@ -9,11 +9,10 @@
 		<field name="mode">primary</field>
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
-			<tree string="Import Configurations" default_order="id asc">
+			<tree string="Tab Mapping - Import Configuration" default_order="id asc">
 				<field name="name"/>
-				<field name="mapping_expression"/>
-				<field name="is_identifier"/>
-				<field name="tab_support"/>
+				<field name="target_object"/>
+				<field name="parent_configuration"/>
 			</tree>
 		</field>
 	</record>
@@ -25,11 +24,15 @@
 		<field name="mode">primary</field>
 		<field name="type">form</field>
 		<field name="arch" type="xml">
-			<form string="Import Configuration">
+			<form string="Tab Mapping - Import Configuration">
 				<sheet>
-					<group name="Mapping" string="Mapping">
+					<group name="Tab Mapping" string="Tab Mapping">
 						<field name="name"/>
-						<field name="mapping_expression"/>
+						<field name="target_object"/>
+						<field name="parent_configuration" attrs="{'readonly':True}"/>
+					</group>
+					<group name="Columns" string="Columns">
+						<field name="column_mappings"/>
 					</group>
 				</sheet>
 			</form>
