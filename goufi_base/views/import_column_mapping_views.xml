@@ -34,7 +34,7 @@
 					<group name="Group" string="Group">
 						<field name="member_of"/>
 					</group>
-					<group name="Mapping configuration"
+					<group name="Mapping configuration" string="Mapping configuration" >
 						<field name="mapping_expression"/>
 						<field name="is_identifier"/>
 						<field name="is_deletion_marker"/>
