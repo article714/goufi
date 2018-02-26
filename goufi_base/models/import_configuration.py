@@ -14,9 +14,8 @@ import os
 import re
 
 from odoo import models, fields, _, api
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
-
 from odoo.addons.goufi_base.utils.converters import dateToOdooString
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 
 #------------------------------------------------------------
@@ -24,7 +23,7 @@ from odoo.addons.goufi_base.utils.converters import dateToOdooString
 class ImportConfiguration(models.Model):
     _inherit = ['mail.thread']
     _name = 'goufi.import_configuration'
-    _description = u"Import Configuration"
+    _description = _(u"Import Configuration")
     _rec_name = "name"
 
     # Configuration identification

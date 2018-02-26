@@ -16,7 +16,7 @@ from odoo import models, fields, _, api
 class ImportFile(models.Model):
     _inherit = ['mail.thread']
     _name = 'goufi.import_file'
-    _description = u"Import File"
+    _description = _(u"Import File")
     _rec_name = "filename"
 
     # File identification

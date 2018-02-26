@@ -12,7 +12,7 @@ from odoo import models, fields, _
 
 class ImportProcessor(models.Model):
     _name = 'goufi.import_processor'
-    _description = u"Import File"
+    _description = _(u"Import Processor")
     _rec_name = "name"
 
     # Processor identification

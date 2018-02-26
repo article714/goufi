@@ -14,7 +14,7 @@ from odoo import models, fields, _, api
 
 class TabMapping(models.Model):
     _name = 'goufi.tab_mapping'
-    _description = u"Mappings configuration for a tab"
+    _description = _(u"Mappings configuration for a tab")
     _rec_name = "name"
 
     # Tab Name

@@ -12,9 +12,27 @@ import logging
 from odoo import models, fields, _, api
 
 
+class ColumnGroup(models.Model):
+    """
+    A Column group is a way to define a set of mapping rules that will apply
+    to several columns at the same time.
+    Processors can support iteration over column groups also, in order to
+    provide users with a way to easily import several instances of the same kind of data
+    related to the same 'line'
+    """
+    _name = 'goufi.column_mapping_group'
+    _description = _(u"Group of columns, used to defined advanced mapping")
+    _rec_name = "name"
+
+    # Column Group
+    name = fields.Char(string = _(u'Columns Group name'),
+                       help = _(u"Name of the group to map"),
+                       required = True, track_visibility = 'onchange')
+
+
 class ColumnMapping(models.Model):
     _name = 'goufi.column_mapping'
-    _description = u"Mappings configuration for a given column"
+    _description = _(u"Mappings configuration for a given column")
     _rec_name = "name"
 
     # Column mapping
@@ -27,6 +45,13 @@ class ColumnMapping(models.Model):
     mapping_expression = fields.Char(string = _(u'Mapping Expression'),
                                      help = _(u"Expression used to process column content, meaning depends on chosen processor."),
                                      required = True, track_visibility = 'onchange')
+
+    # is column part of a group
+
+    member_of = fields.Many2one(string = _(u"Group"),
+                                    help = _(u"Set of columns this one belongs to"),
+                                    comodel_name = 'goufi.column_mapping_group',
+                                    required = False)
 
     # is column part of identifier
     is_identifier = fields.Boolean(string = _(u"Is column part of identifiers?"),
