@@ -9,13 +9,15 @@ Created on 23 deb. 2018
 
 from calendar import timegm
 from datetime import datetime
+import importlib
 import logging
 import os
 import re
 
 from odoo import models, fields, _, api
-from odoo.addons.goufi_base.utils.converters import dateToOdooString
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
+
+from odoo.addons.goufi_base.utils.converters import dateToOdooString
 
 
 #------------------------------------------------------------
@@ -37,6 +39,11 @@ class ImportConfiguration(models.Model):
                                  help = _(u""" The place where we should try to find files that will be processed according to the current config
                                  """),
                                  required = True, default = "/odoo/file_imports"
+                                 )
+
+    working_dir = fields.Char(string = _(u'Working directory'),
+                                 help = _(u" Directory where temp and log files will be put"),
+                                 required = True, default = "/odoo/file_imports/_work"
                                  )
 
     default_header_line_index = fields.Integer(string = _(u"Default Header line"),
@@ -82,7 +89,7 @@ class ImportConfiguration(models.Model):
     #-------------------------------
     #-------------------------------
     # file detection
-    def _detect_files(self):
+    def detect_files(self):
         file_model = self.env['goufi.import_file']
         if self.files_location and file_model != None:
             all_files = sorted(os.listdir(self.files_location))
@@ -112,12 +119,48 @@ class ImportConfiguration(models.Model):
                                                'header_line_index':self.default_header_line_index
                                                })
                     else:
-                        logging.error("Goufi: multiple import files found for :" + cur_path)
+                        logging.error("GOUFI: multiple import files found for :" + cur_path)
 
                     if iFile != None:
                         self.env.cr.commit()
         else:
             logging.error ("GOUFI: No files location for configuration " + self.name)
+
+    #-------------------------------
+    # Process All files for that configuration
+    def process_all_files(self):
+        """
+        Process all files that are attached to current configuration
+        """
+
+        for config in self:
+            file_model = self.env['goufi.import_file']
+            proc_inst = None
+
+            if config.processor:
+                # Resolve processor class
+                try:
+                    mod = importlib.import_module(self.processor.processor_module)
+                    if mod:
+                        cls = getattr(mod, self.processor.processor_class)
+                    if cls == None:
+                        logging.error("GOUFI: Cannot process file, no processor class found " + self.name)
+                        return None
+                except Exception as e:
+                    logging.error("GOUFI: Cannot process file, error when evaluating processor module" + self.name + "(" + str(e) + "-" + str(e.message) + ")")
+
+                # Process File
+                # instantiate processor
+                if mod and cls:
+                    proc_inst = cls(self)
+
+            if file_model != None and proc_inst != None:
+                records = file_model.search([('import_config', '=', config.id)], limit = None)
+                for rec in records:
+                    try:
+                        proc_inst.process_file(rec)
+                    except Exception as e:
+                        logging.error("GOUFI: Error when processing file " + rec.filename + "(" + str(e) + "-" + str(e.message) + ")")
 
     #-------------------------------
     # automation of file detection
@@ -133,5 +176,5 @@ class ImportConfiguration(models.Model):
         if config_model != None :
             records = config_model.search(criteria, limit = None)
             for rec in records:
-                rec._detect_files()
+                rec.detect_files()
 

@@ -26,7 +26,8 @@
 		<field name="arch" type="xml">
 			<form string="Import Configuration">
 				<sheet>
-					<button name="detect" string="Detect File(s)" type="object"></button>
+					<button name="detect_files" string="Detect File(s)" type="object"></button>
+					<button name="process_all_files" string="Process all file(s)" type="object"></button>
 					<h2>
 						<field name="name" />
 					</h2>
@@ -36,6 +37,7 @@
 					</group>
 					<group name="Processing configuration" string="Processing configuration">
 						<field name="processor" />
+						<field name="working_dir" />
 						<field name="default_header_line_index" />
 						<field name="needs_mappings" attrs="{'invisible':True}" />
 						<field name="tab_support" attrs="{'invisible':True}" />

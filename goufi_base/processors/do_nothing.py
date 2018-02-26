@@ -20,6 +20,8 @@ class Processor(AbstractProcessor):
 
     #-------------------------------------------------------------------------------------
     def process_file(self, import_file):
-        logging.info("GOUFI ==> DO NOTHING IMPORT; process: " + toString(import_file.filename))
+        self.create_dedicated_filelogger(import_file.filename)
+        self.logger.info("GOUFI ==> DO NOTHING IMPORT; process: " + toString(import_file.filename))
+        self.close_and_reset_logger()
         return True
 

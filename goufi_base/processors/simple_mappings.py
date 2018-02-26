@@ -7,9 +7,11 @@ Created on 23 deb. 2018
 @license: AGPL v3
 '''
 
+from os import path
 import logging
 
 from odoo.addons.goufi_base.utils.converters  import toString
+
 from .processor import AbstractProcessor
 
 #-------------------------------------------------------------------------------------
@@ -30,6 +32,10 @@ class Processor(AbstractProcessor):
     #-------------------------------------------------------------------------------------
     def process_file(self, import_file):
         if import_file and self.is_data_file(import_file.filename):
-            logging.warning("Goufi Simple Mappings Import: " + toString(import_file.filename))
+            self.create_dedicated_filelogger(path.basename(import_file.filename))
+            if self.does_file_need_processing(import_file):
+                self.logger.info("Start processing of file " + toString(import_file.filename))
+            self.close_and_reset_logger()
+            return True
         else:
             logging.error("GOUFI: cannot import " + toString(import_file.filename))
