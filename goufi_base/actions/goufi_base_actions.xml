@@ -12,7 +12,7 @@
 	</record>
 	
 	<record id="goufi_import_configuration_show_action" model="ir.actions.act_window">
-		<field name="name">Import files</field>
+		<field name="name">Import configurations</field>
 		<field name="target">current</field>
 		<field name="res_model">goufi.import_configuration</field>
 		<field name="limit">100</field>
