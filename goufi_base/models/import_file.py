@@ -75,6 +75,7 @@ class ImportFile(models.Model):
                         logging.error("Goufi: Cannot process file, error when evaluating processor module" + aFile.filename + "(" + str(e) + "-" + str(e.message) + ")")
 
                     # Process File
+                    # TODO: one day provide a way to re-user processor instances?
                     if mod and cls:
                         proc_inst = cls(aFile.import_config)
                         proc_inst.process_file(self)
