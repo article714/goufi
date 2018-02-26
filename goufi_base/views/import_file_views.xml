@@ -31,7 +31,8 @@
 		<field name="type">form</field>
 		<field name="arch" type="xml">
 			<form string="Import File">
-				<sheet>
+				<sheet>					
+					<button name="process_file" string="Process File" type="object"></button>
 					<group name="Source" string="Source">
 						<field name="partner_id" />
 					</group>

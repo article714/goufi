@@ -26,6 +26,7 @@
 		<field name="arch" type="xml">
 			<form string="Import Configuration">
 				<sheet>
+					<button name="detect" string="Detect File(s)" type="object"></button>
 					<h2>
 						<field name="name" />
 					</h2>
