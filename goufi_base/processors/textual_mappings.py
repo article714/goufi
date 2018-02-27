@@ -142,7 +142,7 @@ class Processor(AbstractProcessor):
                         self.target_model = self.odooenv[found[0].target_object.model]
                         col_mappings = found[0].column_mappings
                     except:
-                        self.logger.error("Tab not found: " + toString(tab_name))
+                        self.logger.error("Target model not found for " + toString(tab_name))
                         return -1
                 else:
                     self.logger.error("Tab not found: " + toString(tab_name))
@@ -505,6 +505,7 @@ class XLProcessor(Processor):
 
         wb = xlrd.open_workbook(import_file.filename)
         for sh in wb.sheets():
+
             self.target_model = None
 
             # la ligne se sont les intitutlés
@@ -527,6 +528,7 @@ class XLProcessor(Processor):
     def process_xlsx(self, import_file):
         self.logger.info("PROCESSING XLSX FILE :" + import_file.filename)
 
+        result = True
         wb = load_workbook(import_file.filename, read_only = True, keep_vba = False, guess_types = False, data_only = True)
         for shname in wb.sheetnames:
 
@@ -570,8 +572,9 @@ class XLProcessor(Processor):
                     self.odooenv.cr.execute('update ' + toString(self.target_model) + ' set import_processed = False')
                     self.odooenv.cr.commit()
             else:
-                return False
-        return True
+                self.logger.error("Did not process tab " + sh.name + " correctly")
+                result = False
+        return result
 
     #-------------------------------------------------------------------------------------
     def does_file_need_processing(self, import_file):
