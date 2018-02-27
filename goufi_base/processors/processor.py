@@ -44,9 +44,11 @@ class AbstractProcessor(object):
 
         self.logger = procLogDefaultLogger
         self.logger_fh = None
+        self.odooenv = None
 
         if isinstance(parent_config, ImportConfiguration):
             self.parent_config = parent_config
+            self.odooenv = self.parent_config.env
         else:
             self.parent_config = None
             self.logger.error("GOUFI: error- wrong parameter type given when creating a new Processor instance")
@@ -117,6 +119,8 @@ class AbstractProcessor(object):
         self.logger.info("Start processing of file " + toString(import_file.filename))
         import_file.processing_status = 'running'
         import_file.date_start_processing = datetime.now()
+        import_file.processing_result = ''
+        self.odooenv.cr.commit()
         return True
 
     #-------------------------------------------------------------------------------------

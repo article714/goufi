@@ -104,8 +104,6 @@ class Processor(AbstractProcessor):
         self.header_line_idx = 0
         self.target_model = None
 
-        self.odooenv = self.parent_config.env
-
     #-------------------------------------------------------------------------------------
     # process a line of data
 
