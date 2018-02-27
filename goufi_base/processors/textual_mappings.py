@@ -572,7 +572,7 @@ class XLProcessor(Processor):
                     self.odooenv.cr.execute('update ' + toString(self.target_model) + ' set import_processed = False')
                     self.odooenv.cr.commit()
             else:
-                self.logger.error("Did not process tab " + sh.name + " correctly")
+                self.logger.error("Did not process tab " + shname + " correctly")
                 result = False
         return result
 
