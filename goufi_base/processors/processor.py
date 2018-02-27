@@ -94,7 +94,7 @@ class AbstractProcessor(object):
             if import_file.process_when_updated:
                 upd_time = timegm(datetime.strptime(import_file.date_updated, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
                 if import_file.date_stop_processing:
-                    lastproc_time = (datetime.strptime(import_file.date_stop_processing, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
+                    lastproc_time = timegm(datetime.strptime(import_file.date_stop_processing, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
                 else:
                     lastproc_time = 0
                 result = result and (upd_time > lastproc_time)
