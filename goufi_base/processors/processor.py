@@ -9,7 +9,7 @@ Created on 26 feb. 2018
 
 from calendar import timegm
 from datetime import datetime
-from os import path
+from os import path, remove
 import base64
 import logging
 
@@ -77,9 +77,16 @@ class AbstractProcessor(object):
         close existing logger and reset self.logger to default one
         """
         if self.logger_fh:
+
+            # deletes log file
+            filename = self.logger_fh.baseFilename
             self.logger.removeHandler(self.logger_fh)
             self.logger_fh.close()
             self.logger_fh = None
+            try:
+                remove(filename)
+            except OSError:
+                pass
 
     #-------------------------------------------------------------------------------------
     def does_file_need_processing(self, import_file):
