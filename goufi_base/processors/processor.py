@@ -22,7 +22,7 @@ from odoo.addons.goufi_base.utils.converters  import toString
 
 #-------------------------------------------------------------------------------------
 # STATIC GLOBAL Properties
-procLogFmt = logging.Formatter('%(relativeCreated)6d %(message)s')
+procLogFmt = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 procLogDefaultLogger = logging.getLogger("GoufiImportProcessor")
 
 

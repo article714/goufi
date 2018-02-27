@@ -14,6 +14,8 @@ import re
 import unicodecsv
 import xlrd
 
+from odoo import _
+
 from odoo.addons.goufi_base.utils.converters  import toString
 
 from .processor import AbstractProcessor
@@ -118,7 +120,7 @@ class Processor(AbstractProcessor):
     #-------------------------------------------------------------------------------------
     # Process mappings configuration for each tab
 
-    def process_header(self, tab_name = None):
+    def process_header(self, header_lines = [], tab_name = None):
 
         self.o2mFields = {}
         self.m2oFields = {}
@@ -133,8 +135,12 @@ class Processor(AbstractProcessor):
             if tab_name != None:
                 found = tabmap_model.search([('parent_configuration', '=', self.parent_config.id), ('name', '=', tab_name)], limit = 1)
                 if len(found) == 1:
-                    self.target_model = found[0].target_object
-                    col_mappings = found[0].column_mappings
+                    try:
+                        self.target_model = self.odooenv[found[0].target_object.model]
+                        col_mappings = found[0].column_mappings
+                    except:
+                        self.logger.error("Tab not found: " + toString(tab_name))
+                        return -1
                 else:
                     self.logger.error("Tab not found: " + toString(tab_name))
                     return -1
@@ -142,14 +148,19 @@ class Processor(AbstractProcessor):
                 self.logger.error("No tab name given")
                 return -1
         else:
-            self.target_model = self.parent_config.target_object
             col_mappings = self.parent_config.column_mappings
+            if self.target_model == None:
+                try:
+                    self.target_model = self.odooenv[self.parent_config.target_object.model]
+                except:
+                    self.logger.error("Tab not found: " + toString(tab_name))
+                    return -1
 
         if self.target_model == None:
             self.logger.error("MODEL NOT FOUND ")
             return -1
         else:
-            self.logger.info("NEW SHEET:  Import data for model " + toString(self.target_model.name))
+            self.logger.info("NEW SHEET:  Import data for model " + toString(self.target_model) + "--" + toString(self.target_model))
 
         target_fields = None
         if self.target_model == None:
@@ -161,29 +172,29 @@ class Processor(AbstractProcessor):
         for val in col_mappings:
 
             if val.is_identifier:
-                if val.expression in target_fields:
+                if val.mapping_expression in target_fields:
                     self.idFields[val.name] = val.name
-                    self.stdFields.append(val.expression)
+                    self.stdFields.append(val.mapping_expression)
                 else:
-                    self.logger.debug(toString(val.expression) + "  -> field not found, IGNORED")
-            elif re.match(r'\*.*', val.expression):
-                v = val.expression.replace('*', '')
+                    self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
+            elif re.match(r'\*.*', val.mapping_expression):
+                v = val.mapping_expression.replace('*', '')
                 vals = [0] + v.split('/')
                 v = vals[1]
                 if v in target_fields:
                     self.o2mFields[val.name] = vals
                 else:
                     self.logger.debug(toString(v) + "  -> field not found, IGNORED")
-            elif re.match(r'\+.*', val.expression):
-                v = val.expression.replace('+', '')
+            elif re.match(r'\+.*', val.mapping_expression):
+                v = val.mapping_expression.replace('+', '')
                 vals = [1] + v.split('/')
                 v = vals[1]
                 if v in target_fields:
                     self.o2mFields[val.name] = vals
                 else:
                     self.logger.debug(toString(v) + "  -> field not found, IGNORED")
-            elif re.match(r'\>.*', val.expression):
-                v = val.expression.replace('>', '')
+            elif re.match(r'\>.*', val.mapping_expression):
+                v = val.mapping_expression.replace('>', '')
                 vals = [0] + v.split('/')
                 v = vals[1]
                 if v in target_fields:
@@ -195,10 +206,12 @@ class Processor(AbstractProcessor):
                 else:
                     self.logger.debug(toString(v) + "  -> field not found, IGNORED")
             else:
-                if val.expression in target_fields:
-                    self.stdFields.append(val.expression)
+                if val.mapping_expression in target_fields:
+                    self.stdFields.append(val.mapping_expression)
                 else:
-                    self.logger.debug(toString(val.expression) + "  -> field not found, IGNORED")
+                    self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
+
+        self.logger.info("NEW SHEET:  processed Tab Mapping (" + str(tab_name) + ")" + str(len(self.stdFields)) + "-" + str(len(self.idFields)) + "-" + str(len(self.m2oFields)) + "-" + str(len(self.o2mFields)))
 
         return len(self.stdFields) + len(self.idFields) + len(self.m2oFields) + len(self.o2mFields)
 
@@ -210,6 +223,8 @@ class Processor(AbstractProcessor):
 
         currentObj = None
         TO_BE_ARCHIVED = False
+
+        self.logger.info("NEW SHEET:  Processing data for model " + toString(self.target_model))
 
         # Attention, il y a un champs ID => on traite les mises à jour et les suppressions ou archivages
         # suppression/archivage si une valeur contient "supprimer de la base odoo
@@ -249,13 +264,14 @@ class Processor(AbstractProcessor):
             if len(found) == 1:
                 currentObj = found[0]
             elif len(found) > 1:
-                self.logger.warning(DEFAULT_LOG_STRING + "FOUND TOO MANY RESULT FOR " + toString(self.target_model.name) + " with " + toString(search_criteria) + "=>   [" + toString(len(found)) + "]")
+                self.logger.warning(DEFAULT_LOG_STRING + "FOUND TOO MANY RESULT FOR " + toString(self.target_model) + " with " + toString(search_criteria) + "=>   [" + toString(len(found)) + "]")
                 return
             else:
                 currentObj = None
 
-        # hook for dynalec products
-        if not currentObj == None and self.target_model.name == 'product.template':
+        # hook for objects needing to be marked as processed
+        # by import
+        if not currentObj == None and ('import_processed' in self.target_model.fields_get_keys()):
             currentObj.write({'import_processed':True})
             currentObj.import_processed = True
             self.odooenv.cr.commit()
@@ -399,12 +415,30 @@ class CSVProcessor(Processor):
         self.logger.info("PROCESSING CSV FILE :" + import_file.filename)
 
         processed = False
+
+        # Search for target model
+        self.target_model = self.parent_config.target_object
+        if self.target_model == None:
+            self.logger.error("MODEL NOT FOUND ")
+            return -1
+        else:
+            self.logger.warning("No target model set on configuration, attempt to find it from file name")
+
         bname = path.basename(import_file.filename)
         (modelname, ext) = bname.split('.')
 
         modelname = modelname.replace('_', '.')
         if re.match(r'[0-9]+\.', modelname):
-            self.target_model.name = re.sub(r'[0-9]+\.', '', modelname)
+            modelname = re.sub(r'[0-9]+\.', '', modelname)
+
+        try:
+            self.target_model = self.odooenv[modelname]
+        except:
+            self.target_model = None
+            self.logger.error("Not able to guess target model from filename: " + toString(import_file.filename))
+            import_file.processing_result = _(u"Model Not found")
+            import_file.processing_status = 'failure'
+            self.odooenv.cr.commit()
 
         # try with , as a delimiter
         with open(import_file.filename, 'rb') as csvfile:
@@ -454,7 +488,7 @@ class XLProcessor(Processor):
             p_ligne = sh.row_values(self.header_line_idx)
             hsize = len(p_ligne)
 
-            if self.process_header(p_ligne) > 0 :
+            if self.process_header(p_ligne, sh.name) > 0 :
 
                 for rownum in range(1, sh.nrows):
                     if rownum > self.header_line_idx:
@@ -485,13 +519,13 @@ class XLProcessor(Processor):
                         firstrow = r
                         for c in firstrow:
                             header_values.append(c.value)
-                        nb_fields = self.process_header(header_values)
-                        if nb_fields == 0:
+                        nb_fields = self.process_header(header_values, shname)
+                        if nb_fields < 1:
                             # do not continue if not able to process headers
                             return
-                        elif self.target_model.name == 'product_template':
-                            # hook for dynalec products
-                            self.odooenv.cr.execute('update product_template set import_processed = False')
+                        elif ('import_processed' in self.target_model.fields_get_keys()):
+                            # hook for objects needing to be set as processed through import
+                            self.odooenv.cr.execute('update ' + toString(self.target_model) + ' set import_processed = False')
                             self.odooenv.cr.commit()
 
                 elif r != firstrow:
@@ -506,9 +540,9 @@ class XLProcessor(Processor):
 
                 idx += 1
 
-            if self.target_model.name == 'product_template':
-                # hook for dynalec products
-                self.odooenv.cr.execute('update product_template set active = False where import_processed = False')
+            if  ('import_processed' in self.target_model.fields_get_keys()):
+                # hook for objects needing to be set as processed through import
+                self.odooenv.cr.execute('update ' + toString(self.target_model) + ' set import_processed = False')
                 self.odooenv.cr.commit()
 
     #-------------------------------------------------------------------------------------
@@ -526,11 +560,11 @@ class XLProcessor(Processor):
         Method that actually process data
         """
 
+        self.logger.info("Textual mapping IMPORT; process DATA: " + toString(import_file.filename))
+
         if import_file.filename.endswith('.xls'):
             self.process_xls(import_file)
 
         elif import_file.filename.endswith('.xlsx'):
             self.process_xlsx(import_file)
-
-        self.logger.info("Textual mapping IMPORT; process DATA: " + toString(import_file.filename))
 

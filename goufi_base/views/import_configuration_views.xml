@@ -55,7 +55,7 @@
 							</tree>
 						</field>
 						<field name="tab_mappings" mode="tree" editable="bottom"
-							attrs="{'invisible':['|',('needs_mappings','=',False),('tab_support','=',False)]}" context="{'parent_configuration':id}" />
+							attrs="{'invisible':['|',('needs_mappings','=',False),('tab_support','=',False)]}" />
 					</group>
 				</sheet>
 				<div class="oe_chatter">
