@@ -230,8 +230,6 @@ class Processor(AbstractProcessor):
         currentObj = None
         TO_BE_ARCHIVED = False
 
-        self.logger.info("NEW SHEET:  Processing data for model " + toString(self.target_model))
-
         # Attention, il y a un champs ID => on traite les mises à jour et les suppressions ou archivages
         # suppression/archivage si une valeur contient "supprimer de la base odoo
 
