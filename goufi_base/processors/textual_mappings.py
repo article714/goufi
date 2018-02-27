@@ -377,11 +377,14 @@ class Processor(AbstractProcessor):
         else:
 
             try:
-                if currentObj == None and self.target_model != None :
-                    currentObj = self.target_model.create(self.map_values(data_values))
+                if self.target_model != None:
+                    if currentObj == None :
+                        currentObj = self.target_model.create(self.map_values(data_values))
+                    else:
+                        currentObj.write(self.map_values(data_values))
+                    self.odooenv.cr.commit()
                 else:
-                    currentObj.write(self.map_values(data_values))
-                self.odooenv.cr.commit()
+                    self.logger.error(DEFAULT_LOG_STRING + " No Target model was identified ")
             except ValueError as e:
                 self.odooenv.cr.rollback()
                 self.logger.error(DEFAULT_LOG_STRING + " error where creating/updating object: " + self.target_model.name + " -> " + toString(data_values) + "[" + toString(currentObj) + "]")
