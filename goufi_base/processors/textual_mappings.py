@@ -515,6 +515,7 @@ class XLProcessor(Processor):
                             values[p_ligne[idx]] = row_vals[idx]
 
                         self.process_values(import_file.filename, rownum, values)
+        return True
 
     #-------------------------------------------------------------------------------------
     def process_xlsx(self, import_file):
@@ -540,7 +541,8 @@ class XLProcessor(Processor):
                         nb_fields = self.process_header(header_values, shname)
                         if nb_fields < 1:
                             # do not continue if not able to process headers
-                            return
+                            import_file.processing_result = 'Unable to process headers'
+                            return False
                         elif ('import_processed' in self.target_model.fields_get_keys()):
                             # hook for objects needing to be set as processed through import
                             self.odooenv.cr.execute('update ' + toString(self.target_model) + ' set import_processed = False')
@@ -562,6 +564,7 @@ class XLProcessor(Processor):
                 # hook for objects needing to be set as processed through import
                 self.odooenv.cr.execute('update ' + toString(self.target_model) + ' set import_processed = False')
                 self.odooenv.cr.commit()
+        return True
 
     #-------------------------------------------------------------------------------------
     def does_file_need_processing(self, import_file):
@@ -582,13 +585,16 @@ class XLProcessor(Processor):
         try:
 
             if import_file.filename.endswith('.xls'):
-                self.process_xls(import_file)
+                result = self.process_xls(import_file)
             elif import_file.filename.endswith('.xlsx'):
-                self.process_xlsx(import_file)
+                result = self.process_xlsx(import_file)
+
+            return result
 
         except Exception as e:
             self.logger.error("Processing Failed: " + str(e))
             import_file.processing_status = 'failure'
             import_file.processing_result = str(e) + " -- " + e.message
             self.odooenv.cr.commit()
+            return False
 
