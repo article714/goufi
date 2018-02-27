@@ -579,10 +579,16 @@ class XLProcessor(Processor):
         """
 
         self.logger.info("Textual mapping IMPORT; process DATA: " + toString(import_file.filename))
+        try:
 
-        if import_file.filename.endswith('.xls'):
-            self.process_xls(import_file)
+            if import_file.filename.endswith('.xls'):
+                self.process_xls(import_file)
+            elif import_file.filename.endswith('.xlsx'):
+                self.process_xlsx(import_file)
 
-        elif import_file.filename.endswith('.xlsx'):
-            self.process_xlsx(import_file)
+        except Exception as e:
+            self.logger.error("Processing Failed: " + str(e))
+            import_file.processing_status = 'failure'
+            import_file.processing_result = str(e) + " -- " + e.message
+            self.odooenv.cr.commit()
 

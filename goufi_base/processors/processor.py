@@ -135,6 +135,7 @@ class AbstractProcessor(object):
         self.logger.info("End processing of file " + toString(import_file.filename))
         if success:
             import_file.processing_status = 'ended'
+            import_file.processing_result = 'OK'
         else:
             import_file.processing_status = 'failure'
 
@@ -158,8 +159,9 @@ class AbstractProcessor(object):
             if (self.does_file_need_processing(import_file)or force):
                 self.create_dedicated_filelogger(path.basename(import_file.filename))
                 if self.start_processing(import_file):
-                    self.process_data(import_file)
-                    self.end_processing(import_file)
+                    result = self.process_data(import_file)
+                    result = (result == None) or (result == True)
+                    self.end_processing(import_file, result)
                 else:
                     self.logger.error("Issue when initiliazing processing")
                 self.close_and_reset_logger()
