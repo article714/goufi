@@ -15,6 +15,12 @@ from odoo.addons.goufi_base.models.import_configuration import ImportConfigurati
 from odoo.addons.goufi_base.models.import_file import ImportFile
 from odoo.addons.goufi_base.utils.converters  import toString
 
+#-------------------------------------------------------------------------------------
+# STATIC GLOBAL Properties
+
+procLogFmt = logging.Formatter('%(relativeCreated)6d %(message)s')
+procLogDefaultLogger = logging.getLogger("GoufiImportProcessor")
+
 
 #-------------------------------------------------------------------------------------
 # MAIN CLASS
@@ -31,7 +37,7 @@ class AbstractProcessor():
         parent_config should be an instance of ImportConfiguration
         """
 
-        self.logger = logging.getLogger("GoufiImportProcessor")
+        self.logger = procLogDefaultLogger
         self.logger_fh = None
 
         if isinstance(parent_config, ImportConfiguration):
@@ -52,7 +58,7 @@ class AbstractProcessor():
             logpath = self.parent_config.working_dir + path.sep
             filename_TS = datetime.now().strftime("%Y-%m-%d")
             fh = logging.FileHandler(filename = logpath + "goufi" + name_complement + '_' + filename_TS + '.log', mode = 'w')
-            fh.setFormatter(logging.Formatter('%(relativeCreated)6d %(threadName)s %(message)s'))
+            fh.setFormatter(procLogFmt)
             fh.setLevel(level = logging.INFO)
             self.logger_fh = fh
             self.logger.addHandler(fh)
@@ -66,6 +72,7 @@ class AbstractProcessor():
         if self.logger_fh:
             self.logger.removeHandler(self.logger_fh)
             self.logger_fh.close()
+            self.logger_fh = None
 
     def does_file_need_processing(self, import_file):
 
