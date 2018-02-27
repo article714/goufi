@@ -377,7 +377,7 @@ class Processor(AbstractProcessor):
         else:
 
             try:
-                if currentObj == None:
+                if currentObj == None and self.target_model != None :
                     currentObj = self.target_model.create(self.map_values(data_values))
                 else:
                     currentObj.write(self.map_values(data_values))
