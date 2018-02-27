@@ -105,6 +105,17 @@ class Processor(AbstractProcessor):
         self.odooenv = self.odooenv
 
     #-------------------------------------------------------------------------------------
+    # process a line of data
+
+    def map_values(self, row):
+        for f in row:
+            if row[f] == "False" or row[f] == "True":
+                row[f] = eval(row[f])
+            elif row[f] == None:
+                del(row[f])
+        return row
+
+    #-------------------------------------------------------------------------------------
     # Process mappings configuration for each tab
 
     def process_header(self, tab_name = None):

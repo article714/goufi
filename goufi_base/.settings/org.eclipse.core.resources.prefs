@@ -6,7 +6,6 @@ encoding//models/import_file.py=utf-8
 encoding//models/import_processor.py=utf-8
 encoding//models/import_tab_mapping.py=utf-8
 encoding//processors/advanced_mappings.py=utf-8
-encoding//processors/dataProcessor.py=utf-8
 encoding//processors/do_nothing.py=utf-8
 encoding//processors/processor.py=utf-8
 encoding//processors/simple_mappings.py=utf-8
