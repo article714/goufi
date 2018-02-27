@@ -467,7 +467,12 @@ class CSVProcessor(Processor):
                     idx = 0
                     for row in csv_reader:
                         idx += 1
-                        self.process_values(import_file.filename, idx, row)
+                        try:
+                            self.process_values(import_file.filename, idx, row)
+                        except Exception as e:
+                            import_file.processing_status = 'failure'
+                            import_file.processing_result = str(e) + " -- " + e.message
+                            self.odooenv.cr.commit()
 
                 csvfile.close()
 
