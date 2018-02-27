@@ -110,12 +110,14 @@ class Processor(AbstractProcessor):
     # process a line of data
 
     def map_values(self, row):
-        for f in row:
+        for f in row.keys():
             if f in self.allFields:
                 if row[f] == "False" or row[f] == "True":
                     row[f] = eval(row[f])
                 elif row[f] == None:
                     del(row[f])
+            else:
+                del(row[f])
         return row
 
     #-------------------------------------------------------------------------------------
