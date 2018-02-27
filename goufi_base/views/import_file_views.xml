@@ -10,7 +10,6 @@
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
 			<tree string="Import Files" default_order="id asc" create="false" >
-				<field name="partner_id"/>
 				<field name="filename"/>
 				<field name="filesize"/>
 				<field name="import_config" />
@@ -19,6 +18,7 @@
 				<field name="date_updated"/>
 				<field name="date_start_processing"/>
 				<field name="date_stop_processing"/>
+				<field name="processing_status"/>
 			</tree>
 		</field>
 	</record>
