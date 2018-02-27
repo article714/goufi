@@ -102,7 +102,7 @@ class Processor(AbstractProcessor):
         self.header_line_idx = 0
         self.target_model = None
 
-        self.odooenv = self.odooenv
+        self.odooenv = self.parent_config.env
 
     #-------------------------------------------------------------------------------------
     # process a line of data
@@ -127,7 +127,6 @@ class Processor(AbstractProcessor):
         self.target_model = None
         col_mappings = None
 
-        colmap_model = self.odooenv['goufi.column_mapping']
         tabmap_model = self.odooenv['goufi.tab_mapping']
 
         if self.parent_config.tab_support:
