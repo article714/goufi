@@ -56,7 +56,7 @@ class ImportFile(models.Model):
 
     #-------------------------------
     # file detection
-    def _process_file(self):
+    def process_file(self):
         for aFile in self:
             if aFile.import_config:
                 cls = None
@@ -96,4 +96,4 @@ class ImportFile(models.Model):
         if import_file_model != None :
             records = import_file_model.search(criteria, limit = None)
             for rec in records:
-                rec._process_file()
+                rec.process_file()

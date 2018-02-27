@@ -10,6 +10,8 @@ Created on 23 deb. 2018
 from os import path
 import logging
 
+from odoo import exceptions
+
 from odoo.addons.goufi_base.utils.converters  import toString
 
 from .processor import AbstractProcessor
@@ -30,12 +32,24 @@ class Processor(AbstractProcessor):
         return (ext in AUTHORIZED_EXTS)
 
     #-------------------------------------------------------------------------------------
-    def process_file(self, import_file):
-        if import_file and self.is_data_file(import_file.filename):
-            self.create_dedicated_filelogger(path.basename(import_file.filename))
-            if self.does_file_need_processing(import_file):
-                self.logger.info("Start processing of file " + toString(import_file.filename))
-            self.close_and_reset_logger()
-            return True
-        else:
-            logging.error("GOUFI: cannot import " + toString(import_file.filename))
+    def does_file_need_processing(self, import_file):
+        """
+        Returns true if the given ImportFile is to be processed
+        """
+        result = super(Processor, self).does_file_need_processing(import_file)
+        return (self.is_data_file(import_file.filename) and result)
+
+    #-------------------------------------------------------------------------------------
+    def process_data(self, import_file):
+        """
+        Method that actually process data
+        """
+        self.logger.info("Simple mapping IMPORT; process DATA: " + toString(import_file.filename))
+
+    #-------------------------------------------------------------------------------------
+    def process_header(self, import_file):
+        """
+        Method that process header and configure processing depending on import configuration
+        """
+        self.logger.info("Simple mapping IMPORT; process HEADERS: " + toString(import_file.filename))
+

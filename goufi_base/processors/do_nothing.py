@@ -19,9 +19,15 @@ from .processor import AbstractProcessor
 class Processor(AbstractProcessor):
 
     #-------------------------------------------------------------------------------------
-    def process_file(self, import_file):
-        self.create_dedicated_filelogger(import_file.filename)
-        self.logger.info("GOUFI ==> DO NOTHING IMPORT; process: " + toString(import_file.filename))
-        self.close_and_reset_logger()
-        return True
+    def process_data(self, import_file):
+        """
+        Method that actually process data
+        """
+        self.logger.info("DO NOTHING IMPORT; process DATA: " + toString(import_file.filename))
 
+    #-------------------------------------------------------------------------------------
+    def process_header(self, import_file):
+        """
+        Method that process header and configure processing depending on import configuration
+        """
+        self.logger.info("DO NOTHING IMPORT; process HEADERS: " + toString(import_file.filename))
