@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Odoo Server 10.0-20180122\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-02-27 16:59+0000\n"
-"PO-Revision-Date: 2018-02-27 18:06+0100\n"
+"PO-Revision-Date: 2018-02-27 18:11+0100\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,7 @@ msgstr ""
 #: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_working_dir
 #, python-format
 msgid " Directory where temp and log files will be put"
-msgstr " Directory where temp and log files will be put"
+msgstr "Répertoire de stockage des fichiers de traces et fichiers temporaires"
 
 #. module: goufi_base
 #: code:addons/goufi_base/models/import_configuration.py:35
@@ -51,7 +51,7 @@ msgstr "Date d'ajout"
 #. module: goufi_base
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_column_mapping_form
 msgid "Column"
-msgstr "Column"
+msgstr "Colonne"
 
 #. module: goufi_base
 #: code:addons/goufi_base/models/import_configuration.py:69
@@ -76,7 +76,7 @@ msgstr "Colonnes"
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_group_name
 #, python-format
 msgid "Columns Group name"
-msgstr "Columns Group name"
+msgstr "Nom du groupe de colonnes"
 
 #. module: goufi_base
 #: model:ir.ui.menu,name:goufi_base.goufi_admin_menu
@@ -135,7 +135,7 @@ msgstr "Dernière mise à jour le"
 #. module: goufi_base
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_configuration_form
 msgid "Detect File(s)"
-msgstr "Detect File(s)"
+msgstr "Rechercher des fichiers"
 
 #. module: goufi_base
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_display_name
@@ -246,7 +246,7 @@ msgstr "Modèle de nom de fichier (expr. régulière)"
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_filesize
 #, python-format
 msgid "File size"
-msgstr "File size"
+msgstr "Taille du fichier"
 
 #. module: goufi_base
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_configuration_form
@@ -304,7 +304,7 @@ msgstr "Ligne d'en-tête"
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_id
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_id
 msgid "ID"
-msgstr "ID"
+msgstr "Identifiant"
 
 #. module: goufi_base
 #: code:addons/goufi_base/models/import_configuration.py:28
@@ -343,7 +343,7 @@ msgstr "Fichiers à importer"
 #: model:ir.model,name:goufi_base.model_goufi_import_processor
 #, python-format
 msgid "Import Processor"
-msgstr "Import Processor"
+msgstr "Moteur d'import"
 
 #. module: goufi_base
 #: model:ir.actions.act_window,name:goufi_base.goufi_import_configuration_show_action
@@ -496,7 +496,7 @@ msgstr "Nom"
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_processor_class
 #, python-format
 msgid "Name of Processor Class"
-msgstr "Name of Processor Class"
+msgstr "Nom de la classe (python) du moteur"
 
 #. module: goufi_base
 #: code:addons/goufi_base/models/import_column_mapping.py:41
@@ -526,7 +526,7 @@ msgstr "Name of the tab to process with this mapping"
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_needs_mappings
 #, python-format
 msgid "Needs mappings"
-msgstr "Needs mappings"
+msgstr "Nécessite du paramétrage"
 
 #. module: goufi_base
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_name
@@ -571,7 +571,7 @@ msgstr "Odoo object that will be targeted by import: create, update or delete in
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_parent_tab
 #, python-format
 msgid "Parent Tab (when multi tabs)"
-msgstr "Parent Tab (when multi tabs)"
+msgstr "Onglet parent"
 
 #. module: goufi_base
 #: code:addons/goufi_base/models/import_column_mapping.py:71
@@ -588,12 +588,12 @@ msgstr "Partenaire associé"
 #. module: goufi_base
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_form
 msgid "Process File"
-msgstr "Process File"
+msgstr "Traiter le fichier"
 
 #. module: goufi_base
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_configuration_form
 msgid "Process all file(s)"
-msgstr "Process all file(s)"
+msgstr "Traiter les fichiers"
 
 #. module: goufi_base
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_configuration_form
@@ -650,14 +650,14 @@ msgstr "Partenaire associé"
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_import_config
 #, python-format
 msgid "Related import configuration"
-msgstr "Related import configuration"
+msgstr "Paramétrage de l'import"
 
 #. module: goufi_base
 #: code:addons/goufi_base/models/import_column_mapping.py:52
 #: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_member_of
 #, python-format
 msgid "Set of columns this one belongs to"
-msgstr "Set of columns this one belongs to"
+msgstr "Groupe d'appartenance"
 
 #. module: goufi_base
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_form
@@ -673,7 +673,7 @@ msgstr "Origine"
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_tab_support
 #, python-format
 msgid "Supports multi tabs"
-msgstr "Supports multi tabs"
+msgstr "Supporte les onglets multiples"
 
 #. module: goufi_base
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_tab_mapping_form
@@ -723,7 +723,7 @@ msgstr "Traitement terminé à"
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_working_dir
 #, python-format
 msgid "Working directory"
-msgstr "Working directory"
+msgstr "Répertoire de travail"
 
 #. module: goufi_base
 #: selection:goufi.import_file,processing_status:0
