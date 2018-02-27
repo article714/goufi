@@ -11,6 +11,8 @@ import logging
 
 from odoo.addons.goufi_base.utils.converters import toString
 
+from .processor import AbstractProcessor
+
 #-------------------------------------------------------------------------------------
 # CONSTANTS
 AUTHORIZED_EXTS = ('xlsx', 'xls', 'csv')
@@ -19,17 +21,21 @@ AUTHORIZED_EXTS = ('xlsx', 'xls', 'csv')
 # MAIN CLASS
 
 
-class Processor():
+class Processor(AbstractProcessor):
 
     def __init__(self, parent_config):
-        self.parent_config = parent_config
+        super(Processor, self).__init__(parent_config)
 
     #-------------------------------------------------------------------------------------
-    def is_data_file(self, filename):
-        ext = filename.split('.')[-1]
-        return (ext in AUTHORIZED_EXTS)
+    def does_file_need_processing(self, import_file):
+        """
+        Returns true if the given ImportFile is to be processed
+        """
+        result = super(Processor, self).does_file_need_processing(import_file)
+        ext = import_file.filename.split('.')[-1]
+        return ((ext in AUTHORIZED_EXTS) and result)
 
     #-------------------------------------------------------------------------------------
-    def process_file(self, import_file):
+    def process_data(self, import_file):
         logging.warning("Goufi Advanced Mappings Import: " + toString(import_file.filename))
 

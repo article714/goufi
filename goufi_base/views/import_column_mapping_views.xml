@@ -9,9 +9,10 @@
 		<field name="mode">primary</field>
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
-			<tree string="Import Configurations" default_order="id asc">
+			<tree string="Column mappings" default_order="id asc">
+				<field name="col_group_support" invisible='1'/>
 				<field name="name"/>
-				<field name="member_of"/>
+				<field name="member_of" invisible="('col_group_support','=',False)"/>
 				<field name="mapping_expression"/>
 				<field name="is_identifier"/>
 				<field name="is_deletion_marker"/>
@@ -28,10 +29,11 @@
 		<field name="arch" type="xml">
 			<form string="Import Configuration">
 				<sheet>
+					<field name="col_group_support" attrs="{'invisible':True}" />
 					<group name="Column" string="Column">
 						<field name="name"/>
 					</group>
-					<group name="Group" string="Group">
+					<group name="Group" string="Group" attrs="{'invisible':[('col_group_support','=',False)]}">
 						<field name="member_of"/>
 					</group>
 					<group name="Mapping configuration" string="Mapping configuration" >

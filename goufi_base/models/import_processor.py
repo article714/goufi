@@ -26,6 +26,10 @@ class ImportProcessor(models.Model):
                                     help = _(u"Does the processor can process multiple tabs"),
                                     required = True, default = False)
 
+    col_group_support = fields.Boolean(string = _(u"Supports column groups"),
+                                    help = _(u"Does the processor can process (iterable) group of columns"),
+                                    required = True, default = False)
+
     processor_module = fields.Char(string = _(u'Module containing Processor Class'), required = True)
 
     processor_class = fields.Char(string = _(u'Name of Processor Class'), required = True)

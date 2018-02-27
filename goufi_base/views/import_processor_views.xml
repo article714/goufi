@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+	<record model="ir.ui.view" id="view_goufi_import_processor_tree">
+		<field name="name">view_goufi_import_processor_tree</field>
+		<field name="model">goufi.import_processor</field>
+		<field name="priority" eval="16" />
+		<field name="mode">primary</field>
+		<field name="type">tree</field>
+		<field name="arch" type="xml">
+			<tree string="Import Processors" default_order="id asc" create="false" edit="false" >
+				<field name="name"/>
+				<field name="needs_mappings"/>
+				<field name="tab_support" />
+				<field name="col_group_support"/>
+			</tree>
+		</field>
+	</record>
+	
+	<record model="ir.ui.view" id="view_goufi_import_processor_form">
+		<field name="name">view_goufi_import_processor_form</field>
+		<field name="model">goufi.import_processor</field>
+		<field name="priority" eval="16" />
+		<field name="mode">primary</field>
+		<field name="type">form</field>
+		<field name="arch" type="xml">
+			<form string="Import Processor"  create="false" edit="false">
+				<sheet>					
+					<group name="Processor" string="Processor"  attrs="{'readonly':True}">
+						<field name="name"  attrs="{'readonly':True}"/>
+						<field name="needs_mappings" attrs="{'readonly':True}"/>
+						<field name="tab_support"  attrs="{'readonly':True}"/>
+						<field name="col_group_support" attrs="{'readonly':True}"/>
+					</group>
+					<group name="Python info" string="Python info" attrs="{'readonly':True}">
+						<field name="processor_module" attrs="{'readonly':True}"/>
+						<field name="processor_class" attrs="{'readonly':True}" />
+					</group>
+				</sheet>
+			</form>
+		</field>
+	</record>
+	
+
+</odoo>
+           

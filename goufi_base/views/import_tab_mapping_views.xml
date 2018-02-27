@@ -12,7 +12,6 @@
 			<tree string="Tab Mapping - Import Configuration" default_order="id asc">
 				<field name="name"/>
 				<field name="target_object"/>
-				<field name="parent_configuration"/>
 			</tree>
 		</field>
 	</record>
@@ -29,7 +28,7 @@
 					<group name="Tab Mapping" string="Tab Mapping">
 						<field name="name"/>
 						<field name="target_object"/>
-						<field name="parent_configuration" attrs="{'readonly':True}"/>
+						<field name="parent_configuration" invisible='1' attrs="{'readonly':True}"/>
 					</group>
 					<group name="Columns" string="Columns">
 						<field name="column_mappings"/>

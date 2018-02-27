@@ -10,6 +10,7 @@ encoding//processors/dataProcessor.py=utf-8
 encoding//processors/do_nothing.py=utf-8
 encoding//processors/processor.py=utf-8
 encoding//processors/simple_mappings.py=utf-8
+encoding//processors/textual_mappings.py=utf-8
 encoding//tests/__init__.py=utf-8
 encoding//tests/test_import_file.py=utf-8
 encoding//utils/__init__.py=utf-8

@@ -27,6 +27,7 @@ TODO
             'actions/goufi_automation.xml',
             'views/goufi_import_menus.xml',
             'views/import_file_views.xml',
+            'views/import_processor_views.xml',
             'views/import_column_mapping_views.xml',
             'views/import_tab_mapping_views.xml',
             'views/import_configuration_views.xml', ],

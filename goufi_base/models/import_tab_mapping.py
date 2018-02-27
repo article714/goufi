@@ -38,3 +38,4 @@ class TabMapping(models.Model):
                                     help = _(u"Mapping configuration needed by this processor"),
                                       comodel_name = "goufi.column_mapping",
                                       inverse_name = "parent_tab")
+

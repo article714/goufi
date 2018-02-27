@@ -22,7 +22,7 @@ class ImportFile(models.Model):
     # File identification
     filename = fields.Char(string = _(u'File name'), required = True, track_visibility = 'onchange')
 
-    filesize = fields.Float(string = _(u"File size"))
+    filesize = fields.Float(string = _(u"File size"), default = 0.0)
 
     partner_id = fields.Many2one(string = _(u'Related Partner'), comodel_name = 'res.partner', track_visibility = 'onchange')
 
@@ -32,7 +32,8 @@ class ImportFile(models.Model):
 
     # parametrage du traitement
 
-    import_config = fields.Many2one(string = _(u'Related import configuration'), comodel_name = 'goufi.import_configuration', track_visibility = 'onchange')
+    import_config = fields.Many2one(string = _(u'Related import configuration'), comodel_name = 'goufi.import_configuration',
+                                     track_visibility = 'onchange', required = True)
 
     to_process = fields.Boolean(string = _(u"File is to be processed"), default = True, track_visibility = 'onchange')
 

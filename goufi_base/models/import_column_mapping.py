@@ -53,8 +53,19 @@ class ColumnMapping(models.Model):
                                     comodel_name = 'goufi.column_mapping_group',
                                     required = False)
 
+    col_group_support = fields.Boolean(string = _(u"Supports column groups"),
+                                    help = _(u"Does the processor can process (iterable) group of columns"),
+                                    related = "parent_configuration.col_group_support",
+                                    required = True, default = False, store = False)
+
     # is column part of identifier
     is_identifier = fields.Boolean(string = _(u"Is column part of identifiers?"),
+                                   help = _(u"""The value of the mapping is used to find existing records in Odoo database.
+If a record is found with given value in 'key field' (i.e. field given in expression), the record is updated with data.
+If no record is found, a new one is created.
+
+There can be several columns used as criteria
+"""),
                                    required = True, default = False)
 
     # is column a deletion marker
@@ -74,7 +85,7 @@ class ColumnMapping(models.Model):
     tab_support = fields.Boolean(string = _(u"Supports multi tabs"),
                                     help = _(u"Does the selected parent configuration's pocessor can process multiple tabs"),
                                     related = "parent_configuration.tab_support",
-                                    required = True, default = False)
+                                    required = True, default = False, store = False)
 
     parent_tab = fields.Many2one(string = _(u"Parent Tab (when multi tabs)"),
                                       comodel_name = "goufi.tab_mapping")

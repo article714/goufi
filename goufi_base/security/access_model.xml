@@ -38,6 +38,15 @@
         	<field name="perm_create">0</field>
         	<field name="perm_unlink">0</field>
         </record>
+        <record id="access_goufi_import_column_group_user" model="ir.model.access">
+            <field name="name">access.goufi.column_group.user</field>
+        	<field name="model_id" ref="model_goufi_column_mapping_group"/>
+        	<field name="group_id" eval="ref('group_goufi_user')"/>
+        	<field name="perm_read">1</field>
+        	<field name="perm_write">1</field>
+        	<field name="perm_create">0</field>
+        	<field name="perm_unlink">0</field>
+        </record>
         <record id="access_goufi_import_tab_mapping_user" model="ir.model.access">
             <field name="name">access.goufi.tab_mapping.user</field>
         	<field name="model_id" ref="model_goufi_tab_mapping"/>
@@ -81,6 +90,15 @@
         <record id="access_goufi_import_column_mapping_admin" model="ir.model.access">
             <field name="name">access.goufi.column_mapping.admin</field>
         	<field name="model_id" ref="model_goufi_column_mapping"/>
+        	<field name="group_id" eval="ref('group_goufi_admin')"/>
+        	<field name="perm_read">1</field>
+        	<field name="perm_write">1</field>
+        	<field name="perm_create">1</field>
+        	<field name="perm_unlink">1</field>
+        </record>
+        <record id="access_goufi_import_column_group_admin" model="ir.model.access">
+            <field name="name">access.goufi.column_group.admin</field>
+        	<field name="model_id" ref="model_goufi_column_mapping_group"/>
         	<field name="group_id" eval="ref('group_goufi_admin')"/>
         	<field name="perm_read">1</field>
         	<field name="perm_write">1</field>

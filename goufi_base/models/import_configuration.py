@@ -72,6 +72,11 @@ class ImportConfiguration(models.Model):
                                       inverse_name = "parent_configuration",
                                       required = False)
 
+    col_group_support = fields.Boolean(string = _(u"Supports column groups"),
+                                    help = _(u"Does the processor can process (iterable) group of columns"),
+                                    related = "processor.col_group_support",
+                                    required = True, default = False)
+
     # Multi-Tab configuration => several mappings and targets object needed for config.
     #   there will be a target object per tab-mapping
 
@@ -108,7 +113,8 @@ class ImportConfiguration(models.Model):
                         modtime = os.path.getmtime(cur_path)
 
                         if modtime > timegm(datetime.strptime(iFile.date_updated, DEFAULT_SERVER_DATETIME_FORMAT).timetuple()):
-                            iFile.write({'date_updated':str_date})
+                            iFile.write({'date_updated':str_date,
+                                         'filesize':filesize})
 
                     elif nb_found == 0:
                         iFile = file_model.create({'filename':cur_path,

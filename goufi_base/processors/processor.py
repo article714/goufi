@@ -128,13 +128,6 @@ class AbstractProcessor(object):
         raise exceptions.ValidationError("GOUFI: un-implemented process_data method")
 
     #-------------------------------------------------------------------------------------
-    def process_header(self, import_file):
-        """
-        Method that process header and configure processing depending on import configuration
-        """
-        raise exceptions.ValidationError("GOUFI: un-implemented process_header method")
-
-    #-------------------------------------------------------------------------------------
     def end_processing(self, import_file, success = True):
         """
         Method that closes-up the processing
@@ -165,7 +158,6 @@ class AbstractProcessor(object):
             if (self.does_file_need_processing(import_file)or force):
                 self.create_dedicated_filelogger(path.basename(import_file.filename))
                 if self.start_processing(import_file):
-                    self.process_header(import_file)
                     self.process_data(import_file)
                     self.end_processing(import_file)
                 else:

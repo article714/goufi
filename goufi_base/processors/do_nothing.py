@@ -24,10 +24,3 @@ class Processor(AbstractProcessor):
         Method that actually process data
         """
         self.logger.info("DO NOTHING IMPORT; process DATA: " + toString(import_file.filename))
-
-    #-------------------------------------------------------------------------------------
-    def process_header(self, import_file):
-        """
-        Method that process header and configure processing depending on import configuration
-        """
-        self.logger.info("DO NOTHING IMPORT; process HEADERS: " + toString(import_file.filename))
