@@ -541,8 +541,7 @@ class XLProcessor(Processor):
                         nb_fields = self.process_header(header_values, shname)
                         if nb_fields < 1:
                             # do not continue if not able to process headers
-                            import_file.processing_result = 'Unable to process headers'
-                            return False
+                            self.logger.error('Unable to process headers for Tab ' + shname)
                         elif ('import_processed' in self.target_model.fields_get_keys()):
                             # hook for objects needing to be set as processed through import
                             self.odooenv.cr.execute('update ' + toString(self.target_model) + ' set import_processed = False')
