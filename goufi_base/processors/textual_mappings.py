@@ -126,7 +126,6 @@ class Processor(AbstractProcessor):
         self.m2oFields = {}
         self.stdFields = []
         self.idFields = {}
-        self.target_model = None
         col_mappings = None
 
         tabmap_model = self.odooenv['goufi.tab_mapping']
@@ -417,28 +416,33 @@ class CSVProcessor(Processor):
         processed = False
 
         # Search for target model
-        self.target_model = self.parent_config.target_object
-        if self.target_model == None:
-            self.logger.error("MODEL NOT FOUND ")
-            return -1
-        else:
-            self.logger.warning("No target model set on configuration, attempt to find it from file name")
 
-        bname = path.basename(import_file.filename)
-        (modelname, ext) = bname.split('.')
-
-        modelname = modelname.replace('_', '.')
-        if re.match(r'[0-9]+\.', modelname):
-            modelname = re.sub(r'[0-9]+\.', '', modelname)
-
+        self.target_model = None
         try:
-            self.target_model = self.odooenv[modelname]
+            self.target_model = self.odooenv[self.parent_config.target_object.model]
         except:
             self.target_model = None
-            self.logger.error("Not able to guess target model from filename: " + toString(import_file.filename))
-            import_file.processing_result = _(u"Model Not found")
-            import_file.processing_status = 'failure'
-            self.odooenv.cr.commit()
+
+        if self.target_model == None:
+
+            self.logger.warning("No target model set on configuration, attempt to find it from file name")
+
+            bname = path.basename(import_file.filename)
+            (modelname, ext) = bname.split('.')
+
+            modelname = modelname.replace('_', '.')
+            if re.match(r'[0-9]+\.', modelname):
+                modelname = re.sub(r'[0-9]+\.', '', modelname)
+
+            try:
+                self.target_model = self.odooenv[modelname]
+            except:
+                self.target_model = None
+                self.logger.error("Not able to guess target model from filename: " + toString(import_file.filename))
+                import_file.processing_result = _(u"Model Not found")
+                import_file.processing_status = 'failure'
+                self.odooenv.cr.commit()
+                return
 
         # try with , as a delimiter
         with open(import_file.filename, 'rb') as csvfile:
@@ -483,6 +487,7 @@ class XLProcessor(Processor):
 
         wb = xlrd.open_workbook(import_file.filename)
         for sh in wb.sheets():
+            self.target_model = None
 
             # la ligne se sont les intitutlés
             p_ligne = sh.row_values(self.header_line_idx)
@@ -513,6 +518,7 @@ class XLProcessor(Processor):
             nb_fields = 0
 
             for r in sh:
+                self.target_model = None
                 # skip until idx = self.header_line_idx
                 if len(firstrow) == 0:
                     if idx == self.header_line_idx:
