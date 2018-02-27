@@ -111,10 +111,11 @@ class Processor(AbstractProcessor):
 
     def map_values(self, row):
         for f in row:
-            if row[f] == "False" or row[f] == "True":
-                row[f] = eval(row[f])
-            elif row[f] == None:
-                del(row[f])
+            if f in self.allFields:
+                if row[f] == "False" or row[f] == "True":
+                    row[f] = eval(row[f])
+                elif row[f] == None:
+                    del(row[f])
         return row
 
     #-------------------------------------------------------------------------------------
@@ -126,6 +127,7 @@ class Processor(AbstractProcessor):
         self.m2oFields = {}
         self.stdFields = []
         self.idFields = {}
+        self.allFields = []
         col_mappings = None
 
         tabmap_model = self.odooenv['goufi.tab_mapping']
@@ -172,8 +174,9 @@ class Processor(AbstractProcessor):
 
             if val.is_identifier:
                 if val.mapping_expression in target_fields:
-                    self.idFields[val.name] = val.name
+                    self.idFields[val.name] = val.mapping_expression
                     self.stdFields.append(val.mapping_expression)
+                    self.allFields.append(val.mapping_expression)
                 else:
                     self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
             elif re.match(r'\*.*', val.mapping_expression):
@@ -182,6 +185,7 @@ class Processor(AbstractProcessor):
                 v = vals[1]
                 if v in target_fields:
                     self.o2mFields[val.name] = vals
+                    self.allFields.append(v)
                 else:
                     self.logger.debug(toString(v) + "  -> field not found, IGNORED")
             elif re.match(r'\+.*', val.mapping_expression):
@@ -190,6 +194,7 @@ class Processor(AbstractProcessor):
                 v = vals[1]
                 if v in target_fields:
                     self.o2mFields[val.name] = vals
+                    self.allFields.append(v)
                 else:
                     self.logger.debug(toString(v) + "  -> field not found, IGNORED")
             elif re.match(r'\>.*', val.mapping_expression):
@@ -198,6 +203,7 @@ class Processor(AbstractProcessor):
                 v = vals[1]
                 if v in target_fields:
                     self.m2oFields[val.name] = vals
+                    self.allFields.append(v)
                     if re.match(r'.*\&.*', self.m2oFields[val.name][3]):
                         (_fieldname, cond) = self.m2oFields[val.name][3].split('&')
                         self.m2oFields[val.name][3] = _fieldname
@@ -207,6 +213,7 @@ class Processor(AbstractProcessor):
             else:
                 if val.mapping_expression in target_fields:
                     self.stdFields.append(val.mapping_expression)
+                    self.allFields.append(val.mapping_expression)
                 else:
                     self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
 
