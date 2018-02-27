@@ -238,7 +238,7 @@ class Processor(AbstractProcessor):
         # Attention, il y a un champs ID => on traite les mises à jour et les suppressions ou archivages
         # suppression/archivage si une valeur contient "supprimer de la base odoo
 
-        if len(self.idFields) > 0:
+        if len(self.idFields) > 0 and self.target_model != None:
 
             # traitement des enregistrements à "archiver" ou "supprimer"
             allvals = u"".join(map(toString, data_values.values()))
@@ -545,7 +545,7 @@ class XLProcessor(Processor):
                         for c in firstrow:
                             header_values.append(c.value)
                         nb_fields = self.process_header(header_values, shname)
-                        if nb_fields < 1:
+                        if nb_fields < 1 or self.target_model == None:
                             # do not continue if not able to process headers
                             self.logger.error('Unable to process headers for Tab ' + shname)
                         elif ('import_processed' in self.target_model.fields_get_keys()):
@@ -564,11 +564,13 @@ class XLProcessor(Processor):
                     self.process_values(import_file.filename, idx, values)
 
                 idx += 1
-
-            if  ('import_processed' in self.target_model.fields_get_keys()):
-                # hook for objects needing to be set as processed through import
-                self.odooenv.cr.execute('update ' + toString(self.target_model) + ' set import_processed = False')
-                self.odooenv.cr.commit()
+            if self.target_model != None:
+                if  ('import_processed' in self.target_model.fields_get_keys()):
+                    # hook for objects needing to be set as processed through import
+                    self.odooenv.cr.execute('update ' + toString(self.target_model) + ' set import_processed = False')
+                    self.odooenv.cr.commit()
+            else:
+                return False
         return True
 
     #-------------------------------------------------------------------------------------
