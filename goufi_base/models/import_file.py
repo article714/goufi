@@ -55,35 +55,43 @@ class ImportFile(models.Model):
     processing_logs = fields.Binary(string = _(u'Processing logs'), prefetch = False, attachment = False)
 
     #-------------------------------
-    # file detection
+    # file processing
+
+    def force_process_file(self):
+        for aFile in self:
+            aFile._process_a_file(force = True)
+
     def process_file(self):
         for aFile in self:
-            if aFile.import_config:
-                cls = None
-                mod = None
-                if aFile.import_config.processor:
-                    # Resolve processor class
-                    try:
-                        processor = aFile.import_config.processor
-                        mod = importlib.import_module(processor.processor_module)
-                        if mod:
-                            cls = getattr(mod, processor.processor_class)
-                        if cls == None:
-                            logging.error("Goufi: Cannot process file, no processor class found " + aFile.filename)
-                            return None
-                    except Exception as e:
-                        logging.error("Goufi: Cannot process file, error when evaluating processor module" + aFile.filename + "(" + str(e) + "-" + str(e.message) + ")")
+            aFile._process_a_file(force = False)
 
-                    # Process File
-                    # TODO: one day provide a way to re-user processor instances?
-                    if mod and cls:
-                        proc_inst = cls(aFile.import_config)
-                        proc_inst.process_file(self)
-                else:
-                    logging.error("Goufi: Cannot process file, no processor given " + aFile.filename)
+    def _process_a_file(self, force = False):
+        if self.import_config:
+            cls = None
+            mod = None
+            if self.import_config.processor:
+                # Resolve processor class
+                try:
+                    processor = self.import_config.processor
+                    mod = importlib.import_module(processor.processor_module)
+                    if mod:
+                        cls = getattr(mod, processor.processor_class)
+                    if cls == None:
+                        logging.error("GOUFI: Cannot process file, no processor class found " + self.filename)
+                        return None
+                except Exception as e:
+                    logging.error("GOUFI: Cannot process file, error when evaluating processor module" + self.filename + "(" + str(e) + "-" + str(e.message) + ")")
 
+                # Process File
+                # TODO: one day provide a way to re-use processor instances?
+                if mod and cls:
+                    proc_inst = cls(self.import_config)
+                    proc_inst.process_file(self, force)
             else:
-                logging.error("Goufi: Cannot process file, no import config given " + aFile.filename)
+                logging.error("GOUFI: Cannot process file, no processor given " + self.filename)
+
+        else:
+            logging.error("GOUFI: Cannot process file, no import config given " + self.filename)
 
     #-------------------------------
     # automation of file processing

@@ -9,7 +9,7 @@
 		<field name="mode">primary</field>
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
-			<tree string="Import Configurations" default_order="id asc">
+			<tree string="Import Configurations" default_order="id asc">		
 				<field name="name" />
 				<field name="files_location" />
 				<field name="filename_pattern" />
@@ -25,9 +25,10 @@
 		<field name="type">form</field>
 		<field name="arch" type="xml">
 			<form string="Import Configuration">
+				<header>
+					<button name="detect_files" string="Detect File(s)" type="object" class="btn btn-sm" />
+				</header>
 				<sheet>
-					<button name="detect_files" string="Detect File(s)" type="object"></button>
-					<button name="process_all_files" string="Process all file(s)" type="object"></button>
 					<h2>
 						<field name="name" />
 					</h2>
