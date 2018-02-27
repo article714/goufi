@@ -232,6 +232,9 @@ class Processor(AbstractProcessor):
         currentObj = None
         TO_BE_ARCHIVED = False
 
+        if self.target_model == None:
+            return False
+
         # Attention, il y a un champs ID => on traite les mises à jour et les suppressions ou archivages
         # suppression/archivage si une valeur contient "supprimer de la base odoo
 
@@ -596,7 +599,7 @@ class XLProcessor(Processor):
         except Exception as e:
             self.logger.error("Processing Failed: " + str(e))
             import_file.processing_status = 'failure'
-            import_file.processing_result = str(e) + " -- " + e.message
+            import_file.processing_result = str(e)
             self.odooenv.cr.commit()
             return False
 
