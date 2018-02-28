@@ -109,9 +109,7 @@ class Processor(AbstractProcessor):
     # process a line of data
 
     def map_values(self, row):
-        print ("ZZUHBB " + str(row))
         for f in row.keys():
-            print ("ZZUHBB " + str(self.allFields))
             if f in self.allFields:
                 # replace non json-compatible values
                 val = row[f]
@@ -127,8 +125,6 @@ class Processor(AbstractProcessor):
                     row[f] = val
             else:
                 del(row[f])
-
-        print (" POST ZZUHBB " + str(row))
         return row
 
     #-------------------------------------------------------------------------------------
