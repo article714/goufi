@@ -101,7 +101,7 @@ class Processor(AbstractProcessor):
         self.stdFields = []
         self.idFields = []
 
-        self.header_line_idx = 0
+        self.header_line_idx = self.parent_config.default_header_line_index
         self.target_model = None
 
     #-------------------------------------------------------------------------------------
@@ -139,6 +139,7 @@ class Processor(AbstractProcessor):
                     try:
                         self.target_model = self.odooenv[found[0].target_object.model]
                         col_mappings = found[0].column_mappings
+                        self.header_line_idx = found[0].default_header_line_index
                     except:
                         self.logger.error("Target model not found for " + toString(tab_name))
                         return -1
@@ -217,7 +218,7 @@ class Processor(AbstractProcessor):
                 else:
                     self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
 
-        self.logger.info("NEW SHEET:  processed Tab Mapping (" + str(tab_name) + ")" + str(len(self.stdFields)) + "-" + str(len(self.idFields)) + "-" + str(len(self.m2oFields)) + "-" + str(len(self.o2mFields)))
+        self.logger.info("NEW SHEET:  processed Tab Mapping  for " + str(tab_name) + "(target: " + str(self.target_model.model) + ")" + str(len(self.stdFields)) + "-" + str(len(self.idFields)) + "-" + str(len(self.m2oFields)) + "-" + str(len(self.o2mFields)))
 
         return len(self.stdFields) + len(self.idFields) + len(self.m2oFields) + len(self.o2mFields)
 
@@ -226,6 +227,8 @@ class Processor(AbstractProcessor):
     def process_values(self, filename, line_index, data_values):
 
         DEFAULT_LOG_STRING = "<" + toString(filename) + "> [ line " + toString(line_index) + "] -> "
+
+        self.logger.info('processing values ' + str(data_values))
 
         currentObj = None
         TO_BE_ARCHIVED = False
@@ -530,14 +533,15 @@ class XLProcessor(Processor):
         wb = load_workbook(import_file.filename, read_only = True, keep_vba = False, guess_types = False, data_only = True)
         for shname in wb.sheetnames:
 
-            sh = wb.get_sheet_by_name(shname)
+            sh = wb[shname]
             firstrow = []
             header_values = []
             idx = 0
             nb_fields = 0
+            self.target_model = None
 
             for r in sh:
-                self.target_model = None
+
                 # skip until idx = self.header_line_idx
                 if len(firstrow) == 0:
                     if idx == self.header_line_idx:
@@ -548,12 +552,16 @@ class XLProcessor(Processor):
                         if nb_fields < 1 or self.target_model == None:
                             # do not continue if not able to process headers
                             self.logger.error('Unable to process headers for Tab ' + shname)
+                            break
                         elif ('import_processed' in self.target_model.fields_get_keys()):
                             # hook for objects needing to be set as processed through import
                             self.odooenv.cr.execute('update ' + toString(self.target_model) + ' set import_processed = False')
                             self.odooenv.cr.commit()
 
                 elif r != firstrow:
+                    if self.target_model == None:
+                        break
+                    self.logger.info('processing values ' + str(r))
                     values = {}
                     for c in r:
                         colname = None

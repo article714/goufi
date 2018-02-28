@@ -23,7 +23,7 @@ from odoo.addons.goufi_base.utils.converters  import toString
 #-------------------------------------------------------------------------------------
 # STATIC GLOBAL Properties
 procLogFmt = logging.Formatter('%(asctime)s -(%(filename)s,%(lineno)d) - [%(levelname)s] - %(message)s')
-procLogDefaultLogger = logging.getLogger("GoufiImportProcessor")
+procLogDefaultLogger = logging.Logger("GoufiImportProcessor", logging.INFO)
 
 
 #-------------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ class AbstractProcessor(object):
         Constructor
         parent_config should be an instance of ImportConfiguration
         """
-
+        procLogDefaultLogger.setLevel(logging.INFO)
         self.logger = procLogDefaultLogger
         self.logger_fh = None
         self.odooenv = None
@@ -79,7 +79,7 @@ class AbstractProcessor(object):
         close existing logger and reset self.logger to default one
         """
         if self.logger_fh:
-
+            self.logger_fh.flush()
             # deletes log file
             filename = self.logger_fh.baseFilename
             self.logger.removeHandler(self.logger_fh)
