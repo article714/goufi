@@ -100,6 +100,7 @@ class Processor(AbstractProcessor):
         self.m2oFields = {}
         self.stdFields = []
         self.idFields = []
+        self.allFields = {}
 
         self.header_line_idx = self.parent_config.default_header_line_index
         self.target_model = None
@@ -108,14 +109,26 @@ class Processor(AbstractProcessor):
     # process a line of data
 
     def map_values(self, row):
+        print ("ZZUHBB " + str(row))
         for f in row.keys():
+            print ("ZZUHBB " + str(self.allFields))
             if f in self.allFields:
-                if row[f] == "False" or row[f] == "True":
-                    row[f] = eval(row[f])
-                elif row[f] == None:
+                # replace non json-compatible values
+                val = row[f]
+                if val == "False" or val == "True":
+                    val = eval(val)
+                elif val == None:
                     del(row[f])
+                # replace actual col name by actual field name
+                if self.allFields[f] != f:
+                    row[self.allFields[f]] = val
+                    del(row[f])
+                else:
+                    row[f] = val
             else:
                 del(row[f])
+
+        print (" POST ZZUHBB " + str(row))
         return row
 
     #-------------------------------------------------------------------------------------
@@ -127,7 +140,7 @@ class Processor(AbstractProcessor):
         self.m2oFields = {}
         self.stdFields = []
         self.idFields = {}
-        self.allFields = []
+        self.allFields = {}
         col_mappings = None
 
         tabmap_model = self.odooenv['goufi.tab_mapping']
@@ -177,7 +190,7 @@ class Processor(AbstractProcessor):
                 if val.mapping_expression in target_fields:
                     self.idFields[val.name] = val.mapping_expression
                     self.stdFields.append(val.mapping_expression)
-                    self.allFields.append(val.mapping_expression)
+                    self.allFields[val.name] = val.mapping_expression
                 else:
                     self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
             elif re.match(r'\*.*', val.mapping_expression):
@@ -186,7 +199,7 @@ class Processor(AbstractProcessor):
                 v = vals[1]
                 if v in target_fields:
                     self.o2mFields[val.name] = vals
-                    self.allFields.append(v)
+                    self.allFields[val.name] = v
                 else:
                     self.logger.debug(toString(v) + "  -> field not found, IGNORED")
             elif re.match(r'\+.*', val.mapping_expression):
@@ -195,7 +208,7 @@ class Processor(AbstractProcessor):
                 v = vals[1]
                 if v in target_fields:
                     self.o2mFields[val.name] = vals
-                    self.allFields.append(v)
+                    self.allFields[val.name] = v
                 else:
                     self.logger.debug(toString(v) + "  -> field not found, IGNORED")
             elif re.match(r'\>.*', val.mapping_expression):
@@ -204,7 +217,7 @@ class Processor(AbstractProcessor):
                 v = vals[1]
                 if v in target_fields:
                     self.m2oFields[val.name] = vals
-                    self.allFields.append(v)
+                    self.allFields[val.name] = v
                     if re.match(r'.*\&.*', self.m2oFields[val.name][3]):
                         (_fieldname, cond) = self.m2oFields[val.name][3].split('&')
                         self.m2oFields[val.name][3] = _fieldname
@@ -214,7 +227,7 @@ class Processor(AbstractProcessor):
             else:
                 if val.mapping_expression in target_fields:
                     self.stdFields.append(val.mapping_expression)
-                    self.allFields.append(val.mapping_expression)
+                    self.allFields[val.name] = val.mapping_expression
                 else:
                     self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
 
@@ -250,10 +263,7 @@ class Processor(AbstractProcessor):
 
             for k in self.idFields:
                 keyfield = self.idFields[k]
-                value = None
-                if k in data_values:
-                    value = data_values.pop(k)
-                    data_values[keyfield] = value
+                value = data_values[k]
                 if value != None and value != str(''):
                     search_criteria.append((keyfield, '=', value))
 
