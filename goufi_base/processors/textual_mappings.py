@@ -218,7 +218,7 @@ class Processor(AbstractProcessor):
                 else:
                     self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
 
-        self.logger.info("NEW SHEET:  processed Tab Mapping  for " + str(tab_name) + "(target: " + str(self.target_model.model) + ")" + str(len(self.stdFields)) + "-" + str(len(self.idFields)) + "-" + str(len(self.m2oFields)) + "-" + str(len(self.o2mFields)))
+        self.logger.info("NEW SHEET:  processed Tab Mapping  for " + str(tab_name) + "(target: " + str(self.target_model) + ")" + str(len(self.stdFields)) + "-" + str(len(self.idFields)) + "-" + str(len(self.m2oFields)) + "-" + str(len(self.o2mFields)))
 
         return len(self.stdFields) + len(self.idFields) + len(self.m2oFields) + len(self.o2mFields)
 
@@ -227,8 +227,6 @@ class Processor(AbstractProcessor):
     def process_values(self, filename, line_index, data_values):
 
         DEFAULT_LOG_STRING = "<" + toString(filename) + "> [ line " + toString(line_index) + "] -> "
-
-        self.logger.info('processing values ' + str(data_values))
 
         currentObj = None
         TO_BE_ARCHIVED = False
