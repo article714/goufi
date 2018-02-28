@@ -162,7 +162,7 @@ class Processor(AbstractProcessor):
             self.logger.error("MODEL NOT FOUND ")
             return -1
         else:
-            self.logger.info("NEW SHEET:  Import data for model " + toString(self.target_model) + "--" + toString(self.target_model))
+            self.logger.info("NEW SHEET:  Import data for model " + toString(self.target_model._name))
 
         target_fields = None
         if self.target_model == None:
@@ -217,8 +217,6 @@ class Processor(AbstractProcessor):
                     self.allFields.append(val.mapping_expression)
                 else:
                     self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
-
-        self.logger.info("NEW SHEET:  processed Tab Mapping  for " + toString(tab_name) + "(target: " + toString(self.target_model) + ")" + str(len(self.stdFields)) + "-" + str(len(self.idFields)) + "-" + str(len(self.m2oFields)) + "-" + str(len(self.o2mFields)))
 
         return len(self.stdFields) + len(self.idFields) + len(self.m2oFields) + len(self.o2mFields)
 
@@ -553,7 +551,7 @@ class XLProcessor(Processor):
                             break
                         elif ('import_processed' in self.target_model.fields_get_keys()):
                             # hook for objects needing to be set as processed through import
-                            self.odooenv.cr.execute('update ' + toString(self.target_model) + ' set import_processed = False')
+                            self.odooenv.cr.execute('update ' + toString(self.target_model._name) + ' set import_processed = False')
                             self.odooenv.cr.commit()
 
                 elif r != firstrow:
@@ -572,7 +570,7 @@ class XLProcessor(Processor):
             if self.target_model != None:
                 if  ('import_processed' in self.target_model.fields_get_keys()):
                     # hook for objects needing to be set as processed through import
-                    self.odooenv.cr.execute('update ' + toString(self.target_model) + ' set import_processed = False')
+                    self.odooenv.cr.execute('update ' + toString(self.target_model._name) + ' set import_processed = False')
                     self.odooenv.cr.commit()
             else:
                 self.logger.error("Did not process tab " + shname + " correctly")
