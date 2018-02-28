@@ -559,7 +559,6 @@ class XLProcessor(Processor):
                 elif r != firstrow:
                     if self.target_model == None:
                         break
-                    self.logger.info('processing values ' + str(r))
                     values = {}
                     for c in r:
                         colname = None
