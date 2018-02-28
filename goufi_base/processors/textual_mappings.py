@@ -551,7 +551,7 @@ class XLProcessor(Processor):
                             break
                         elif ('import_processed' in self.target_model.fields_get_keys()):
                             # hook for objects needing to be set as processed through import
-                            self.odooenv.cr.execute('update ' + toString(self.target_model._name) + ' set import_processed = False')
+                            self.odooenv.cr.execute('update ' + toString(self.target_model._table) + ' set import_processed = False')
                             self.odooenv.cr.commit()
 
                 elif r != firstrow:
@@ -570,7 +570,7 @@ class XLProcessor(Processor):
             if self.target_model != None:
                 if  ('import_processed' in self.target_model.fields_get_keys()):
                     # hook for objects needing to be set as processed through import
-                    self.odooenv.cr.execute('update ' + toString(self.target_model._name) + ' set import_processed = False')
+                    self.odooenv.cr.execute('update ' + toString(self.target_model._table) + ' set import_processed = False')
                     self.odooenv.cr.commit()
             else:
                 self.logger.error("Did not process tab " + shname + " correctly")
