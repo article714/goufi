@@ -218,7 +218,7 @@ class Processor(AbstractProcessor):
                 else:
                     self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
 
-        self.logger.info("NEW SHEET:  processed Tab Mapping  for " + str(tab_name) + "(target: " + str(self.target_model) + ")" + str(len(self.stdFields)) + "-" + str(len(self.idFields)) + "-" + str(len(self.m2oFields)) + "-" + str(len(self.o2mFields)))
+        self.logger.info("NEW SHEET:  processed Tab Mapping  for " + toString(tab_name) + "(target: " + toString(self.target_model) + ")" + str(len(self.stdFields)) + "-" + str(len(self.idFields)) + "-" + str(len(self.m2oFields)) + "-" + str(len(self.o2mFields)))
 
         return len(self.stdFields) + len(self.idFields) + len(self.m2oFields) + len(self.o2mFields)
 
@@ -549,7 +549,7 @@ class XLProcessor(Processor):
                         nb_fields = self.process_header(header_values, shname)
                         if nb_fields < 1 or self.target_model == None:
                             # do not continue if not able to process headers
-                            self.logger.error('Unable to process headers for Tab ' + shname)
+                            self.logger.error(u'Unable to process headers for Tab ' + shname)
                             break
                         elif ('import_processed' in self.target_model.fields_get_keys()):
                             # hook for objects needing to be set as processed through import
