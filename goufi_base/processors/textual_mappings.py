@@ -606,6 +606,7 @@ class XLProcessor(Processor):
 
         except Exception as e:
             self.logger.error("Processing Failed: " + str(e))
+            self.odooenv.cr.rollback()
             import_file.processing_status = 'failure'
             import_file.processing_result = str(e)
             self.odooenv.cr.commit()
