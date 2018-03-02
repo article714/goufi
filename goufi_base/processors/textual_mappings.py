@@ -397,7 +397,7 @@ class Processor(AbstractProcessor):
                 self.logger.error("                    MSG: {0}".format(toString(e)))
             except Exception as e:
                 self.odooenv.cr.rollback()
-                self.logger.exception(DEFAULT_LOG_STRING + " Generic Error : " + toString(type(e)) + "--- " + toString(e))
+                self.logger.exception(DEFAULT_LOG_STRING + " Generic Error raised Exception")
                 currentObj = None
 
         # *****
