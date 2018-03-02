@@ -338,7 +338,7 @@ class Processor(AbstractProcessor):
                 currentObj = None
             except Exception as e:
                 self.odooenv.cr.rollback()
-                self.logger.exception(DEFAULT_LOG_STRING + " Generic Error : " + toString(type(e)) + "--- " + toString(e))
+                self.logger.exception(DEFAULT_LOG_STRING + " Generic Error raised Exception")
                 currentObj = None
 
             # One2Many Fields,
@@ -374,7 +374,7 @@ class Processor(AbstractProcessor):
                 currentObj = None
             except Exception as e:
                 self.odooenv.cr.rollback()
-                self.logger.exception(DEFAULT_LOG_STRING + " Generic Error : " + toString(type(e)) + "--- " + toString(e))
+                self.logger.exception(DEFAULT_LOG_STRING + " Generic Error raised Exception")
                 currentObj = None
 
             self.odooenv.cr.commit()
