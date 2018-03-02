@@ -150,7 +150,7 @@ class Processor(AbstractProcessor):
                         col_mappings = found[0].column_mappings
                         self.header_line_idx = found[0].default_header_line_index
                     except:
-                        self.logger.error("Target model not found for " + toString(tab_name))
+                        self.logger.exception("Target model not found for " + toString(tab_name))
                         return -1
                 else:
                     self.logger.error("Tab not found: " + toString(tab_name))
@@ -164,7 +164,7 @@ class Processor(AbstractProcessor):
                 try:
                     self.target_model = self.odooenv[self.parent_config.target_object.model]
                 except:
-                    self.logger.error("Tab not found: " + toString(tab_name))
+                    self.logger.exception("Tab not found: " + toString(tab_name))
                     return -1
 
         if self.target_model == None:
@@ -333,12 +333,12 @@ class Processor(AbstractProcessor):
                 self.odooenv.cr.commit()
             except ValueError as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " wrong values where creating/updating object: " + self.target_model.name + " -> " + toString(stdRow) + "[" + toString(currentObj) + "]")
+                self.logger.exception(DEFAULT_LOG_STRING + " wrong values where creating/updating object: " + self.target_model.name + " -> " + toString(stdRow) + "[" + toString(currentObj) + "]")
                 self.logger.error("                    MSG: {0}".format(toString(e)))
                 currentObj = None
             except Exception as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " Generic Error : " + toString(type(e)) + "--- " + toString(e))
+                self.logger.exception(DEFAULT_LOG_STRING + " Generic Error : " + toString(type(e)) + "--- " + toString(e))
                 currentObj = None
 
             # One2Many Fields,
@@ -369,12 +369,12 @@ class Processor(AbstractProcessor):
                 self.odooenv.cr.commit()
             except ValueError as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " Wrong values where updating object: " + self.target_model.name + " -> " + toString(stdRow))
+                self.logger.exception(DEFAULT_LOG_STRING + " Wrong values where updating object: " + self.target_model.name + " -> " + toString(stdRow))
                 self.logger.error("                    MSG: {0}".format(toString(e)))
                 currentObj = None
             except Exception as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " Generic Error : " + toString(type(e)) + "--- " + toString(e))
+                self.logger.exception(DEFAULT_LOG_STRING + " Generic Error : " + toString(type(e)) + "--- " + toString(e))
                 currentObj = None
 
             self.odooenv.cr.commit()
@@ -393,11 +393,11 @@ class Processor(AbstractProcessor):
                     self.logger.error(DEFAULT_LOG_STRING + " No Target model was identified ")
             except ValueError as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " error where creating/updating object: " + self.target_model.name + " -> " + toString(data_values) + "[" + toString(currentObj) + "]")
+                self.logger.exception(DEFAULT_LOG_STRING + " error where creating/updating object: " + self.target_model.name + " -> " + toString(data_values) + "[" + toString(currentObj) + "]")
                 self.logger.error("                    MSG: {0}".format(toString(e)))
             except Exception as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " Generic Error : " + toString(type(e)) + "--- " + toString(e))
+                self.logger.exception(DEFAULT_LOG_STRING + " Generic Error : " + toString(type(e)) + "--- " + toString(e))
                 currentObj = None
 
         # *****
@@ -454,7 +454,7 @@ class CSVProcessor(Processor):
                 self.target_model = self.odooenv[modelname]
             except:
                 self.target_model = None
-                self.logger.error("Not able to guess target model from filename: " + toString(import_file.filename))
+                self.logger.exception("Not able to guess target model from filename: " + toString(import_file.filename))
                 import_file.processing_result = _(u"Model Not found")
                 import_file.processing_status = 'failure'
                 self.odooenv.cr.commit()
@@ -545,7 +545,10 @@ class XLProcessor(Processor):
             for r in sh:
 
                 # skip until idx = self.header_line_idx
-                if len(firstrow) == 0:
+                if isinstance(r, EmptyCell):
+                    self.logger.warning(u"Found Empty Cell/Line in " + shname)
+                    break
+                elif len(firstrow) == 0:
                     if idx == self.header_line_idx:
                         firstrow = r
                         for c in firstrow:
@@ -609,7 +612,7 @@ class XLProcessor(Processor):
             return result
 
         except Exception as e:
-            self.logger.error("Processing Failed: " + str(e))
+            self.logger.exception("Processing Failed: " + str(e))
             self.odooenv.cr.rollback()
             import_file.processing_status = 'failure'
             import_file.processing_result = str(e)
