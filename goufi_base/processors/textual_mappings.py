@@ -485,7 +485,9 @@ class CSVProcessor(Processor):
                         idx += 1
                         try:
                             self.process_values(import_file.filename, idx, row)
+
                         except Exception as e:
+                            self.logger.exception(u"Error when processing line N°" + str(idx))
                             import_file.processing_status = 'failure'
                             import_file.processing_result = str(e) + " -- " + e.message
                             self.odooenv.cr.commit()
@@ -523,8 +525,10 @@ class XLProcessor(Processor):
                         row_vals = sh.row_values(rownum)
                         for idx in range(0, hsize):
                             values[p_ligne[idx]] = row_vals[idx]
-
+                    try:
                         self.process_values(import_file.filename, rownum, values)
+                    except Exception as e:
+                        self.logger.exception(u"Error when processing line N°" + str(rownum) + " in " + sh.name)
         return True
 
     #-------------------------------------------------------------------------------------
@@ -536,7 +540,7 @@ class XLProcessor(Processor):
         for shname in wb.sheetnames:
 
             sh = wb[shname]
-            firstrow = []
+            firstrow = None
             header_values = []
             idx = 0
             nb_fields = 0
@@ -544,11 +548,7 @@ class XLProcessor(Processor):
 
             for r in sh:
 
-                # skip until idx = self.header_line_idx
-                if isinstance(r, EmptyCell):
-                    self.logger.warning(u"Found Empty Cell/Line in " + shname)
-                    break
-                elif len(firstrow) == 0:
+                if firstrow == None:
                     if idx == self.header_line_idx:
                         firstrow = r
                         for c in firstrow:
@@ -562,8 +562,7 @@ class XLProcessor(Processor):
                             # hook for objects needing to be set as processed through import
                             self.odooenv.cr.execute('update ' + toString(self.target_model._table) + ' set import_processed = False')
                             self.odooenv.cr.commit()
-
-                elif r != firstrow:
+                else:
                     if self.target_model == None:
                         break
                     values = {}
@@ -573,7 +572,10 @@ class XLProcessor(Processor):
                             colname = firstrow[c.column - 1].value
                         if colname != None:
                             values[colname] = c.value
-                    self.process_values(import_file.filename, idx, values)
+                    try:
+                        self.process_values(import_file.filename, idx, values)
+                    except Exception as e:
+                        self.logger.exception(u"Error when processing line N°" + str(idx) + " in " + shname)
 
                 idx += 1
             if self.target_model != None:
