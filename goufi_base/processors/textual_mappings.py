@@ -185,7 +185,7 @@ class Processor(AbstractProcessor):
             if val.is_identifier:
                 if val.mapping_expression in target_fields:
                     self.idFields[val.name] = val.mapping_expression
-                    self.stdFields.append(val.mapping_expression)
+                    self.stdFields.append(val.name)
                     self.allFields[val.name] = val.mapping_expression
                 else:
                     self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
@@ -222,10 +222,13 @@ class Processor(AbstractProcessor):
                     self.logger.debug(toString(v) + "  -> field not found, IGNORED")
             else:
                 if val.mapping_expression in target_fields:
-                    self.stdFields.append(val.mapping_expression)
+                    self.stdFields.append(val.name)
                     self.allFields[val.name] = val.mapping_expression
                 else:
                     self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
+
+        print ("DONE MAPPING: " + str(self.stdFields) + " --" + str(self.idFields) + " --" + str(self.m2oFields) + " --" + str(self.o2mFields))
+        print ("WITH ALL FIELDS MAPPING: " + str(self.allFields))
 
         return len(self.stdFields) + len(self.idFields) + len(self.m2oFields) + len(self.o2mFields)
 
@@ -260,7 +263,7 @@ class Processor(AbstractProcessor):
             for k in self.idFields:
                 keyfield = self.idFields[k]
                 value = data_values[k]
-                print ("ZOOOB " + str(keyfield) + "--- " + str(value))
+
                 if value != None and value != str(''):
                     search_criteria.append((keyfield, '=', value))
 
@@ -299,12 +302,17 @@ class Processor(AbstractProcessor):
 
         # Attention, il y a des champs collection ou relationnels
         if len(self.o2mFields) > 0 or len(self.m2oFields) > 0:
+
             stdRow = {}
             for f in self.stdFields:
                 if f in data_values:
                     stdRow[f] = data_values[f]
 
+            print ("GNNN: " + str(data_values) + " -- " + str(stdRow))
+
             # Many To One Fields, might be mandatory, so needs to be treated first and added to StdRow
+            print ("M2O Fields " + str(self.m2oFields))
+
             for f in self.m2oFields.keys():
 
                 if f in data_values:
@@ -320,7 +328,7 @@ class Processor(AbstractProcessor):
                         vals = self.odooenv[field[2]].search(cond, limit = 1)
 
                         if len(vals) == 1:
-                            stdRow[field[1]] = vals[0].id
+                            stdRow[f] = vals[0].id
                         else:
                             self.logger.warning(DEFAULT_LOG_STRING + " found " + toString(len(vals)) + " values for " + toString(data_values[f]) + "  unable to reference " + toString(field[3]) + " " + toString(vals))
 
@@ -345,6 +353,8 @@ class Processor(AbstractProcessor):
             # One2Many Fields,
 
             try:
+
+                print ("O2M Fields " + str(self.o2mFields))
                 for f in self.o2mFields.keys():
                     if f in data_values:
                         members = data_values[f].split(';')
