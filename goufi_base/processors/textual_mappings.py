@@ -261,20 +261,21 @@ class Processor(AbstractProcessor):
             # Detects if record needs to be deleted or archived
             CAN_BE_ARCHIVED = ('active' in self.target_model.fields_get_keys())
             for f in self.delOrArchFields:
-                config = self.delOrArchFields[f]
-                if config[0] and f in data_values:
-                    # deletion field
-                    TO_BE_DELETED = (re.match(config[1], data_values[f]) != None)
-                    TO_BE_ARCHIVED = config[2]
-                    if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
-                        self.logger.error("This kind of records can not be archived")
-                        TO_BE_ARCHIVED = False
-                else :
-                    # archival field
-                    TO_BE_ARCHIVED = (re.match(config[1], data_values[f]) != None)
-                    if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
-                        self.logger.error("This kind of records can not be archived")
-                        TO_BE_ARCHIVED = False
+                if f in data_values:
+                    config = self.delOrArchFields[f]
+                    if config[0]:
+                        # deletion field
+                        TO_BE_DELETED = (re.match(config[1], data_values[f]) != None)
+                        TO_BE_ARCHIVED = config[2]
+                        if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
+                            self.logger.error("This kind of records can not be archived")
+                            TO_BE_ARCHIVED = False
+                    else :
+                        # archival field
+                        TO_BE_ARCHIVED = (re.match(config[1], data_values[f]) != None)
+                        if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
+                            self.logger.error("This kind of records can not be archived")
+                            TO_BE_ARCHIVED = False
 
             # calcul des critères de recherche
             search_criteria = []
