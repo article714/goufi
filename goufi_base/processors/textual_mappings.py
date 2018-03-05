@@ -260,6 +260,7 @@ class Processor(AbstractProcessor):
             for k in self.idFields:
                 keyfield = self.idFields[k]
                 value = data_values[k]
+                print ("ZOOOB " + str(keyfield) + "--- " + str(value))
                 if value != None and value != str(''):
                     search_criteria.append((keyfield, '=', value))
 
