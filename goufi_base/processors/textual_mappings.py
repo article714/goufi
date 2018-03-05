@@ -282,7 +282,10 @@ class Processor(AbstractProcessor):
 
             for k in self.idFields:
                 keyfield = self.idFields[k]
-                value = data_values[k]
+                if k in data_values:
+                    value = data_values[k]
+                else:
+                    value = None
 
                 if value != None and value != str(''):
                     search_criteria.append((keyfield, '=', value))
