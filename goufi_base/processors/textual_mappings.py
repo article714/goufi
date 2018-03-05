@@ -244,7 +244,7 @@ class Processor(AbstractProcessor):
     # Process line values
     def process_values(self, filename, line_index, data_values):
 
-        DEFAULT_LOG_STRING = "<" + toString(filename) + "> [ line " + toString(line_index) + "] -> "
+        DEFAULT_LOG_STRING = "<" + toString(filename) + "> [ line " + toString(line_index + 1) + "] -> "
 
         currentObj = None
         TO_BE_ARCHIVED = False
@@ -290,7 +290,7 @@ class Processor(AbstractProcessor):
                 if value != None and value != str(''):
                     search_criteria.append((keyfield, '=', value))
                 else:
-                    self.logger.warning("GOUFI: Do not process line n.%d, as Id column is empty" % (line_index,))
+                    self.logger.warning("GOUFI: Do not process line n.%d, as Id column is empty" % (line_index + 1,))
                     return
 
             # ajout d'une clause pour rechercher tous les enregistrements
@@ -325,13 +325,13 @@ class Processor(AbstractProcessor):
                 except:
                     if TO_BE_ARCHIVED:
                         self.odooenv.cr.rollback()
-                        self.logger.warning("Archiving record as it can not be deleted (line n. %d)" % (line_index,))
+                        self.logger.warning("Archiving record as it can not be deleted (line n. %d)" % (line_index + 1,))
                         try:
                             currentObj.write({'active':False})
                             currentObj.active = False
                         except Exception as e:
                             self.odooenv.cr.rollback()
-                            self.logger.warning("Not able to archive record (line n. %d) : %s" % (line_index, toString(e),))
+                            self.logger.warning("Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
                 currentObj = None
                 self.odooenv.cr.commit()
             return
@@ -343,7 +343,7 @@ class Processor(AbstractProcessor):
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning("Not able to archive record (line n. %d) : %s" % (line_index, toString(e),))
+                    self.logger.warning("Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
             return
 
         # Processing of relational fields
