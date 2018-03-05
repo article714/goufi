@@ -262,7 +262,7 @@ class Processor(AbstractProcessor):
             CAN_BE_ARCHIVED = ('active' in self.target_model.fields_get_keys())
             for f in self.delOrArchFields:
                 config = self.delOrArchFields[f]
-                if config[0]:
+                if config[0] and f in data_values:
                     # deletion field
                     TO_BE_DELETED = (re.match(config[1], data_values[f]) != None)
                     TO_BE_ARCHIVED = config[2]
