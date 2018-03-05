@@ -16,6 +16,7 @@ class TabMapping(models.Model):
     _name = 'goufi.tab_mapping'
     _description = _(u"Mappings configuration for a tab")
     _rec_name = "name"
+    _order = "sequence"
 
     # Tab Name
     name = fields.Char(string = _(u'Tab name'),

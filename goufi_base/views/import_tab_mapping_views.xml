@@ -9,7 +9,7 @@
 		<field name="mode">primary</field>
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
-			<tree string="Tab Mapping - Import Configuration" default_order="id asc">
+			<tree string="Tab Mapping - Import Configuration">
                 <field name="sequence" widget="handle"/>
 				<field name="name"/>
 				<field name="target_object"/>

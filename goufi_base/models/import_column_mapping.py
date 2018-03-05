@@ -34,6 +34,7 @@ class ColumnMapping(models.Model):
     _name = 'goufi.column_mapping'
     _description = _(u"Mappings configuration for a given column")
     _rec_name = "name"
+    _order = "sequence"
 
     # Column mapping
     # name of the column

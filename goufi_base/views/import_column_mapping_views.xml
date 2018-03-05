@@ -9,7 +9,7 @@
 		<field name="mode">primary</field>
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
-			<tree string="Column mappings" default_order="id asc">
+			<tree string="Column mappings">
                 <field name="sequence" widget="handle"/>
 				<field name="col_group_support" invisible='1'/>
 				<field name="name"/>
