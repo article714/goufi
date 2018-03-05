@@ -266,7 +266,7 @@ class Processor(AbstractProcessor):
                     if config[0]:
                         # deletion field
                         TO_BE_DELETED = (re.match(config[1], data_values[f]) != None)
-                        TO_BE_ARCHIVED = config[2]
+                        TO_BE_ARCHIVED = TO_BE_DELETED and config[2]
                         if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
                             self.logger.error("This kind of records can not be archived")
                             TO_BE_ARCHIVED = False
