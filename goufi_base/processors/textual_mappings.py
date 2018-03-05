@@ -337,9 +337,13 @@ class Processor(AbstractProcessor):
             return
         elif TO_BE_ARCHIVED:
             if not currentObj == None:
-                currentObj.write({'active':False})
-                currentObj.active = False
-                self.odooenv.cr.commit()
+                try:
+                    currentObj.write({'active':False})
+                    currentObj.active = False
+                    self.odooenv.cr.commit()
+                except Exception as e:
+                    self.odooenv.cr.rollback()
+                    self.logger.warning("Not able to archive record (line n. %d) : %s" % (line_index, toString(e),))
             return
 
         # Processing of relational fields
