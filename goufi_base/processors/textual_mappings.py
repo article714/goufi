@@ -318,6 +318,7 @@ class Processor(AbstractProcessor):
             if not currentObj == None:
                 try:
                     currentObj.unlink()
+                    self.odooenv.cr.rollback()
                 except:
                     if TO_BE_ARCHIVED:
                         self.logger.warning("Archiving record as it can not be deleted (line n. %d" % (line_index,))
