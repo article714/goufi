@@ -10,12 +10,14 @@
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
 			<tree string="Column mappings" default_order="id asc">
+                <field name="sequence" widget="handle"/>
 				<field name="col_group_support" invisible='1'/>
 				<field name="name"/>
 				<field name="member_of" invisible="('col_group_support','=',False)"/>
 				<field name="mapping_expression"/>
 				<field name="is_identifier"/>
 				<field name="is_deletion_marker"/>
+				<field name="is_archival_marker"/>
 			</tree>
 		</field>
 	</record>
@@ -36,10 +38,18 @@
 					<group name="Group" string="Group" attrs="{'invisible':[('col_group_support','=',False)]}">
 						<field name="member_of"/>
 					</group>
-					<group name="Mapping configuration" string="Mapping configuration" >
-						<field name="mapping_expression"/>
+					<group name="mapping_configuration" string="Expression" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True)]}">
+						<field name="mapping_expression" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_deletion_marker','=',True)]}" />
 						<field name="is_identifier"/>
+					</group>
+					<group name="deletion_configuration" string="Deletion" attrs="{'invisible':['|',('is_identifier','=',True),('is_archival_marker','=',True)]}">
 						<field name="is_deletion_marker"/>
+						<field name="delete_if_expression" attrs="{'invisible':[('is_deletion_marker','=',False)]}"/>
+						<field name="archive_if_not_deleted" attrs="{'invisible':[('is_deletion_marker','=',False)]}"/>
+					</group>
+					<group name="archival_configuration" string="Archival" attrs="{'invisible':['|',('is_identifier','=',True),('is_deletion_marker','=',True)]}"> 
+						<field name="is_archival_marker" />
+						<field name="archive_if_expression" attrs="{'invisible':[('is_archival_marker','=',False)]}" />
 					</group>
 				</sheet>
 			</form>

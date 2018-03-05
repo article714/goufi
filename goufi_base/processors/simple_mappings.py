@@ -9,6 +9,8 @@ Created on 23 feb. 2018
 
 import logging
 
+from odoo.exceptions import ValidationError
+
 from odoo.addons.goufi_base.utils.converters import toString
 
 from .processor import AbstractProcessor
@@ -22,6 +24,11 @@ AUTHORIZED_EXTS = ('xlsx', 'xls', 'csv')
 
 
 class Processor(AbstractProcessor):
+    """
+    A very simple processor that only supports direct mapping of column to field-names
+
+    TODO: implement
+    """
 
     def __init__(self, parent_config):
         super(Processor, self).__init__(parent_config)
@@ -38,4 +45,5 @@ class Processor(AbstractProcessor):
     #-------------------------------------------------------------------------------------
     def process_data(self, import_file):
         logging.warning("Goufi Simple Mappings Import: " + toString(import_file.filename))
+        raise ValidationError("Not implemented yet")
 

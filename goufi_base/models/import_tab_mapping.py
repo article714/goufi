@@ -22,6 +22,9 @@ class TabMapping(models.Model):
                        help = _(u"Name of the tab to process with this mapping"),
                        required = True, track_visibility = 'onchange')
 
+    sequence = fields.Integer(string = _(u'Sequence'),
+                              default = 1, help = _(u"Used to order mappings. Lower is better."))
+
     target_object = fields.Many2one(string = _(u"Target object"),
                                     help = _(u"Odoo object that will be targeted by import: create, update or delete instances"),
                                     comodel_name = "ir.model",

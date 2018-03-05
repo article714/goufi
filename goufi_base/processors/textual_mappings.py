@@ -31,6 +31,9 @@ CSV_AUTHORIZED_EXTS = ('csv')
 
 class Processor(AbstractProcessor):
     """
+    TODO: translate documentation
+    TODO: optimize perfs by better using cache of header analysis
+
 
     Cette classe permet de traiter des fichiers CSV, XLS ou XLSX pour importer les données qu'ils contiennent dans une instance d'Odoo
 
@@ -101,6 +104,7 @@ class Processor(AbstractProcessor):
         self.stdFields = []
         self.idFields = []
         self.allFields = {}
+        self.delOrArchFields = {}
 
         self.header_line_idx = self.parent_config.default_header_line_index
         self.target_model = None
@@ -137,10 +141,12 @@ class Processor(AbstractProcessor):
         self.stdFields = []
         self.idFields = {}
         self.allFields = {}
+        self.delOrArchFields = {}
         col_mappings = None
 
         tabmap_model = self.odooenv['goufi.tab_mapping']
 
+        # Look for target Model in parent config
         if self.parent_config.tab_support:
             if tab_name != None:
                 found = tabmap_model.search([('parent_configuration', '=', self.parent_config.id), ('name', '=', tab_name)], limit = 1)
@@ -167,19 +173,21 @@ class Processor(AbstractProcessor):
                     self.logger.exception("Tab not found: " + toString(tab_name))
                     return -1
 
+        # We should have a model now
         if self.target_model == None:
             self.logger.error("MODEL NOT FOUND ")
             return -1
         else:
             self.logger.info("NEW SHEET:  Import data for model " + toString(self.target_model._name))
 
+        # List of fields in target model
         target_fields = None
         if self.target_model == None:
-            self.logger.error("FAILED => NO TARGET MODEL FOUND")
             raise Exception('FAILED', "FAILED => NO TARGET MODEL FOUND")
         else:
             target_fields = self.target_model.fields_get_keys()
 
+        # process column mappings
         for val in col_mappings:
 
             if val.is_identifier:
@@ -189,6 +197,10 @@ class Processor(AbstractProcessor):
                     self.allFields[val.name] = val.mapping_expression
                 else:
                     self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
+            elif val.is_deletion_marker:
+                self.delOrArchFields[val.name] = (True, val.delete_if_expression, val.archive_if_not_deleted)
+            elif val.is_archival_marker:
+                self.delOrArchFields[val.name] = (False, val.archive_if_expression)
             elif re.match(r'\*.*', val.mapping_expression):
                 v = val.mapping_expression.replace('*', '')
                 vals = [0] + v.split('/')
@@ -226,10 +238,6 @@ class Processor(AbstractProcessor):
                     self.allFields[val.name] = val.mapping_expression
                 else:
                     self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
-
-        print ("DONE MAPPING: " + str(self.stdFields) + " --" + str(self.idFields) + " --" + str(self.m2oFields) + " --" + str(self.o2mFields))
-        print ("WITH ALL FIELDS MAPPING: " + str(self.allFields))
-
         return len(self.stdFields) + len(self.idFields) + len(self.m2oFields) + len(self.o2mFields)
 
     #-------------------------------------------------------------------------------------
@@ -240,22 +248,33 @@ class Processor(AbstractProcessor):
 
         currentObj = None
         TO_BE_ARCHIVED = False
+        TO_BE_DELETED = False
 
         if self.target_model == None:
             return False
 
-        # Attention, il y a un champs ID => on traite les mises à jour et les suppressions ou archivages
-        # suppression/archivage si une valeur contient "supprimer de la base odoo
+        # If there exists an id field we can process deletion, archival and updates
+        # if there is no, we can only process creation
 
         if len(self.idFields) > 0 and self.target_model != None:
 
-            # traitement des enregistrements à "archiver" ou "supprimer"
-            allvals = u"".join(map(toString, data_values.values()))
-
-            if u'supprimer de la base odoo' in allvals:
-                TO_BE_ARCHIVED = True
-            else:
-                TO_BE_ARCHIVED = False
+            # Detects if record needs to be deleted or archived
+            CAN_BE_ARCHIVED = ('active' in self.target_model.fields_get_keys())
+            for f in self.delOrArchFields:
+                config = self.delOrArchFields[f]
+                if config[0]:
+                    # deletion field
+                    TO_BE_DELETED = (re.match(config[1], data_values[f]) != None)
+                    TO_BE_ARCHIVED = config[2]
+                    if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
+                        self.logger.error("This kind of records can not be archived")
+                        TO_BE_ARCHIVED = False
+                else :
+                    # archival field
+                    TO_BE_ARCHIVED = (re.match(config[1], data_values[f]) != None)
+                    if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
+                        self.logger.error("This kind of records can not be archived")
+                        TO_BE_ARCHIVED = False
 
             # calcul des critères de recherche
             search_criteria = []
@@ -266,9 +285,11 @@ class Processor(AbstractProcessor):
 
                 if value != None and value != str(''):
                     search_criteria.append((keyfield, '=', value))
+                else:
+                    self.logger.warning("GOUFI: Do not process line n.%d, as Id column is empty" % (line_index,))
+                    return
 
             # ajout d'une clause pour rechercher tous les enregistrements
-            CAN_BE_ARCHIVED = ('active' in self.target_model.fields_get_keys())
             if CAN_BE_ARCHIVED:
                 search_criteria.append('|')
                 search_criteria.append(('active', '=', True))
@@ -292,15 +313,27 @@ class Processor(AbstractProcessor):
             currentObj.import_processed = True
             self.odooenv.cr.commit()
 
-        # Traitement des suppressions ou archivages
-        if TO_BE_ARCHIVED and CAN_BE_ARCHIVED:
+        # processing archives or deletion and returns
+        if TO_BE_DELETED:
+            if not currentObj == None:
+                try:
+                    currentObj.unlink()
+                except:
+                    if TO_BE_ARCHIVED:
+                        self.logger.warning("Archiving record as it can not be deleted (line n. %d" % (line_index,))
+                        currentObj.write({'active':False})
+                        currentObj.active = False
+                currentObj = None
+                self.odooenv.cr.commit()
+            return
+        elif TO_BE_ARCHIVED:
             if not currentObj == None:
                 currentObj.write({'active':False})
                 currentObj.active = False
                 self.odooenv.cr.commit()
             return
 
-        # Attention, il y a des champs collection ou relationnels
+        # Processing of relational fields
         if len(self.o2mFields) > 0 or len(self.m2oFields) > 0:
 
             stdRow = {}
@@ -308,11 +341,7 @@ class Processor(AbstractProcessor):
                 if f in data_values:
                     stdRow[f] = data_values[f]
 
-            print ("GNNN: " + str(data_values) + " -- " + str(stdRow))
-
             # Many To One Fields, might be mandatory, so needs to be treated first and added to StdRow
-            print ("M2O Fields " + str(self.m2oFields))
-
             for f in self.m2oFields.keys():
 
                 if f in data_values:
@@ -353,8 +382,6 @@ class Processor(AbstractProcessor):
             # One2Many Fields,
 
             try:
-
-                print ("O2M Fields " + str(self.o2mFields))
                 for f in self.o2mFields.keys():
                     if f in data_values:
                         members = data_values[f].split(';')

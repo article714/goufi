@@ -41,10 +41,13 @@ class ColumnMapping(models.Model):
                        help = _(u"Name of the column to map"),
                        required = True, track_visibility = 'onchange')
 
+    sequence = fields.Integer(string = _(u'Sequence'),
+                              default = 1, help = _(u"Used to order mappings. Lower is better."))
+
     # expression
     mapping_expression = fields.Char(string = _(u'Mapping Expression'),
                                      help = _(u"Expression used to process column content, meaning depends on chosen processor."),
-                                     required = True, track_visibility = 'onchange')
+                                     required = False, track_visibility = 'onchange')
 
     # is column part of a group
 
@@ -70,8 +73,27 @@ There can be several columns used as criteria
 
     # is column a deletion marker
     is_deletion_marker = fields.Boolean(string = _(u"Does column contain a deletion marker?"),
+                                        help = _(u"If True, the selected record (if found) will be deleted"),
                                    required = True, default = False)
 
+    delete_if_expression = fields.Char(string = _(u"Delete if value matches"),
+                                       help = _(u"Must contain a regular expression that the column value must match to be evaluated as True and the record be deleted"),
+                                       required = False, default = _(u"Yes"), size = 64)
+
+    archive_if_not_deleted = fields.Boolean(string = _(u"Archive if not deleted?"),
+                                            help = _(u"Should we archive record if deletion fail?"),
+                                   required = True, default = False)
+
+    # is column an archival marker
+    is_archival_marker = fields.Boolean(string = _(u"Does column contain an archival marker?"),
+                                        help = _(u"If True, the selected record (if found) will be archived"),
+                                   required = True, default = False)
+
+    archive_if_expression = fields.Char(string = _(u"Archive if value matches"),
+                                       help = _(u"Must contain a regular expression that the column value must match to be evaluated as True and the record be archived"),
+                                       required = False, default = _(u"Yes"), size = 64)
+
+    # target object (when relevant)
     target_object = fields.Many2one(string = _(u"Target object"),
                                     help = _(u"Odoo object that will be targeted by import: create, update or delete instances"),
                                     comodel_name = "ir.model",
