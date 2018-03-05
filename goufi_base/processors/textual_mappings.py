@@ -325,9 +325,13 @@ class Processor(AbstractProcessor):
                 except:
                     if TO_BE_ARCHIVED:
                         self.odooenv.cr.rollback()
-                        self.logger.warning("Archiving record as it can not be deleted (line n. %d" % (line_index,))
-                        currentObj.write({'active':False})
-                        currentObj.active = False
+                        self.logger.warning("Archiving record as it can not be deleted (line n. %d)" % (line_index,))
+                        try:
+                            currentObj.write({'active':False})
+                            currentObj.active = False
+                        except Exception as e:
+                            self.odooenv.cr.rollback()
+                            self.logger.warning("Not able to archive record (line n. %d) : %s" % (line_index, toString(e),))
                 currentObj = None
                 self.odooenv.cr.commit()
             return
