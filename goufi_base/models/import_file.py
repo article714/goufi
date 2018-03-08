@@ -81,7 +81,7 @@ class ImportFile(models.Model):
                         logging.error("GOUFI: Cannot process file, no processor class found " + self.filename)
                         return None
                 except Exception as e:
-                    logging.error("GOUFI: Cannot process file, error when evaluating processor module" + self.filename + "(" + str(e) + "-" + str(e.message) + ")")
+                    logging.error("GOUFI: Cannot process file, error when evaluating processor module" + self.filename + "(" + str(e) + ")")
 
                 # Process File
                 # TODO: one day provide a way to re-use processor instances?
