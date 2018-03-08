@@ -13,7 +13,7 @@ from os import path, remove
 import base64
 import logging
 
-from odoo import exceptions
+from odoo.exceptions import ValidationError
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 from odoo.addons.goufi_base.models.import_configuration import ImportConfiguration
@@ -129,26 +129,26 @@ class AbstractProcessor(object):
         Method that actually process data
         Should return True on success and False on failure
         """
-        raise exceptions.ValidationError("GOUFI: un-implemented process_data method")
+        raise ValidationError("GOUFI: un-implemented process_data method")
 
     #-------------------------------------------------------------------------------------
     def end_processing(self, import_file, success = True):
         """
         Method that closes-up the processing
         """
-        self.logger.info("End processing of file " + toString(import_file.filename))
+        self.logger.info("End processing of aFile " + toString(import_file.filename))
         if success:
             import_file.processing_status = 'ended'
             import_file.processing_result = 'OK'
         else:
             import_file.processing_status = 'failure'
 
-        # uploads log file
+        # uploads log aFile
         # TODO: deal with big log files
         if self.logger_fh:
             file_base64 = ''
-            with open(self.logger_fh.baseFilename, "rb") as file:
-                file_base64 = base64.b64encode(file.read())
+            with open(self.logger_fh.baseFilename, "rb") as aFile:
+                file_base64 = base64.b64encode(aFile.read())
             import_file.processing_logs = file_base64
 
         import_file.date_stop_processing = datetime.now()

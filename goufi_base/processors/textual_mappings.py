@@ -31,6 +31,9 @@ CSV_AUTHORIZED_EXTS = ('csv')
 
 class Processor(AbstractProcessor):
     """
+    TODO: translate documentation
+    TODO: optimize perfs by better using cache of header analysis
+
 
     Cette classe permet de traiter des fichiers CSV, XLS ou XLSX pour importer les données qu'ils contiennent dans une instance d'Odoo
 
@@ -101,6 +104,7 @@ class Processor(AbstractProcessor):
         self.stdFields = []
         self.idFields = []
         self.allFields = {}
+        self.delOrArchFields = {}
 
         self.header_line_idx = self.parent_config.default_header_line_index
         self.target_model = None
@@ -137,10 +141,12 @@ class Processor(AbstractProcessor):
         self.stdFields = []
         self.idFields = {}
         self.allFields = {}
+        self.delOrArchFields = {}
         col_mappings = None
 
         tabmap_model = self.odooenv['goufi.tab_mapping']
 
+        # Look for target Model in parent config
         if self.parent_config.tab_support:
             if tab_name != None:
                 found = tabmap_model.search([('parent_configuration', '=', self.parent_config.id), ('name', '=', tab_name)], limit = 1)
@@ -150,7 +156,7 @@ class Processor(AbstractProcessor):
                         col_mappings = found[0].column_mappings
                         self.header_line_idx = found[0].default_header_line_index
                     except:
-                        self.logger.error("Target model not found for " + toString(tab_name))
+                        self.logger.exception("Target model not found for " + toString(tab_name))
                         return -1
                 else:
                     self.logger.error("Tab not found: " + toString(tab_name))
@@ -164,31 +170,37 @@ class Processor(AbstractProcessor):
                 try:
                     self.target_model = self.odooenv[self.parent_config.target_object.model]
                 except:
-                    self.logger.error("Tab not found: " + toString(tab_name))
+                    self.logger.exception("Tab not found: " + toString(tab_name))
                     return -1
 
+        # We should have a model now
         if self.target_model == None:
             self.logger.error("MODEL NOT FOUND ")
             return -1
         else:
             self.logger.info("NEW SHEET:  Import data for model " + toString(self.target_model._name))
 
+        # List of fields in target model
         target_fields = None
         if self.target_model == None:
-            self.logger.error("FAILED => NO TARGET MODEL FOUND")
             raise Exception('FAILED', "FAILED => NO TARGET MODEL FOUND")
         else:
             target_fields = self.target_model.fields_get_keys()
 
+        # process column mappings
         for val in col_mappings:
 
             if val.is_identifier:
                 if val.mapping_expression in target_fields:
                     self.idFields[val.name] = val.mapping_expression
-                    self.stdFields.append(val.mapping_expression)
+                    self.stdFields.append(val.name)
                     self.allFields[val.name] = val.mapping_expression
                 else:
                     self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
+            elif val.is_deletion_marker:
+                self.delOrArchFields[val.name] = (True, val.delete_if_expression, val.archive_if_not_deleted)
+            elif val.is_archival_marker:
+                self.delOrArchFields[val.name] = (False, val.archive_if_expression)
             elif re.match(r'\*.*', val.mapping_expression):
                 v = val.mapping_expression.replace('*', '')
                 vals = [0] + v.split('/')
@@ -222,49 +234,66 @@ class Processor(AbstractProcessor):
                     self.logger.debug(toString(v) + "  -> field not found, IGNORED")
             else:
                 if val.mapping_expression in target_fields:
-                    self.stdFields.append(val.mapping_expression)
+                    self.stdFields.append(val.name)
                     self.allFields[val.name] = val.mapping_expression
                 else:
                     self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
-
         return len(self.stdFields) + len(self.idFields) + len(self.m2oFields) + len(self.o2mFields)
 
     #-------------------------------------------------------------------------------------
     # Process line values
     def process_values(self, filename, line_index, data_values):
 
-        DEFAULT_LOG_STRING = "<" + toString(filename) + "> [ line " + toString(line_index) + "] -> "
+        DEFAULT_LOG_STRING = "<" + toString(filename) + "> [ line " + toString(line_index + 1) + "] -> "
 
         currentObj = None
         TO_BE_ARCHIVED = False
+        TO_BE_DELETED = False
 
         if self.target_model == None:
             return False
 
-        # Attention, il y a un champs ID => on traite les mises à jour et les suppressions ou archivages
-        # suppression/archivage si une valeur contient "supprimer de la base odoo
+        # If there exists an id field we can process deletion, archival and updates
+        # if there is no, we can only process creation
 
         if len(self.idFields) > 0 and self.target_model != None:
 
-            # traitement des enregistrements à "archiver" ou "supprimer"
-            allvals = u"".join(map(toString, data_values.values()))
-
-            if u'supprimer de la base odoo' in allvals:
-                TO_BE_ARCHIVED = True
-            else:
-                TO_BE_ARCHIVED = False
+            # Detects if record needs to be deleted or archived
+            CAN_BE_ARCHIVED = ('active' in self.target_model.fields_get_keys())
+            for f in self.delOrArchFields:
+                if f in data_values:
+                    config = self.delOrArchFields[f]
+                    if config[0]:
+                        # deletion field
+                        TO_BE_DELETED = (re.match(config[1], data_values[f]) != None)
+                        TO_BE_ARCHIVED = TO_BE_DELETED and config[2]
+                        if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
+                            self.logger.error("This kind of records can not be archived")
+                            TO_BE_ARCHIVED = False
+                    else :
+                        # archival field
+                        TO_BE_ARCHIVED = (re.match(config[1], data_values[f]) != None)
+                        if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
+                            self.logger.error("This kind of records can not be archived")
+                            TO_BE_ARCHIVED = False
 
             # calcul des critères de recherche
             search_criteria = []
 
             for k in self.idFields:
                 keyfield = self.idFields[k]
-                value = data_values[k]
+                if k in data_values:
+                    value = data_values[k]
+                else:
+                    value = None
+
                 if value != None and value != str(''):
                     search_criteria.append((keyfield, '=', value))
+                else:
+                    self.logger.warning("GOUFI: Do not process line n.%d, as Id column is empty" % (line_index + 1,))
+                    return
 
             # ajout d'une clause pour rechercher tous les enregistrements
-            CAN_BE_ARCHIVED = ('active' in self.target_model.fields_get_keys())
             if CAN_BE_ARCHIVED:
                 search_criteria.append('|')
                 search_criteria.append(('active', '=', True))
@@ -288,16 +317,38 @@ class Processor(AbstractProcessor):
             currentObj.import_processed = True
             self.odooenv.cr.commit()
 
-        # Traitement des suppressions ou archivages
-        if TO_BE_ARCHIVED and CAN_BE_ARCHIVED:
+        # processing archives or deletion and returns
+        if TO_BE_DELETED:
             if not currentObj == None:
-                currentObj.write({'active':False})
-                currentObj.active = False
+                try:
+                    currentObj.unlink()
+                except:
+                    if TO_BE_ARCHIVED:
+                        self.odooenv.cr.rollback()
+                        self.logger.warning("Archiving record as it can not be deleted (line n. %d)" % (line_index + 1,))
+                        try:
+                            currentObj.write({'active':False})
+                            currentObj.active = False
+                        except Exception as e:
+                            self.odooenv.cr.rollback()
+                            self.logger.warning("Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
+                currentObj = None
                 self.odooenv.cr.commit()
             return
+        elif TO_BE_ARCHIVED:
+            if not currentObj == None:
+                try:
+                    currentObj.write({'active':False})
+                    currentObj.active = False
+                    self.odooenv.cr.commit()
+                except Exception as e:
+                    self.odooenv.cr.rollback()
+                    self.logger.warning("Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
+            return
 
-        # Attention, il y a des champs collection ou relationnels
+        # Processing of relational fields
         if len(self.o2mFields) > 0 or len(self.m2oFields) > 0:
+
             stdRow = {}
             for f in self.stdFields:
                 if f in data_values:
@@ -319,7 +370,7 @@ class Processor(AbstractProcessor):
                         vals = self.odooenv[field[2]].search(cond, limit = 1)
 
                         if len(vals) == 1:
-                            stdRow[field[1]] = vals[0].id
+                            stdRow[f] = vals[0].id
                         else:
                             self.logger.warning(DEFAULT_LOG_STRING + " found " + toString(len(vals)) + " values for " + toString(data_values[f]) + "  unable to reference " + toString(field[3]) + " " + toString(vals))
 
@@ -333,12 +384,12 @@ class Processor(AbstractProcessor):
                 self.odooenv.cr.commit()
             except ValueError as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " wrong values where creating/updating object: " + self.target_model.name + " -> " + toString(stdRow) + "[" + toString(currentObj) + "]")
+                self.logger.exception(DEFAULT_LOG_STRING + " wrong values where creating/updating object: " + self.target_model.name + " -> " + toString(stdRow) + "[" + toString(currentObj) + "]")
                 self.logger.error("                    MSG: {0}".format(toString(e)))
                 currentObj = None
             except Exception as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " Generic Error : " + toString(type(e)) + "--- " + toString(e))
+                self.logger.exception(DEFAULT_LOG_STRING + " Generic Error raised Exception")
                 currentObj = None
 
             # One2Many Fields,
@@ -369,12 +420,12 @@ class Processor(AbstractProcessor):
                 self.odooenv.cr.commit()
             except ValueError as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " Wrong values where updating object: " + self.target_model.name + " -> " + toString(stdRow))
+                self.logger.exception(DEFAULT_LOG_STRING + " Wrong values where updating object: " + self.target_model.name + " -> " + toString(stdRow))
                 self.logger.error("                    MSG: {0}".format(toString(e)))
                 currentObj = None
             except Exception as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " Generic Error : " + toString(type(e)) + "--- " + toString(e))
+                self.logger.exception(DEFAULT_LOG_STRING + " Generic Error raised Exception")
                 currentObj = None
 
             self.odooenv.cr.commit()
@@ -393,11 +444,11 @@ class Processor(AbstractProcessor):
                     self.logger.error(DEFAULT_LOG_STRING + " No Target model was identified ")
             except ValueError as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " error where creating/updating object: " + self.target_model.name + " -> " + toString(data_values) + "[" + toString(currentObj) + "]")
+                self.logger.exception(DEFAULT_LOG_STRING + " error where creating/updating object: " + self.target_model.name + " -> " + toString(data_values) + "[" + toString(currentObj) + "]")
                 self.logger.error("                    MSG: {0}".format(toString(e)))
             except Exception as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " Generic Error : " + toString(type(e)) + "--- " + toString(e))
+                self.logger.exception(DEFAULT_LOG_STRING + " Generic Error raised Exception")
                 currentObj = None
 
         # *****
@@ -454,7 +505,7 @@ class CSVProcessor(Processor):
                 self.target_model = self.odooenv[modelname]
             except:
                 self.target_model = None
-                self.logger.error("Not able to guess target model from filename: " + toString(import_file.filename))
+                self.logger.exception("Not able to guess target model from filename: " + toString(import_file.filename))
                 import_file.processing_result = _(u"Model Not found")
                 import_file.processing_status = 'failure'
                 self.odooenv.cr.commit()
@@ -485,7 +536,9 @@ class CSVProcessor(Processor):
                         idx += 1
                         try:
                             self.process_values(import_file.filename, idx, row)
+
                         except Exception as e:
+                            self.logger.exception(u"Error when processing line N°" + str(idx))
                             import_file.processing_status = 'failure'
                             import_file.processing_result = str(e) + " -- " + e.message
                             self.odooenv.cr.commit()
@@ -523,8 +576,10 @@ class XLProcessor(Processor):
                         row_vals = sh.row_values(rownum)
                         for idx in range(0, hsize):
                             values[p_ligne[idx]] = row_vals[idx]
-
+                    try:
                         self.process_values(import_file.filename, rownum, values)
+                    except Exception as e:
+                        self.logger.exception(u"Error when processing line N°" + str(rownum) + " in " + sh.name)
         return True
 
     #-------------------------------------------------------------------------------------
@@ -536,7 +591,7 @@ class XLProcessor(Processor):
         for shname in wb.sheetnames:
 
             sh = wb[shname]
-            firstrow = []
+            firstrow = None
             header_values = []
             idx = 0
             nb_fields = 0
@@ -544,8 +599,7 @@ class XLProcessor(Processor):
 
             for r in sh:
 
-                # skip until idx = self.header_line_idx
-                if len(firstrow) == 0:
+                if firstrow == None:
                     if idx == self.header_line_idx:
                         firstrow = r
                         for c in firstrow:
@@ -559,8 +613,7 @@ class XLProcessor(Processor):
                             # hook for objects needing to be set as processed through import
                             self.odooenv.cr.execute('update ' + toString(self.target_model._table) + ' set import_processed = False')
                             self.odooenv.cr.commit()
-
-                elif r != firstrow:
+                else:
                     if self.target_model == None:
                         break
                     values = {}
@@ -570,7 +623,10 @@ class XLProcessor(Processor):
                             colname = firstrow[c.column - 1].value
                         if colname != None:
                             values[colname] = c.value
-                    self.process_values(import_file.filename, idx, values)
+                    try:
+                        self.process_values(import_file.filename, idx, values)
+                    except Exception as e:
+                        self.logger.exception(u"Error when processing line N°" + str(idx) + " in " + shname)
 
                 idx += 1
             if self.target_model != None:
@@ -609,7 +665,7 @@ class XLProcessor(Processor):
             return result
 
         except Exception as e:
-            self.logger.error("Processing Failed: " + str(e))
+            self.logger.exception("Processing Failed: " + str(e))
             self.odooenv.cr.rollback()
             import_file.processing_status = 'failure'
             import_file.processing_result = str(e)
