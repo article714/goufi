@@ -190,6 +190,9 @@ class Processor(AbstractProcessor):
             target_fields = self.target_model.fields_get_keys()
 
         # process column mappings
+        if col_mappings == None:
+            self.logger.warning("NO Column mappings provided => fail")
+            return -1
         for val in col_mappings:
 
             if val.is_identifier:
