@@ -164,7 +164,7 @@ class Processor(AbstractProcessor):
             else:
                 self.logger.error("No tab name given")
                 return -1
-        else:
+        elif self.parent_config.needs_mappings:
             col_mappings = self.parent_config.column_mappings
             if self.target_model == None:
                 try:
