@@ -136,8 +136,6 @@ class Processor(AbstractProcessor):
 
     def process_header(self, header_lines = [], tab_name = None):
 
-        print ("ENCULE process_header: " + str(self.target_model) + "--" + str(self))
-
         self.o2mFields = {}
         self.m2oFields = {}
         self.stdFields = []
