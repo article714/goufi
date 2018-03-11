@@ -136,6 +136,8 @@ class Processor(AbstractProcessor):
 
     def process_header(self, header_lines = [], tab_name = None):
 
+        print ("ENCULE process_header: " + str(self.target_model) + "--" + str(self))
+
         self.o2mFields = {}
         self.m2oFields = {}
         self.stdFields = []
@@ -484,11 +486,11 @@ class CSVProcessor(Processor):
 
         # Search for target model
 
-        self.target_model = None
-        try:
-            self.target_model = self.odooenv[self.parent_config.target_object.model]
-        except:
-            self.target_model = None
+        if self.target_model == None:
+            try:
+                self.target_model = self.odooenv[self.parent_config.target_object.model]
+            except:
+                self.target_model = None
 
         if self.target_model == None:
 
@@ -562,8 +564,6 @@ class XLProcessor(Processor):
         wb = xlrd.open_workbook(import_file.filename)
         for sh in wb.sheets():
 
-            self.target_model = None
-
             # la ligne se sont les intitutlés
             p_ligne = sh.row_values(self.header_line_idx)
             hsize = len(p_ligne)
@@ -595,7 +595,6 @@ class XLProcessor(Processor):
             header_values = []
             idx = 0
             nb_fields = 0
-            self.target_model = None
 
             for r in sh:
 
