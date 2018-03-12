@@ -94,11 +94,24 @@ There can be several columns used as criteria
                                        help = _(u"Must contain a regular expression that the column value must match to be evaluated as True and the record be archived"),
                                        required = False, default = _(u"Yes"), size = 64)
 
-    # target object (when relevant)
+    # is a contextual expression mapping
+    # (that is computed from processor properties, not from import file)
+
+    is_contextual_expression_mapping = fields.Boolean(string = _(u"Is a contextual expression mapping "),
+                                        help = _(u"If this mapping is a contextual expression, then it  is computed from processor properties, not from import file"),
+                                   required = True, default = False)
+
+    # target object and target field (when relevant)
     target_object = fields.Many2one(string = _(u"Target object"),
                                     help = _(u"Odoo object that will be targeted by import: create, update or delete instances"),
                                     comodel_name = "ir.model",
                                     required = False)
+
+    target_field = fields.Many2one(string = _(u"Target field"),
+                                    help = _(u"Odoo object's field that will be targeted by import: create, update or delete instances"),
+                                    comodel_name = "ir.model.fields",
+                                    required = False,
+                                    domain = "[('model_id','=',target_object.id)]")
 
     # Info about parent configuration and parent tab (if relevant)
 

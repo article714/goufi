@@ -105,6 +105,7 @@ class Processor(AbstractProcessor):
         self.idFields = []
         self.allFields = {}
         self.delOrArchFields = {}
+        self.contextValues = {}
 
         self.header_line_idx = self.parent_config.default_header_line_index
         self.target_model = None
@@ -204,6 +205,8 @@ class Processor(AbstractProcessor):
                 self.delOrArchFields[val.name] = (True, val.delete_if_expression, val.archive_if_not_deleted)
             elif val.is_archival_marker:
                 self.delOrArchFields[val.name] = (False, val.archive_if_expression)
+            elif val.is_contextual_expression_mapping:
+                self.contextValues[val.name] = val.mapping_expression
             elif re.match(r'\*.*', val.mapping_expression):
                 v = val.mapping_expression.replace('*', '')
                 vals = [0] + v.split('/')
@@ -255,6 +258,14 @@ class Processor(AbstractProcessor):
 
         if self.target_model == None:
             return False
+
+        # Process contextual values
+        for val in self.contextValues:
+            try:
+                value = eval(val.name)
+                data_values[val.mapping_expression] = value
+            except Exception as e:
+                self.logger.exception("Failed to evaluate expression from context: " + str(val.name))
 
         # If there exists an id field we can process deletion, archival and updates
         # if there is no, we can only process creation

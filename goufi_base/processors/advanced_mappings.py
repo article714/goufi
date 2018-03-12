@@ -22,6 +22,9 @@ AUTHORIZED_EXTS = ('xlsx', 'xls', 'csv')
 
 
 class Processor(AbstractProcessor):
+    """
+    TODO: define what an "advanced mapping" is
+    """
 
     def __init__(self, parent_config):
         super(Processor, self).__init__(parent_config)

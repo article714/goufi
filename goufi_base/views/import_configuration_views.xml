@@ -49,6 +49,9 @@
 								<field name="name" />
 								<field name="mapping_expression" />
 								<field name="is_identifier" />
+								<field name="is_contextual_expression_mapping"/>
+								<field name="is_deletion_marker"/>
+								<field name="is_archival_marker"/>
 								<field name="parent_configuration" invisible="1" />
 								<field name="tab_support" invisible="1" />
 								<field name="target_object" invisible="1" />
