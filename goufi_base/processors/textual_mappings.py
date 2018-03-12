@@ -143,6 +143,7 @@ class Processor(AbstractProcessor):
         self.idFields = {}
         self.allFields = {}
         self.delOrArchFields = {}
+        self.contextValues = {}
         col_mappings = None
 
         tabmap_model = self.odooenv['goufi.tab_mapping']
@@ -194,19 +195,25 @@ class Processor(AbstractProcessor):
             return -1
         for val in col_mappings:
 
-            if val.is_identifier:
-                if val.mapping_expression in target_fields:
-                    self.idFields[val.name] = val.mapping_expression
+            if val.is_identifier or val.is_contextual_expression_mapping:
+                if val.is_identifier:
+                    if val.mapping_expression in target_fields:
+                        self.idFields[val.name] = val.mapping_expression
+                        self.stdFields.append(val.name)
+                        self.allFields[val.name] = val.mapping_expression
+                    else:
+                        self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
+
+                if val.is_contextual_expression_mapping:
+                    self.contextValues[val.name] = val.mapping_expression
                     self.stdFields.append(val.name)
                     self.allFields[val.name] = val.mapping_expression
-                else:
-                    self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
+
             elif val.is_deletion_marker:
                 self.delOrArchFields[val.name] = (True, val.delete_if_expression, val.archive_if_not_deleted)
             elif val.is_archival_marker:
                 self.delOrArchFields[val.name] = (False, val.archive_if_expression)
-            elif val.is_contextual_expression_mapping:
-                self.contextValues[val.name] = val.mapping_expression
+
             elif re.match(r'\*.*', val.mapping_expression):
                 v = val.mapping_expression.replace('*', '')
                 vals = [0] + v.split('/')
@@ -244,6 +251,7 @@ class Processor(AbstractProcessor):
                     self.allFields[val.name] = val.mapping_expression
                 else:
                     self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
+
         return len(self.stdFields) + len(self.idFields) + len(self.m2oFields) + len(self.o2mFields)
 
     #-------------------------------------------------------------------------------------
@@ -263,14 +271,12 @@ class Processor(AbstractProcessor):
         for val in self.contextValues:
             try:
                 value = eval(val)
-                data_values[self.contextValues[val]] = value
+                data_values[val] = value
             except Exception as e:
                 self.logger.exception("Failed to evaluate expression from context: " + str(val.name))
 
         # If there exists an id field we can process deletion, archival and updates
         # if there is no, we can only process creation
-
-        print ("GNNN : " + str(data_values))
 
         if len(self.idFields) > 0 and self.target_model != None:
 
@@ -316,7 +322,10 @@ class Processor(AbstractProcessor):
                 search_criteria.append(('active', '=', False))
 
             # recherche d'un enregistrement existant
-            found = self.target_model.search(search_criteria)
+            if len(self.idFields) > 0:
+                found = self.target_model.search(search_criteria)
+            else:
+                found = 0
 
             if len(found) == 1:
                 currentObj = found[0]
@@ -393,6 +402,7 @@ class Processor(AbstractProcessor):
             # Create Object if it does not yet exist, else, write updates
             try:
                 if currentObj == None:
+
                     currentObj = self.target_model.create(self.map_values(stdRow))
                 else:
                     currentObj.write(self.map_values(stdRow))
