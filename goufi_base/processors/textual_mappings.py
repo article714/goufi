@@ -388,7 +388,10 @@ class Processor(AbstractProcessor):
                     if field[0] == 0 and data_values[f] and len(data_values[f]) > 0:
                         cond = []
                         if len(field) > 4:
-                            cond = ['&', (field[3], '=', data_values[f]), field[4]]
+                            cond = []
+                            for v in field[4]:
+                                cond.append(v)
+                            cond.append((field[3], '=', data_values[f]))
                         else:
                             cond = [(field[3], '=', data_values[f])]
 
