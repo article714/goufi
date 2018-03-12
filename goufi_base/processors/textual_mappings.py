@@ -295,13 +295,13 @@ class Processor(AbstractProcessor):
                         TO_BE_DELETED = (re.match(config[1], data_values[f]) != None)
                         TO_BE_ARCHIVED = TO_BE_DELETED and config[2]
                         if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
-                            self.logger.error("This kind of records can not be archived")
+                            self.logger.error(DEFAULT_LOG_STRING + "This kind of records can not be archived")
                             TO_BE_ARCHIVED = False
                     else :
                         # archival field
                         TO_BE_ARCHIVED = (re.match(config[1], data_values[f]) != None)
                         if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
-                            self.logger.error("This kind of records can not be archived")
+                            self.logger.error(DEFAULT_LOG_STRING + "This kind of records can not be archived")
                             TO_BE_ARCHIVED = False
 
             # calcul des critères de recherche
@@ -317,7 +317,7 @@ class Processor(AbstractProcessor):
                 if value != None and value != str(''):
                     search_criteria.append((keyfield, '=', value))
                 else:
-                    self.logger.warning("GOUFI: Do not process line n.%d, as Id column is empty" % (line_index + 1,))
+                    self.logger.warning(DEFAULT_LOG_STRING + "GOUFI: Do not process line n.%d, as Id column is empty" % (line_index + 1,))
                     return
 
             # ajout d'une clause pour rechercher tous les enregistrements
@@ -355,13 +355,13 @@ class Processor(AbstractProcessor):
                 except:
                     if TO_BE_ARCHIVED:
                         self.odooenv.cr.rollback()
-                        self.logger.warning("Archiving record as it can not be deleted (line n. %d)" % (line_index + 1,))
+                        self.logger.warning(DEFAULT_LOG_STRING + "Archiving record as it can not be deleted (line n. %d)" % (line_index + 1,))
                         try:
                             currentObj.write({'active':False})
                             currentObj.active = False
                         except Exception as e:
                             self.odooenv.cr.rollback()
-                            self.logger.warning("Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
+                            self.logger.warning(DEFAULT_LOG_STRING + "Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
                 currentObj = None
                 self.odooenv.cr.commit()
             return
@@ -373,7 +373,7 @@ class Processor(AbstractProcessor):
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning("Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
+                    self.logger.warning(DEFAULT_LOG_STRING + "Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
             return
 
         # Processing of relational fields
@@ -413,7 +413,7 @@ class Processor(AbstractProcessor):
                 # check mandatory fields
                 for f in self.mandatoryFields:
                     if f not in stdRow:
-                        self.logger.error("missing value for mandatory column: " + str(f))
+                        self.logger.error(DEFAULT_LOG_STRING + "missing value for mandatory column: " + str(f))
                         return None
                 if currentObj == None:
                     currentObj = self.target_model.create(self.map_values(stdRow))
@@ -477,7 +477,7 @@ class Processor(AbstractProcessor):
                      # check mandatory fields
                     for f in self.mandatoryFields:
                         if f not in stdRow:
-                            self.logger.error("missing value for mandatory column: " + str(f))
+                            self.logger.error(DEFAULT_LOG_STRING + "missing value for mandatory column: " + str(f))
                             return None
                     if currentObj == None :
                         currentObj = self.target_model.create(self.map_values(data_values))
