@@ -262,13 +262,15 @@ class Processor(AbstractProcessor):
         # Process contextual values
         for val in self.contextValues:
             try:
-                value = eval(val.name)
-                data_values[val.mapping_expression] = value
+                value = eval(val)
+                data_values[self.contextValues[val]] = value
             except Exception as e:
                 self.logger.exception("Failed to evaluate expression from context: " + str(val.name))
 
         # If there exists an id field we can process deletion, archival and updates
         # if there is no, we can only process creation
+
+        print ("GNNN : " + str(data_values))
 
         if len(self.idFields) > 0 and self.target_model != None:
 
