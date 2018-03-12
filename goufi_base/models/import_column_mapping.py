@@ -72,6 +72,9 @@ There can be several columns used as criteria
 """),
                                    required = True, default = False)
 
+    is_mandatory = fields.Boolean(string = _(u"Mandatory column"),
+                                   help = _(u"""There must be a value for this column"""),
+                                   required = True, default = False)
     # is column a deletion marker
     is_deletion_marker = fields.Boolean(string = _(u"Does column contain a deletion marker?"),
                                         help = _(u"If True, the selected record (if found) will be deleted"),
@@ -125,4 +128,12 @@ There can be several columns used as criteria
 
     parent_tab = fields.Many2one(string = _(u"Parent Tab (when multi tabs)"),
                                       comodel_name = "goufi.tab_mapping")
+
+    # ******************************************************************************
+
+    def write(self, values):
+        if 'is_identifier' in values:
+            if values['is_identifier']:
+                values['is_mandatory'] = True
+        return super(ColumnMapping, self).write(values)
 

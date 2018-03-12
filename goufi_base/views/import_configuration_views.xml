@@ -48,6 +48,7 @@
 							<tree string="Import Configurations" default_order="id asc">
 								<field name="name" />
 								<field name="mapping_expression" />
+								<field name="is_mandatory" />
 								<field name="is_identifier" />
 								<field name="is_contextual_expression_mapping"/>
 								<field name="is_deletion_marker"/>

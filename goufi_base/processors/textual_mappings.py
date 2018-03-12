@@ -102,7 +102,8 @@ class Processor(AbstractProcessor):
         self.o2mFields = {}
         self.m2oFields = {}
         self.stdFields = []
-        self.idFields = []
+        self.idFields = {}
+        self.mandatoryFields = []
         self.allFields = {}
         self.delOrArchFields = {}
         self.contextValues = {}
@@ -140,6 +141,7 @@ class Processor(AbstractProcessor):
         self.o2mFields = {}
         self.m2oFields = {}
         self.stdFields = []
+        self.mandatoryFields = []
         self.idFields = {}
         self.allFields = {}
         self.delOrArchFields = {}
@@ -194,6 +196,9 @@ class Processor(AbstractProcessor):
             self.logger.warning("NO Column mappings provided => fail")
             return -1
         for val in col_mappings:
+
+            if val.is_mandatory:
+                self.mandatoryFields.append(val.name)
 
             if val.is_identifier or val.is_contextual_expression_mapping:
                 if val.is_identifier:
@@ -404,8 +409,13 @@ class Processor(AbstractProcessor):
 
             # Create Object if it does not yet exist, else, write updates
             try:
-                if currentObj == None:
 
+                # check mandatory fields
+                for f in self.mandatoryFields:
+                    if f not in stdRow:
+                        self.logger.error("missing value for mandatory column: " + str(f))
+                        return None
+                if currentObj == None:
                     currentObj = self.target_model.create(self.map_values(stdRow))
                 else:
                     currentObj.write(self.map_values(stdRow))
@@ -464,6 +474,11 @@ class Processor(AbstractProcessor):
 
             try:
                 if self.target_model != None:
+                     # check mandatory fields
+                    for f in self.mandatoryFields:
+                        if f not in stdRow:
+                            self.logger.error("missing value for mandatory column: " + str(f))
+                            return None
                     if currentObj == None :
                         currentObj = self.target_model.create(self.map_values(data_values))
                     else:

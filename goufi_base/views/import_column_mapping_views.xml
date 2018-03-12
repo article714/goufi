@@ -41,6 +41,7 @@
 					</group>
 					<group name="mapping_configuration" string="Expression" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True)]}">
 						<field name="mapping_expression" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_deletion_marker','=',True)]}" />
+						<field name="is_mandatory" />
 						<field name="is_identifier" />
 						<field name="is_contextual_expression_mapping" />
 					</group>
