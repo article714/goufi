@@ -269,6 +269,9 @@ class Processor(AbstractProcessor):
         TO_BE_ARCHIVED = False
         TO_BE_DELETED = False
 
+        stdRow = {}
+        search_criteria = []
+
         if self.target_model == None:
             return False
 
@@ -305,7 +308,6 @@ class Processor(AbstractProcessor):
                             TO_BE_ARCHIVED = False
 
             # calcul des critères de recherche
-            search_criteria = []
 
             for k in self.idFields:
                 keyfield = self.idFields[k]
@@ -379,7 +381,6 @@ class Processor(AbstractProcessor):
         # Processing of relational fields
         if len(self.o2mFields) > 0 or len(self.m2oFields) > 0:
 
-            stdRow = {}
             for f in self.stdFields:
                 if f in data_values:
                     stdRow[f] = data_values[f]
