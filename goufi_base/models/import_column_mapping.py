@@ -131,9 +131,27 @@ There can be several columns used as criteria
 
     # ******************************************************************************
 
-    def write(self, values):
+    def fix_consistency(self, values):
+        if 'is_deletion_marker' in values:
+            if values['is_deletion_marker']:
+                values['is_archival_marker'] = False
+                values['is_identifier'] = False
+        if 'is_archival_marker' in values:
+            if values['is_archival_marker']:
+                values['is_deletion_marker'] = False
+                values['is_identifier'] = False
         if 'is_identifier' in values:
             if values['is_identifier']:
                 values['is_mandatory'] = True
+                values['is_deletion_marker'] = False
+                values['is_archival_marker'] = False
+
+    @api.model
+    def create(self, values):
+        self.fix_consistency(values)
+        super(ColumnMapping, self).create(values)
+
+    def write(self, values):
+        self.fix_consistency(values)
         return super(ColumnMapping, self).write(values)
 
