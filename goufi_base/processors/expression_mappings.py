@@ -7,6 +7,7 @@ Created on 23 deb. 2018
 @license: AGPL v3
 '''
 
+from enum import Enum
 from openpyxl.cell.read_only import EmptyCell
 from openpyxl.reader.excel import load_workbook
 from os import path
@@ -24,6 +25,13 @@ from .processor import AbstractProcessor
 # CONSTANTS
 XL_AUTHORIZED_EXTS = ('xlsx', 'xls')
 CSV_AUTHORIZED_EXTS = ('csv')
+
+
+class FieldType(Enum):
+    Standard = 1
+    One2Many = 2
+    Many2One = 3
+    ContextEval = 4
 
 #-------------------------------------------------------------------------------------
 # MAIN CLASS
@@ -99,14 +107,11 @@ class Processor(AbstractProcessor):
         super(Processor, self).__init__(parent_config)
 
         # variables use during processing
-        self.o2mFields = {}
-        self.m2oFields = {}
-        self.stdFields = []
-        self.idFields = {}
         self.mandatoryFields = []
+        self.idFields = []
+        self.delOrArchFields = []
+
         self.allFields = {}
-        self.delOrArchFields = {}
-        self.contextValues = {}
 
         self.header_line_idx = self.parent_config.default_header_line_index
         self.target_model = None
@@ -138,14 +143,12 @@ class Processor(AbstractProcessor):
 
     def process_header(self, header_lines = [], tab_name = None):
 
-        self.o2mFields = {}
-        self.m2oFields = {}
-        self.stdFields = []
         self.mandatoryFields = []
-        self.idFields = {}
+        self.idFields = []
+        self.delOrArchFields = []
+
         self.allFields = {}
-        self.delOrArchFields = {}
-        self.contextValues = {}
+
         col_mappings = None
 
         tabmap_model = self.odooenv['goufi.tab_mapping']
@@ -191,33 +194,30 @@ class Processor(AbstractProcessor):
         else:
             target_fields = self.target_model.fields_get_keys()
 
+        #***********************************
         # process column mappings
         if col_mappings == None:
             self.logger.warning("NO Column mappings provided => fail")
             return -1
+
+        self.allFields[FieldType.Standard] = {}
+        self.allFields[FieldType.Many2One] = {}
+        self.allFields[FieldType.One2Many] = {}
+        self.allFields[FieldType.ContextEval] = {}
+
         for val in col_mappings:
 
             if val.is_mandatory:
                 self.mandatoryFields.append(val.name)
 
-            if val.is_identifier or val.is_contextual_expression_mapping:
-                if val.is_identifier:
-                    if val.mapping_expression in target_fields:
-                        self.idFields[val.name] = val.mapping_expression
-                        self.stdFields.append(val.name)
-                        self.allFields[val.name] = val.mapping_expression
-                    else:
-                        self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
+            if val.is_identifier:
+                self.idFields.append(val.name)
 
-                if val.is_contextual_expression_mapping:
-                    self.contextValues[val.name] = val.mapping_expression
-                    self.stdFields.append(val.name)
-                    self.allFields[val.name] = val.mapping_expression
+            if val.is_deletion_marker or val.is_archival_marker:
+                self.delOrArchFields.append(val.name)
 
-            elif val.is_deletion_marker:
-                self.delOrArchFields[val.name] = (True, val.delete_if_expression, val.archive_if_not_deleted)
-            elif val.is_archival_marker:
-                self.delOrArchFields[val.name] = (False, val.archive_if_expression)
+            if val.is_contextual_expression_mapping:
+                self.allFields[FieldType.ContextEval][val.name] = val.mapping_expression
 
             elif re.match(r'\*.*', val.mapping_expression):
                 v = val.mapping_expression.replace('*', '')

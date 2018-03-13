@@ -75,6 +75,7 @@ There can be several columns used as criteria
     is_mandatory = fields.Boolean(string = _(u"Mandatory column"),
                                    help = _(u"""There must be a value for this column"""),
                                    required = True, default = False)
+
     # is column a deletion marker
     is_deletion_marker = fields.Boolean(string = _(u"Does column contain a deletion marker?"),
                                         help = _(u"If True, the selected record (if found) will be deleted"),
@@ -96,6 +97,12 @@ There can be several columns used as criteria
     archive_if_expression = fields.Char(string = _(u"Archive if value matches"),
                                        help = _(u"Must contain a regular expression that the column value must match to be evaluated as True and the record be archived"),
                                        required = False, default = _(u"Yes"), size = 64)
+
+    # is a constant expression
+
+    is_constant_expression = fields.Boolean(string = _(u"Expression is a constant"),
+                                   help = _(u"""The mapping expression is a string constant"""),
+                                   required = True, default = False)
 
     # is a contextual expression mapping
     # (that is computed from processor properties, not from import file)
