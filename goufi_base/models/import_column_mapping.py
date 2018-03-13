@@ -166,7 +166,7 @@ There can be several columns used as criteria
             else:
                 rcolMap.display_target = _('None')
 
-    @api.on_change(target_object)
+    @api.onchange(target_object)
     def _reset_colmap_targets(self):
         for aColMap in self:
                 colMap.target_field = None
