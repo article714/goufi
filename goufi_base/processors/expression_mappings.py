@@ -7,7 +7,7 @@ Created on 23 deb. 2018
 @license: AGPL v3
 '''
 
-from enum import Enum
+from enum import IntEnum, unique
 from openpyxl.cell.read_only import EmptyCell
 from openpyxl.reader.excel import load_workbook
 from os import path
@@ -27,11 +27,13 @@ XL_AUTHORIZED_EXTS = ('xlsx', 'xls')
 CSV_AUTHORIZED_EXTS = ('csv')
 
 
-class FieldType(Enum):
+@unique
+class MappingType(IntEnum):
     Standard = 1
     One2Many = 2
     Many2One = 3
     ContextEval = 4
+    Constant = 5
 
 #-------------------------------------------------------------------------------------
 # MAIN CLASS
@@ -72,8 +74,8 @@ class Processor(AbstractProcessor):
 
             -- Le contenu de la colonne peut démarrer par un modificateur
 
-                    => ">nom_champs/nom_modele_lie/nom_champs_recherche&(filtre)"
-                            le champs a adresser (nom_champs) est un champs relationnel vers le modèle (nom_model_lie),
+                    => ">nom_modele_lie/nom_champs_recherche&(filtre)"
+                            le champs a adresser (target_field) est un champs relationnel vers le modèle (nom_model_lie),
                             de type Many2One
                             pour retrouver l'enregistrement lié, on construit une chaine de recherche avec
                             [noms_champs_recherche=valeur_colonne], le filtre étant utilisé pour restreindre encore la recherche
@@ -81,20 +83,20 @@ class Processor(AbstractProcessor):
                             si un enregistrement est trouvé dans le modèle lié, alors l'enregistrement courant est mis à jour/créé avec
                             la valeur "nom_champs" pointant vers ce dernier, sinon, une erreur est remontée et la valeur du champs est ignorée
 
-                    => "*nom_champs/nom_modele_lie/nom_champs_recherche&(filtre)"
-                            le champs a adresser (nom_champs) est un champs relationnel vers le modèle (nom_model_lie),
+                    => "*nom_modele_lie/nom_champs_recherche&(filtre)"
+                            le champs a adresser (target_field) est un champs relationnel vers le modèle (nom_model_lie),
                             de type One2Many
                             pour retrouver les enregistrements liés, on itère sur toutes les valeurs (séparées par des ';' points virgules)
                             pour construire une chaine de recherche avec [noms_champs_recherche=valeur_colonne],
                             le filtre étant utilisé pour restreindre encore la recherche
 
-                            pour chaque enregistrement trouvé dans le modèle lié, l'enregistrement courant est mis à jour/créé en ajoutant
-                            à la collection  "nom_champs" un pointeur vers l'enregistrement cible
+                            pour chaque enregistrement trouvé dans le modèle lié, l'enregistrement courant est mis à jour en ajoutant
+                            à la collection  "target_field" un pointeur vers l'enregistrement cible
 
-                    => "+nom_champs/nom_modele_lie"
+                    => "+nom_modele_lie"
 
-                            le champs a adresser (nom_champs) est un champs relationnel vers le modèle (nom_model_lie),
-                            de type Many2One
+                            le champs a adresser (target_field) est un champs relationnel vers le modèle (nom_model_lie),
+                            de type One2Many
 
                             on crée un ou plusieurs enregistrements cibles avec les valeurs données sous forme de dictionnaire
                             (/ex.: {'name':'Mardi','dayofweek':'1',...})
@@ -109,45 +111,54 @@ class Processor(AbstractProcessor):
         # variables use during processing
         self.mandatoryFields = []
         self.idFields = []
-        self.delOrArchFields = []
+        self.delOrArchMarkers = []
+        self.allMappings = []
+        self.col2fields = {}
 
-        self.allFields = {}
+        for val in MappingType:
+            self.allMappings[val] = []
 
         self.header_line_idx = self.parent_config.default_header_line_index
         self.target_model = None
+        self.target_fields = None
 
     #-------------------------------------------------------------------------------------
-    # process a line of data
+    # maps a line of data from column/mapping name to field name
+    # and change non json-compatible values
 
     def map_values(self, row):
+        # TODO: optimizations
+
         for f in row.keys():
-            if f in self.allFields:
+            if f in self.col2fields:
                 # replace non json-compatible values
                 val = row[f]
                 if val == "False" or val == "True":
                     val = eval(val)
                 elif val == None:
                     del(row[f])
+                    continue
                 # replace actual col name by actual field name
-                if self.allFields[f] != f:
-                    row[self.allFields[f]] = val
-                    del(row[f])
+                col = self.col2fields[f]
+                if col != f:
+                    row[col] = val
                 else:
                     row[f] = val
             else:
                 del(row[f])
+
         return row
 
     #-------------------------------------------------------------------------------------
     # Process mappings configuration for each tab
 
-    def process_header(self, header_lines = [], tab_name = None):
+    def prepare_mappings(self, tab_name = None):
 
         self.mandatoryFields = []
         self.idFields = []
-        self.delOrArchFields = []
-
-        self.allFields = {}
+        self.delOrArchMarkers = []
+        self.allMappings = []
+        numbOfFields = 0
 
         col_mappings = None
 
@@ -188,11 +199,11 @@ class Processor(AbstractProcessor):
             self.logger.info("NEW SHEET:  Import data for model " + toString(self.target_model._name))
 
         # List of fields in target model
-        target_fields = None
+        self.target_fields = None
         if self.target_model == None:
             raise Exception('FAILED', "FAILED => NO TARGET MODEL FOUND")
         else:
-            target_fields = self.target_model.fields_get_keys()
+            self.target_fields = self.target_model.fields_get_keys()
 
         #***********************************
         # process column mappings
@@ -200,139 +211,162 @@ class Processor(AbstractProcessor):
             self.logger.warning("NO Column mappings provided => fail")
             return -1
 
-        self.allFields[FieldType.Standard] = {}
-        self.allFields[FieldType.Many2One] = {}
-        self.allFields[FieldType.One2Many] = {}
-        self.allFields[FieldType.ContextEval] = {}
+        for val in MappingType:
+            self.allMappings[val] = []
 
         for val in col_mappings:
 
-            if val.is_mandatory:
-                self.mandatoryFields.append(val.name)
+            mappingType = None
+            if val.target_field.name in self.target_fields:
 
-            if val.is_identifier:
-                self.idFields.append(val.name)
+                self.col2fields[val.name] = val.target_field.name
 
-            if val.is_deletion_marker or val.is_archival_marker:
-                self.delOrArchFields.append(val.name)
-
-            if val.is_contextual_expression_mapping:
-                self.allFields[FieldType.ContextEval][val.name] = val.mapping_expression
-
-            elif re.match(r'\*.*', val.mapping_expression):
-                v = val.mapping_expression.replace('*', '')
-                vals = [0] + v.split('/')
-                v = vals[1]
-                if v in target_fields:
-                    self.o2mFields[val.name] = vals
-                    self.allFields[val.name] = v
+                if val.is_constant_expression:
+                    mappingType = MappingType.Constant
+                    self.allMappings[mappingType][val.name] = val.mapping_expression
+                elif val.is_contextual_expression_mapping:
+                    mappingType = MappingType.ContextEval
+                    self.allMappings[mappingType][val.name] = val.mapping_expression
+                elif re.match(r'\*.*', val.mapping_expression):
+                    mappingType = MappingType.One2Many
+                    v = val.mapping_expression.replace('*', '')
+                    vals = [0] + v.split('/')
+                    if re.match(r'.*\&.*', vals[2]):
+                        (_fieldname, cond) = vals[2].split('&')
+                        vals[2] = _fieldname
+                        vals[3] = eval(cond)
+                    self.allMappings[mappingType][val.name] = vals
+                elif re.match(r'\+.*', val.mapping_expression):
+                    mappingType = MappingType.One2Many
+                    v = val.mapping_expression.replace('+', '')
+                    vals = [1] + v.split('/')
+                    self.allMappings[mappingType][val.name] = vals
+                elif re.match(r'\>.*', val.mapping_expression):
+                    mappingType = MappingType.Many2One
+                    v = val.mapping_expression.replace('>', '')
+                    vals = v.split('/')
+                    if re.match(r'.*\&.*', vals[1]):
+                        (_fieldname, cond) = vals[1].split('&')
+                        vals[1] = _fieldname
+                        vals[2] = eval(cond)
+                    self.allMappings[mappingType][val.name] = vals
                 else:
-                    self.logger.debug(toString(v) + "  -> field not found, IGNORED")
-            elif re.match(r'\+.*', val.mapping_expression):
-                v = val.mapping_expression.replace('+', '')
-                vals = [1] + v.split('/')
-                v = vals[1]
-                if v in target_fields:
-                    self.o2mFields[val.name] = vals
-                    self.allFields[val.name] = v
-                else:
-                    self.logger.debug(toString(v) + "  -> field not found, IGNORED")
-            elif re.match(r'\>.*', val.mapping_expression):
-                v = val.mapping_expression.replace('>', '')
-                vals = [0] + v.split('/')
-                v = vals[1]
-                if v in target_fields:
-                    self.m2oFields[val.name] = vals
-                    self.allFields[val.name] = v
-                    if re.match(r'.*\&.*', self.m2oFields[val.name][3]):
-                        (_fieldname, cond) = self.m2oFields[val.name][3].split('&')
-                        self.m2oFields[val.name][3] = _fieldname
-                        self.m2oFields[val.name].append(eval(cond))
-                else:
-                    self.logger.debug(toString(v) + "  -> field not found, IGNORED")
-            else:
-                if val.mapping_expression in target_fields:
-                    self.stdFields.append(val.name)
-                    self.allFields[val.name] = val.mapping_expression
-                else:
-                    self.logger.debug(toString(val.mapping_expression) + "  -> field not found, IGNORED")
+                    mappingType = MappingType.Standard
+                    self.allMappings[mappingType][val.name] = val.mapping_expression
 
-        return len(self.stdFields) + len(self.idFields) + len(self.m2oFields) + len(self.o2mFields)
+            if mappingType != None:
+                numbOfFields += 1
+                if val.is_mandatory:
+                    self.mandatoryFields[val.name] = mappingType
+
+                if val.is_identifier:
+                    self.idFields[val.name] = mappingType
+
+        if val.is_deletion_marker or val.is_archival_marker:
+            self.delOrArchMarkers[val.name] = (val.is_deletion_marker, val.mapping_expression, val.is_archival_marker)
+
+        print ("DEBUG: " + str(self.allMappings) + " -- " + str(self.delOrArchMarkers))
+
+        return numbOfFields
 
     #-------------------------------------------------------------------------------------
     # Process line values
     def process_values(self, filename, line_index, data_values):
 
+        # TODO: optimization: remove systematic generation of that string
         DEFAULT_LOG_STRING = "<" + toString(filename) + "> [ line " + toString(line_index + 1) + "] -> "
 
         currentObj = None
         TO_BE_ARCHIVED = False
         TO_BE_DELETED = False
 
-        stdRow = {}
         search_criteria = []
 
         if self.target_model == None:
             return False
 
         # Process contextual values
-        for val in self.contextValues:
+        for val in self.allMappings[MappingType.ContextEval]:
             try:
-                value = eval(val)
+                value = eval(self.allMappings[MappingType.ContextEval][val])
                 data_values[val] = value
             except Exception as e:
                 self.logger.exception("Failed to evaluate expression from context: " + str(val.name))
 
-        # If there exists an id field we can process deletion, archival and updates
-        # if there is no, we can only process creation
+        print ("ZOBI " + str(data_values))
 
+        # Many To One Fields, might be mandatory, so needs to be treated first and added to StdRow
+        for f in self.allMappings[MappingType.Many2One]:
+
+            if f in data_values:
+                config = self.allMappings[MappingType.Many2One][f]
+                # reference Many2One,
+                if data_values[f] and len(data_values[f]) > 0:
+                    cond = []
+                    if len(config) > 2:
+                        cond = []
+                        for v in config[2]:
+                            cond.append(v)
+                        cond.append((config[1], '=', data_values[f]))
+                    else:
+                        cond = [(config[1], '=', data_values[f])]
+
+                    vals = self.odooenv[config[0]].search(cond, limit = 1)
+
+                    if len(vals) == 1:
+                        data_values[f] = vals[0].id
+                    else:
+                        self.logger.warning(DEFAULT_LOG_STRING + " found " + toString(len(vals)) + " values for " + toString(data_values[f]) + "  unable to reference " + toString(config[3]) + " " + toString(vals))
+
+        # TODO: Document this!
+        # If there exists an id config we can process deletion, archival and updates
+        # if there is no, we can only process creation
+        found = []
         if len(self.idFields) > 0 and self.target_model != None:
 
             # Detects if record needs to be deleted or archived
-            CAN_BE_ARCHIVED = ('active' in self.target_model.fields_get_keys())
-            for f in self.delOrArchFields:
+            CAN_BE_ARCHIVED = ('active' in self.target_fields)
+            for f in self.delOrArchMarkers:
                 if f in data_values:
-                    config = self.delOrArchFields[f]
+                    config = self.delOrArchMarkers[f]
                     if config[0]:
-                        # deletion field
+                        # deletion config
                         TO_BE_DELETED = (re.match(config[1], data_values[f]) != None)
                         TO_BE_ARCHIVED = TO_BE_DELETED and config[2]
                         if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
                             self.logger.error(DEFAULT_LOG_STRING + "This kind of records can not be archived")
                             TO_BE_ARCHIVED = False
                     else :
-                        # archival field
+                        # archival config
                         TO_BE_ARCHIVED = (re.match(config[1], data_values[f]) != None)
                         if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
                             self.logger.error(DEFAULT_LOG_STRING + "This kind of records can not be archived")
                             TO_BE_ARCHIVED = False
 
-            # calcul des critères de recherche
+                # compute search criteria
 
-            for k in self.idFields:
-                keyfield = self.idFields[k]
-                if k in data_values:
-                    value = data_values[k]
-                else:
-                    value = None
+                for k in self.idFields:
+                    keyfield = self.idFields[k]
+                    if k in data_values:
+                        value = data_values[k]
+                    else:
+                        value = None
 
-                if value != None and value != str(''):
-                    search_criteria.append((keyfield, '=', value))
-                else:
-                    self.logger.warning(DEFAULT_LOG_STRING + "GOUFI: Do not process line n.%d, as Id column is empty" % (line_index + 1,))
-                    return
+                    if value != None and value != str(''):
+                        search_criteria.append((keyfield, '=', value))
+                    else:
+                        self.logger.warning(DEFAULT_LOG_STRING + "GOUFI: Do not process line n.%d, as Id column is empty" % (line_index + 1,))
+                        return
 
-            # ajout d'une clause pour rechercher tous les enregistrements
-            if CAN_BE_ARCHIVED:
-                search_criteria.append('|')
-                search_criteria.append(('active', '=', True))
-                search_criteria.append(('active', '=', False))
+                # ajout d'une clause pour rechercher tous les enregistrements
+                if CAN_BE_ARCHIVED:
+                    search_criteria.append('|')
+                    search_criteria.append(('active', '=', True))
+                    search_criteria.append(('active', '=', False))
 
-            # recherche d'un enregistrement existant
-            if len(self.idFields) > 0:
-                found = self.target_model.search(search_criteria)
-            else:
-                found = 0
+                # recherche d'un enregistrement existant
+                if len(search_criteria) > 0:
+                    found = self.target_model.search(search_criteria)
 
             if len(found) == 1:
                 currentObj = found[0]
@@ -344,7 +378,7 @@ class Processor(AbstractProcessor):
 
         # hook for objects needing to be marked as processed
         # by import
-        if not currentObj == None and ('import_processed' in self.target_model.fields_get_keys()):
+        if currentObj != None and ('import_processed' in self.target_model.fields_get_keys()):
             currentObj.write({'import_processed':True})
             currentObj.import_processed = True
             self.odooenv.cr.commit()
@@ -366,7 +400,7 @@ class Processor(AbstractProcessor):
                             self.logger.warning(DEFAULT_LOG_STRING + "Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
                 currentObj = None
                 self.odooenv.cr.commit()
-            return
+            return True
         elif TO_BE_ARCHIVED:
             if not currentObj == None:
                 try:
@@ -376,127 +410,66 @@ class Processor(AbstractProcessor):
                 except Exception as e:
                     self.odooenv.cr.rollback()
                     self.logger.warning(DEFAULT_LOG_STRING + "Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
-            return
+            return True
 
-        # Processing of relational fields
-        if len(self.o2mFields) > 0 or len(self.m2oFields) > 0:
+        # Create Object if it does not yet exist, else, write updates
+        try:
 
-            for f in self.stdFields:
-                if f in data_values:
-                    stdRow[f] = data_values[f]
-
-            # Many To One Fields, might be mandatory, so needs to be treated first and added to StdRow
-            for f in self.m2oFields.keys():
-
-                if f in data_values:
-                    field = self.m2oFields[f]
-                    # reference Many2One,
-                    if field[0] == 0 and data_values[f] and len(data_values[f]) > 0:
-                        cond = []
-                        if len(field) > 4:
-                            cond = []
-                            for v in field[4]:
-                                cond.append(v)
-                            cond.append((field[3], '=', data_values[f]))
-                        else:
-                            cond = [(field[3], '=', data_values[f])]
-
-                        vals = self.odooenv[field[2]].search(cond, limit = 1)
-
-                        if len(vals) == 1:
-                            stdRow[f] = vals[0].id
-                        else:
-                            self.logger.warning(DEFAULT_LOG_STRING + " found " + toString(len(vals)) + " values for " + toString(data_values[f]) + "  unable to reference " + toString(field[3]) + " " + toString(vals))
-
-            # Create Object if it does not yet exist, else, write updates
-            try:
-
-                # check mandatory fields
-                for f in self.mandatoryFields:
-                    if f not in stdRow:
-                        self.logger.error(DEFAULT_LOG_STRING + "missing value for mandatory column: " + str(f))
-                        return None
-                if currentObj == None:
-                    currentObj = self.target_model.create(self.map_values(stdRow))
-                else:
-                    currentObj.write(self.map_values(stdRow))
-
-                self.odooenv.cr.commit()
-            except ValueError as e:
-                self.odooenv.cr.rollback()
-                self.logger.exception(DEFAULT_LOG_STRING + " wrong values where creating/updating object: " + self.target_model.name + " -> " + toString(stdRow) + "[" + toString(currentObj) + "]")
-                self.logger.error("                    MSG: {0}".format(toString(e)))
-                currentObj = None
-            except Exception as e:
-                self.odooenv.cr.rollback()
-                self.logger.exception(DEFAULT_LOG_STRING + " Generic Error raised Exception")
-                currentObj = None
-
-            # One2Many Fields,
-
-            try:
-                for f in self.o2mFields.keys():
-                    if f in data_values:
-                        members = data_values[f].split(';')
-                        field = self.o2mFields[f]
-                        if len(members) > 0 and currentObj != None:
-                            if field[0] == 1:
-                                currentObj.write({field[1]:[(5, False, False)] })
-                            for m in members:
-                                if len(m) > 0:
-                                    # For adding some stuffs in lists do : https://www.odoo.com/documentation/10.0/reference/orm.html#odoo.models.Model.write
-                                    # References records in  One2Many
-                                    if field[0] == 0:
-                                        vals = self.odooenv[field[2]].search([(field[3], '=', m)], limit = 1)
-                                        if len(vals) == 1:
-                                            currentObj.write({field[1]:[(4, vals[0].id, False)] })
-                                        else:
-                                            self.logger.warning(DEFAULT_LOG_STRING + "found " + toString(len(vals)) + " values for " + toString(m) + "  unable to reference")
-
-                                    # Creates records in  One2Many
-                                    elif field[0] == 1:
-                                        values = eval(m)
-                                        currentObj.write({field[1]:[(0, False, values)] })
-                self.odooenv.cr.commit()
-            except ValueError as e:
-                self.odooenv.cr.rollback()
-                self.logger.exception(DEFAULT_LOG_STRING + " Wrong values where updating object: " + self.target_model.name + " -> " + toString(stdRow))
-                self.logger.error("                    MSG: {0}".format(toString(e)))
-                currentObj = None
-            except Exception as e:
-                self.odooenv.cr.rollback()
-                self.logger.exception(DEFAULT_LOG_STRING + " Generic Error raised Exception")
-                currentObj = None
+            # check mandatory fields
+            for f in self.mandatoryFields:
+                if f not in data_values:
+                    self.logger.error(DEFAULT_LOG_STRING + "missing value for mandatory column: " + str(f))
+                    return False
+            if currentObj == None:
+                currentObj = self.target_model.create(self.map_values(data_values))
+            else:
+                currentObj.write(self.map_values(data_values))
 
             self.odooenv.cr.commit()
+        except ValueError as e:
+            self.odooenv.cr.rollback()
+            self.logger.exception(DEFAULT_LOG_STRING + " wrong values where creating/updating object: " + self.target_model.name + " -> " + toString(data_values) + "[" + toString(currentObj) + "]")
+            self.logger.error("                    MSG: {0}".format(toString(e)))
+            currentObj = None
+        except Exception as e:
+            self.odooenv.cr.rollback()
+            self.logger.exception(DEFAULT_LOG_STRING + " Generic Error raised Exception")
+            currentObj = None
 
-        # pas de champs collection
-        else:
+        # One2Many Fields,
 
-            try:
-                if self.target_model != None:
-                     # check mandatory fields
-                    for f in self.mandatoryFields:
-                        if f not in stdRow:
-                            self.logger.error(DEFAULT_LOG_STRING + "missing value for mandatory column: " + str(f))
-                            return None
-                    if currentObj == None :
-                        currentObj = self.target_model.create(self.map_values(data_values))
-                    else:
-                        currentObj.write(self.map_values(data_values))
-                    self.odooenv.cr.commit()
-                else:
-                    self.logger.error(DEFAULT_LOG_STRING + " No Target model was identified ")
-            except ValueError as e:
-                self.odooenv.cr.rollback()
-                self.logger.exception(DEFAULT_LOG_STRING + " error where creating/updating object: " + self.target_model.name + " -> " + toString(data_values) + "[" + toString(currentObj) + "]")
-                self.logger.error("                    MSG: {0}".format(toString(e)))
-            except Exception as e:
-                self.odooenv.cr.rollback()
-                self.logger.exception(DEFAULT_LOG_STRING + " Generic Error raised Exception")
-                currentObj = None
+        try:
+            for f in self.allMappings[MappingType.One2Many]:
+                if f in data_values:
+                    members = data_values[f].split(';')
+                    config = self.allMappings[MappingType.One2Many][f]
+                    if len(members) > 0 and currentObj != None:
+                        if config[0] == 1:
+                            currentObj.write({config[1]:[(5, False, False)] })
+                        for m in members:
+                            if len(m) > 0:
+                                # References records in  One2Many
+                                if config[0] == 0:
+                                    vals = self.odooenv[config[1]].search([(config[2], '=', m)], limit = 1)
+                                    if len(vals) == 1:
+                                        currentObj.write({config[2]:[(4, vals[0].id, False)] })
+                                    else:
+                                        self.logger.warning(DEFAULT_LOG_STRING + "found " + toString(len(vals)) + " values for " + toString(m) + "  unable to reference")
 
-        # *****
+                                # Creates records in  One2Many
+                                elif config[0] == 1:
+                                    values = eval(m)
+                                    currentObj.write({config[2]:[(0, False, values)] })
+            self.odooenv.cr.commit()
+        except ValueError as e:
+            self.odooenv.cr.rollback()
+            self.logger.exception(DEFAULT_LOG_STRING + " Wrong values where updating object: " + self.target_model.name + " -> " + toString(data_values))
+            self.logger.error("                    MSG: {0}".format(toString(e)))
+            currentObj = None
+        except Exception as e:
+            self.odooenv.cr.rollback()
+            self.logger.exception(DEFAULT_LOG_STRING + " Generic Error raised Exception")
+            currentObj = None
 
         # Finally commit
         self.odooenv.cr.commit()
@@ -560,7 +533,7 @@ class CSVProcessor(Processor):
         with open(import_file.filename, 'rb') as csvfile:
             csv_reader = unicodecsv.DictReader(csvfile, delimiter = ',', quotechar = '\"')
             if (len(csv_reader.fieldnames) > 1):
-                if self.process_header(csv_reader.fieldnames) > 0:
+                if self.prepare_mappings() > 0:
                     processed = True
                     idx = 0
                     for row in csv_reader:
@@ -574,7 +547,7 @@ class CSVProcessor(Processor):
             with open(import_file.filename, 'rb') as csvfile:
                 csv_reader = unicodecsv.DictReader(csvfile, delimiter = ';', quotechar = '\"')
 
-                if self.process_header(csv_reader.fieldnames) > 0 :
+                if self.prepare_mappings() > 0 :
 
                     idx = 0
                     for row in csv_reader:
@@ -611,7 +584,7 @@ class XLProcessor(Processor):
             p_ligne = sh.row_values(self.header_line_idx)
             hsize = len(p_ligne)
 
-            if self.process_header(p_ligne, sh.name) > 0 :
+            if self.prepare_mappings(sh.name) > 0 :
 
                 for rownum in range(1, sh.nrows):
                     if rownum > self.header_line_idx:
@@ -646,7 +619,7 @@ class XLProcessor(Processor):
                         firstrow = r
                         for c in firstrow:
                             header_values.append(c.value)
-                        nb_fields = self.process_header(header_values, shname)
+                        nb_fields = self.prepare_mappings(shname)
                         if nb_fields < 1 or self.target_model == None:
                             # do not continue if not able to process headers
                             self.logger.error(u'Unable to process headers for Tab ' + shname)

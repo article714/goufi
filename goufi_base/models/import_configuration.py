@@ -15,9 +15,8 @@ import os
 import re
 
 from odoo import models, fields, _, api
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
-
 from odoo.addons.goufi_base.utils.converters import dateToOdooString
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 
 #------------------------------------------------------------
@@ -64,7 +63,7 @@ class ImportConfiguration(models.Model):
     target_object = fields.Many2one(string = _(u"Target object"),
                                     help = _(u"Odoo object that will be targeted by import: create, update or delete instances"),
                                     comodel_name = "ir.model",
-                                    required = False)
+                                    required = True)
 
     column_mappings = fields.One2many(string = _(u"Column mappings"),
                                     help = _(u"Mapping configuration needed by this processor"),

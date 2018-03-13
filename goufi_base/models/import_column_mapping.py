@@ -136,22 +136,42 @@ There can be several columns used as criteria
     parent_tab = fields.Many2one(string = _(u"Parent Tab (when multi tabs)"),
                                       comodel_name = "goufi.tab_mapping")
 
+    # computed field
+
+    display_target = fields.Char(string = _(u"Target Field"), help = _(u"Target field for target object"),
+                                required = False,
+                                store = False,
+                                compute = '_compute_display_target')
+
     # ******************************************************************************
+
+    @api.depends('target_object', 'target_field')
+    def _compute_display_target(self):
+        if target_object:
+            if target_field:
+                return target_object.model + "." + target_field.name
+            else:
+                return target_object.model + ".?"
+        else:
+            return _('None')
 
     def fix_consistency(self, values):
         if 'is_deletion_marker' in values:
             if values['is_deletion_marker']:
                 values['is_archival_marker'] = False
                 values['is_identifier'] = False
+                values['is_constant_expression'] = True
         if 'is_archival_marker' in values:
             if values['is_archival_marker']:
                 values['is_deletion_marker'] = False
                 values['is_identifier'] = False
+                values['is_constant_expression'] = True
         if 'is_identifier' in values:
             if values['is_identifier']:
                 values['is_mandatory'] = True
                 values['is_deletion_marker'] = False
                 values['is_archival_marker'] = False
+                values['is_constant_expression'] = False
 
     @api.model
     def create(self, values):

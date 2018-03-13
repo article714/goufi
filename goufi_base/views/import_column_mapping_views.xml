@@ -15,6 +15,7 @@
 				<field name="name"/>
 				<field name="member_of" invisible="('col_group_support','=',False)"/>
 				<field name="mapping_expression"/>
+				<field name="display_taget" readonly=1/>
 				<field name="is_identifier"/>
 				<field name="is_contextual_expression_mapping"/>
 				<field name="is_deletion_marker"/>
@@ -40,7 +41,9 @@
 						<field name="member_of"/>
 					</group>
 					<group name="mapping_configuration" string="Expression" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True)]}">
-						<field name="mapping_expression" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_deletion_marker','=',True)]}" />
+						<field name="mapping_expression" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True)]}" />
+						<field name="target_object" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True)]}" />
+						<field name="target_field" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True)]}" />
 						<field name="is_mandatory" />
 						<field name="is_identifier" />
 						<field name="is_contextual_expression_mapping" />
