@@ -115,7 +115,8 @@ There can be several columns used as criteria
     target_object = fields.Many2one(string = _(u"Target object"),
                                     help = _(u"Odoo object that will be targeted by import: create, update or delete instances"),
                                     comodel_name = "ir.model",
-                                    required = False)
+                                    required = False,
+                                    compute = '_get_target_object')
 
     target_field = fields.Many2one(string = _(u"Target field"),
                                     help = _(u"Odoo object's field that will be targeted by import: create, update or delete instances"),
@@ -145,15 +146,30 @@ There can be several columns used as criteria
 
     # ******************************************************************************
 
+    @api_depends('parent_config', 'parent_tab')
+    def _get_target_object(self):
+        for colMap in  self:
+            if colMap.tab_support:
+                if colMap.parent_tab:
+                    colMap.target_object = colMap.parent_tab.target_object
+            elif colMap.parent_config:
+                colMap.target_object = colMap.parent_config.target_object
+
     @api.depends('target_object', 'target_field')
     def _compute_display_target(self):
-        if target_object:
-            if target_field:
-                return target_object.model + "." + target_field.name
+        for colMap in  self:
+            if colMap.target_object:
+                if colMap.target_field:
+                    colMap.display_target = colMap.target_object.model + "." + colMap.target_field.name
+                else:
+                    rcolMap.display_target = colMap.target_object.model + ".?"
             else:
-                return target_object.model + ".?"
-        else:
-            return _('None')
+                rcolMap.display_target = _('None')
+
+    @api.on_change(target_object)
+    def _reset_colmap_targets(self):
+        for aColMap in self:
+                colMap.target_field = None
 
     def fix_consistency(self, values):
         if 'is_deletion_marker' in values:
@@ -180,5 +196,9 @@ There can be several columns used as criteria
 
     def write(self, values):
         self.fix_consistency(values)
-        return super(ColumnMapping, self).write(values)
+        if 'target_object' in values:
+            if self.target_object:
+                if self.target_object != values['target_object']:
+                    self.target_field = None
+        super(ColumnMapping, self).write(values)
 
