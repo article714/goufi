@@ -146,14 +146,14 @@ There can be several columns used as criteria
 
     # ******************************************************************************
 
-    @api.depends('parent_config', 'parent_tab')
+    @api.depends('parent_configuration', 'parent_tab')
     def _get_target_object(self):
         for colMap in  self:
             if colMap.tab_support:
                 if colMap.parent_tab:
                     colMap.target_object = colMap.parent_tab.target_object
-            elif colMap.parent_config:
-                colMap.target_object = colMap.parent_config.target_object
+            elif colMap.parent_configuration:
+                colMap.target_object = colMap.parent_configuration.target_object
 
     @api.depends('target_object', 'target_field')
     def _compute_display_target(self):
