@@ -162,7 +162,7 @@ There can be several columns used as criteria
                 if colMap.target_field:
                     colMap.display_target = colMap.target_object.model + "." + colMap.target_field.name
                 else:
-                    rcolMap.display_target = colMap.target_object.model + ".?"
+                    colMap.display_target = colMap.target_object.model + ".?"
             else:
                 rcolMap.display_target = _('None')
 
