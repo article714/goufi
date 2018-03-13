@@ -9,6 +9,7 @@
 		<field name="auto_search" eval="True" />
 		<field name="view_type">form</field>
 		<field name="view_mode">tree,form</field>
+		<field name="context">{u'group_by': [u'import_config']}</field>
 	</record>
 	
 	<record id="goufi_import_configuration_show_action" model="ir.actions.act_window">
