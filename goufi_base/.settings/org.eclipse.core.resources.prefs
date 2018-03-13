@@ -1,7 +1,7 @@
 eclipse.preferences.version=1
 encoding//models/__init__.py=utf-8
 encoding//models/import_file.py=utf-8
-encoding//processors/textual_mappings.py=utf-8
+encoding//processors/expression_mappings.py=utf-8
 encoding//tests/test_import_file.py=utf-8
 encoding/__init__.py=utf-8
 encoding/__manifest__.py=utf-8
