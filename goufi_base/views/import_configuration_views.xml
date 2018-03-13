@@ -45,7 +45,7 @@
 						<field name="target_object" attrs="{'invisible':['|',('needs_mappings','=',False),('tab_support','=',True)]}" />
 						<field name="column_mappings" mode="tree" editable="bottom"
 							attrs="{'invisible':['|',('needs_mappings','=',False),('tab_support','=',True)]}"
-							context="{'target_object':self.target_object}">
+							context="{'target_object':target_object}">
 							<tree string="Import Configurations" default_order="id asc">
 								<field name="name" />
 								<field name="mapping_expression" />
@@ -62,7 +62,7 @@
 						</field>
 						<field name="tab_mappings" mode="tree" editable="bottom"
 							attrs="{'invisible':['|',('needs_mappings','=',False),('tab_support','=',False)]}" 
-							context="{'target_object':self.target_object}" />
+							context="{'target_object':target_object}" />
 					</group>
 				</sheet>
 				<div class="oe_chatter">

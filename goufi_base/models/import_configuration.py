@@ -63,7 +63,7 @@ class ImportConfiguration(models.Model):
     target_object = fields.Many2one(string = _(u"Target object"),
                                     help = _(u"Odoo object that will be targeted by import: create, update or delete instances"),
                                     comodel_name = "ir.model",
-                                    required = True)
+                                    required = False)
 
     column_mappings = fields.One2many(string = _(u"Column mappings"),
                                     help = _(u"Mapping configuration needed by this processor"),

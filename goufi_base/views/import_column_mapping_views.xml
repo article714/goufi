@@ -15,7 +15,7 @@
 				<field name="name"/>
 				<field name="member_of" invisible="('col_group_support','=',False)"/>
 				<field name="mapping_expression"/>
-				<field name="display_taget" readonly=1/>
+				<field name="display_target" readonly='1'/>
 				<field name="is_identifier"/>
 				<field name="is_contextual_expression_mapping"/>
 				<field name="is_deletion_marker"/>

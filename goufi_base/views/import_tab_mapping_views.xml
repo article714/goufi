@@ -32,7 +32,7 @@
 						<field name="parent_configuration" invisible='1' attrs="{'readonly':True}"/>
 					</group>
 					<group name="Columns" string="Columns">
-						<field name="column_mappings" context="{'target_object':self.target_object}"/>
+						<field name="column_mappings" context="{'default_target_object':target_object,'target_object':target_object,'active_id':target_object}"/>
 					</group>
 				</sheet>
 			</form>
