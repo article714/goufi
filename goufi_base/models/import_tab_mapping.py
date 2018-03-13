@@ -51,3 +51,4 @@ class TabMapping(models.Model):
             for colMap in  aTabMap.column_mappings:
                 colMap.target_field = None
                 colMap.target_object = None
+

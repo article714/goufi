@@ -146,7 +146,7 @@ There can be several columns used as criteria
 
     # ******************************************************************************
 
-    @api_depends('parent_config', 'parent_tab')
+    @api.depends('parent_config', 'parent_tab')
     def _get_target_object(self):
         for colMap in  self:
             if colMap.tab_support:
