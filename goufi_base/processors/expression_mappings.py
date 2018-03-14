@@ -29,11 +29,11 @@ CSV_AUTHORIZED_EXTS = ('csv')
 
 @unique
 class MappingType(IntEnum):
-    Standard = 1
-    One2Many = 2
-    Many2One = 3
-    ContextEval = 4
-    Constant = 5
+    Standard = 0
+    One2Many = 1
+    Many2One = 2
+    ContextEval = 3
+    Constant = 4
 
 #-------------------------------------------------------------------------------------
 # MAIN CLASS
@@ -115,9 +115,6 @@ class Processor(AbstractProcessor):
         self.allMappings = []
         self.col2fields = {}
 
-        for val in MappingType:
-            self.allMappings[val] = []
-
         self.header_line_idx = self.parent_config.default_header_line_index
         self.target_model = None
         self.target_fields = None
@@ -157,12 +154,15 @@ class Processor(AbstractProcessor):
         self.mandatoryFields = []
         self.idFields = []
         self.delOrArchMarkers = []
-        self.allMappings = []
+        self.allMappings = range(len(MappingType))
         numbOfFields = 0
 
         col_mappings = None
 
         tabmap_model = self.odooenv['goufi.tab_mapping']
+
+        for val in MappingType:
+            self.allMappings[val] = []
 
         # Look for target Model in parent config
         if self.parent_config.tab_support:
