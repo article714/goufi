@@ -161,9 +161,6 @@ class Processor(AbstractProcessor):
 
         tabmap_model = self.odooenv['goufi.tab_mapping']
 
-        for val in MappingType:
-            self.allMappings[val] = []
-
         # Look for target Model in parent config
         if self.parent_config.tab_support:
             if tab_name != None:
@@ -212,7 +209,7 @@ class Processor(AbstractProcessor):
             return -1
 
         for val in MappingType:
-            self.allMappings[val] = []
+            self.allMappings[val] = {}
 
         for val in col_mappings:
 
