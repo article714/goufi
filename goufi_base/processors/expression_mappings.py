@@ -109,11 +109,10 @@ class Processor(AbstractProcessor):
         super(Processor, self).__init__(parent_config)
 
         # variables use during processing
-        self.mandatoryFields = []
-        self.idFields = []
-        self.delOrArchMarkers = []
+        self.mandatoryFields = {}
+        self.idFields = {}
+        self.delOrArchMarkers = {}
         self.allMappings = []
-        self.col2fields = {}
 
         self.header_line_idx = self.parent_config.default_header_line_index
         self.target_model = None
@@ -151,9 +150,9 @@ class Processor(AbstractProcessor):
 
     def prepare_mappings(self, tab_name = None):
 
-        self.mandatoryFields = []
-        self.idFields = []
-        self.delOrArchMarkers = []
+        self.mandatoryFields = {}
+        self.idFields = {}
+        self.delOrArchMarkers = {}
         self.allMappings = range(len(MappingType))
         numbOfFields = 0
 
