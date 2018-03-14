@@ -45,7 +45,7 @@ class TabMapping(models.Model):
 
     # ******************************************************************************
 
-    @api.onchange(target_object)
+    @api.onchange('target_object')
     def _reset_colmap_targets(self):
         for aTabMap in self:
             for colMap in  aTabMap.column_mappings:
