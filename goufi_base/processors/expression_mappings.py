@@ -214,6 +214,8 @@ class Processor(AbstractProcessor):
 
         for val in col_mappings:
 
+            print ("DEBUG: " + str(val))
+
             mappingType = None
             if val.target_field.name in self.target_fields:
 
@@ -221,39 +223,46 @@ class Processor(AbstractProcessor):
 
                 if val.is_constant_expression:
                     mappingType = MappingType.Constant
-                    self.allMappings[mappingType][val.name] = val.mapping_expression
+                    if val.mapping_expression  and len(val.mapping_expression) > 2:
+                        self.allMappings[mappingType][val.name] = val.mapping_expression
+                    else:
+                        self.logger.error("Wrong mapping expression: too short")
                 elif val.is_contextual_expression_mapping:
                     mappingType = MappingType.ContextEval
-                    self.allMappings[mappingType][val.name] = val.mapping_expression
-                elif re.match(r'\*.*', val.mapping_expression):
-                    mappingType = MappingType.One2Many
-                    v = val.mapping_expression.replace('*', '')
-                    vals = [0] + v.split('/')
-                    if re.match(r'.*\&.*', vals[2]):
-                        (_fieldname, cond) = vals[2].split('&')
-                        vals[2] = _fieldname
-                        try:
-                            vals.append(eval(cond))
-                        except Exception as a:
-                            self.logger.exception("Could not parse given conditions " + str(cond))
-                    self.allMappings[mappingType][val.name] = vals
-                elif re.match(r'\+.*', val.mapping_expression):
-                    mappingType = MappingType.One2Many
-                    v = val.mapping_expression.replace('+', '')
-                    vals = [1] + v.split('/')
-                    self.allMappings[mappingType][val.name] = vals
-                elif re.match(r'\>.*', val.mapping_expression):
-                    mappingType = MappingType.Many2One
-                    v = val.mapping_expression.replace('>', '')
-                    vals = v.split('/')
-                    if re.match(r'.*\&.*', vals[1]):
-                        (_fieldname, cond) = vals[1].split('&')
-                        vals[1] = _fieldname
-                        try:
-                            vals.append(eval(cond))
-                        except Exception as a:
-                            self.logger.exception("Could not parse given conditions " + str(cond))
-                    self.allMappings[mappingType][val.name] = vals
+                    if val.mapping_expression  and len(val.mapping_expression) > 2:
+                        self.allMappings[mappingType][val.name] = val.mapping_expression
+                    else:
+                        self.logger.error("Wrong mapping expression: too short")
+                elif val.mapping_expression  and len(val.mapping_expression) > 2:
+                    if re.match(r'\*.*', val.mapping_expression):
+                        mappingType = MappingType.One2Many
+                        v = val.mapping_expression.replace('*', '')
+                        vals = [0] + v.split('/')
+                        if re.match(r'.*\&.*', vals[2]):
+                            (_fieldname, cond) = vals[2].split('&')
+                            vals[2] = _fieldname
+                            try:
+                                vals.append(eval(cond))
+                            except Exception as a:
+                                self.logger.exception("Could not parse given conditions " + str(cond))
+                        self.allMappings[mappingType][val.name] = vals
+                    elif re.match(r'\+.*', val.mapping_expression):
+                        mappingType = MappingType.One2Many
+                        v = val.mapping_expression.replace('+', '')
+                        vals = [1] + v.split('/')
+                        self.allMappings[mappingType][val.name] = vals
+                    elif re.match(r'\>.*', val.mapping_expression):
+                        mappingType = MappingType.Many2One
+                        v = val.mapping_expression.replace('>', '')
+                        vals = v.split('/')
+                        if re.match(r'.*\&.*', vals[1]):
+                            (_fieldname, cond) = vals[1].split('&')
+                            vals[1] = _fieldname
+                            try:
+                                vals.append(eval(cond))
+                            except Exception as a:
+                                self.logger.exception("Could not parse given conditions " + str(cond))
+                        self.allMappings[mappingType][val.name] = vals
                 else:
                     mappingType = MappingType.Standard
                     self.allMappings[mappingType][val.name] = val.mapping_expression
