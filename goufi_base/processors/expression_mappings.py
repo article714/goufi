@@ -112,6 +112,7 @@ class Processor(AbstractProcessor):
         self.mandatoryFields = {}
         self.idFields = {}
         self.delOrArchMarkers = {}
+        self.col2fields = {}
         self.allMappings = []
 
         self.header_line_idx = self.parent_config.default_header_line_index
@@ -153,6 +154,7 @@ class Processor(AbstractProcessor):
         self.mandatoryFields = {}
         self.idFields = {}
         self.delOrArchMarkers = {}
+        self.col2fields = {}
         self.allMappings = range(len(MappingType))
         numbOfFields = 0
 
