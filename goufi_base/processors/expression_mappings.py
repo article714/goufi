@@ -234,7 +234,10 @@ class Processor(AbstractProcessor):
                     if re.match(r'.*\&.*', vals[2]):
                         (_fieldname, cond) = vals[2].split('&')
                         vals[2] = _fieldname
-                        vals[3] = eval(cond)
+                        try:
+                            vals.append(eval(cond))
+                        except Exception as a:
+                            self.logger.exception("Could not parse given conditions " + str(cond))
                     self.allMappings[mappingType][val.name] = vals
                 elif re.match(r'\+.*', val.mapping_expression):
                     mappingType = MappingType.One2Many
@@ -248,7 +251,10 @@ class Processor(AbstractProcessor):
                     if re.match(r'.*\&.*', vals[1]):
                         (_fieldname, cond) = vals[1].split('&')
                         vals[1] = _fieldname
-                        vals[2] = eval(cond)
+                        try:
+                            vals.append(eval(cond))
+                        except Exception as a:
+                            self.logger.exception("Could not parse given conditions " + str(cond))
                     self.allMappings[mappingType][val.name] = vals
                 else:
                     mappingType = MappingType.Standard
