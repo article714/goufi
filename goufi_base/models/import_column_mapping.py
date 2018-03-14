@@ -118,11 +118,20 @@ There can be several columns used as criteria
                                     required = False,
                                     compute = '_get_target_object')
 
+    def _get_target_field_dom(self):
+        model_id = self._context.get('target_object')
+        self._get_target_object()
+        if  model_id:
+            return [('model_id', '=', model_id)]
+        if self.target_object:
+            return [('model_id', '=', target_object.id)]
+        return []
+
     target_field = fields.Many2one(string = _(u"Target field"),
                                     help = _(u"Odoo object's field that will be targeted by import: create, update or delete instances"),
                                     comodel_name = "ir.model.fields",
                                     required = False,
-                                    domain = "[('model_id','=',target_object.id)]")
+                                    domain = _get_target_field_dom)
 
     # Info about parent configuration and parent tab (if relevant)
 
@@ -164,7 +173,7 @@ There can be several columns used as criteria
                 else:
                     colMap.display_target = colMap.target_object.model + ".?"
             else:
-                rcolMap.display_target = _('None')
+                colMap.display_target = _('None')
 
     @api.onchange(target_object)
     def _reset_colmap_targets(self):
