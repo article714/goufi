@@ -214,8 +214,6 @@ class Processor(AbstractProcessor):
 
         for val in col_mappings:
 
-            print ("DEBUG: " + str(val))
-
             mappingType = None
             if val.target_field.name in self.target_fields:
 
@@ -278,8 +276,6 @@ class Processor(AbstractProcessor):
         if val.is_deletion_marker or val.is_archival_marker:
             self.delOrArchMarkers[val.name] = (val.is_deletion_marker, val.mapping_expression, val.is_archival_marker)
 
-        print ("DEBUG: " + str(self.allMappings) + " -- " + str(self.delOrArchMarkers))
-
         return numbOfFields
 
     #-------------------------------------------------------------------------------------
@@ -301,13 +297,10 @@ class Processor(AbstractProcessor):
         # Process contextual values
         for val in self.allMappings[MappingType.ContextEval]:
             try:
-                print ("DEBUG: will eval: " + str(self.allMappings[MappingType.ContextEval][val]))
                 value = eval(self.allMappings[MappingType.ContextEval][val])
                 data_values[val] = value
             except Exception as e:
                 self.logger.exception("Failed to evaluate expression from context: " + str(val.name))
-
-        print ("ZOBI " + str(data_values))
 
         # Many To One Fields, might be mandatory, so needs to be treated first and added to StdRow
         for f in self.allMappings[MappingType.Many2One]:
