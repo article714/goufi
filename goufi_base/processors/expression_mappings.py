@@ -288,6 +288,7 @@ class Processor(AbstractProcessor):
         # Process contextual values
         for val in self.allMappings[MappingType.ContextEval]:
             try:
+                print ("DEBUG: will eval: " + str(self.allMappings[MappingType.ContextEval][val]))
                 value = eval(self.allMappings[MappingType.ContextEval][val])
                 data_values[val] = value
             except Exception as e:
