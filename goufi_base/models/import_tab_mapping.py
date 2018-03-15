@@ -29,7 +29,7 @@ class TabMapping(models.Model):
     target_object = fields.Many2one(string = _(u"Target object"),
                                     help = _(u"Odoo object that will be targeted by import: create, update or delete instances"),
                                     comodel_name = "ir.model",
-                                    required = False)
+                                    required = True)
 
     default_header_line_index = fields.Integer(string = _(u"Default Header line"),
                                                help = _(u"Provides the index of the header line in import file. Header line contains name of columns to be mapped."),
@@ -42,4 +42,13 @@ class TabMapping(models.Model):
                                     help = _(u"Mapping configuration needed by this processor"),
                                       comodel_name = "goufi.column_mapping",
                                       inverse_name = "parent_tab")
+
+    # ******************************************************************************
+
+    @api.onchange('target_object')
+    def _reset_colmap_targets(self):
+        for aTabMap in self:
+            for colMap in  aTabMap.column_mappings:
+                colMap.target_field = None
+                colMap.target_object = None
 

@@ -15,9 +15,8 @@ import os
 import re
 
 from odoo import models, fields, _, api
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
-
 from odoo.addons.goufi_base.utils.converters import dateToOdooString
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 
 #------------------------------------------------------------

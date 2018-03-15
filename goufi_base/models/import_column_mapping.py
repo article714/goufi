@@ -72,6 +72,10 @@ There can be several columns used as criteria
 """),
                                    required = True, default = False)
 
+    is_mandatory = fields.Boolean(string = _(u"Mandatory column"),
+                                   help = _(u"""There must be a value for this column"""),
+                                   required = True, default = False)
+
     # is column a deletion marker
     is_deletion_marker = fields.Boolean(string = _(u"Does column contain a deletion marker?"),
                                         help = _(u"If True, the selected record (if found) will be deleted"),
@@ -94,11 +98,40 @@ There can be several columns used as criteria
                                        help = _(u"Must contain a regular expression that the column value must match to be evaluated as True and the record be archived"),
                                        required = False, default = _(u"Yes"), size = 64)
 
-    # target object (when relevant)
+    # is a constant expression
+
+    is_constant_expression = fields.Boolean(string = _(u"Expression is a constant"),
+                                   help = _(u"""The mapping expression is a string constant"""),
+                                   required = True, default = False)
+
+    # is a contextual expression mapping
+    # (that is computed from processor properties, not from import file)
+
+    is_contextual_expression_mapping = fields.Boolean(string = _(u"Is a contextual expression mapping "),
+                                        help = _(u"If this mapping is a contextual expression, then it  is computed from processor properties, not from import file"),
+                                   required = True, default = False)
+
+    # target object and target field (when relevant)
     target_object = fields.Many2one(string = _(u"Target object"),
                                     help = _(u"Odoo object that will be targeted by import: create, update or delete instances"),
                                     comodel_name = "ir.model",
-                                    required = False)
+                                    required = False,
+                                    compute = '_get_target_object')
+
+    def _get_target_field_dom(self):
+        model_id = self._context.get('target_object')
+        self._get_target_object()
+        if  model_id:
+            return [('model_id', '=', model_id)]
+        if self.target_object:
+            return [('model_id', '=', target_object.id)]
+        return []
+
+    target_field = fields.Many2one(string = _(u"Target field"),
+                                    help = _(u"Odoo object's field that will be targeted by import: create, update or delete instances"),
+                                    comodel_name = "ir.model.fields",
+                                    required = False,
+                                    domain = _get_target_field_dom)
 
     # Info about parent configuration and parent tab (if relevant)
 
@@ -112,4 +145,69 @@ There can be several columns used as criteria
 
     parent_tab = fields.Many2one(string = _(u"Parent Tab (when multi tabs)"),
                                       comodel_name = "goufi.tab_mapping")
+
+    # computed field
+
+    display_target = fields.Char(string = _(u"Target Field"), help = _(u"Target field for target object"),
+                                required = False,
+                                store = False,
+                                compute = '_compute_display_target')
+
+    # ******************************************************************************
+
+    @api.depends('parent_configuration', 'parent_tab')
+    def _get_target_object(self):
+        for colMap in  self:
+            if colMap.tab_support:
+                if colMap.parent_tab:
+                    colMap.target_object = colMap.parent_tab.target_object
+            elif colMap.parent_configuration:
+                colMap.target_object = colMap.parent_configuration.target_object
+
+    @api.depends('target_object', 'target_field')
+    def _compute_display_target(self):
+        for colMap in  self:
+            if colMap.target_object:
+                if colMap.target_field:
+                    colMap.display_target = colMap.target_object.model + "." + colMap.target_field.name
+                else:
+                    colMap.display_target = colMap.target_object.model + ".?"
+            else:
+                colMap.display_target = _('None')
+
+    @api.onchange(target_object)
+    def _reset_colmap_targets(self):
+        for aColMap in self:
+                colMap.target_field = None
+
+    def fix_consistency(self, values):
+        if 'is_deletion_marker' in values:
+            if values['is_deletion_marker']:
+                values['is_archival_marker'] = False
+                values['is_identifier'] = False
+                values['is_constant_expression'] = True
+        if 'is_archival_marker' in values:
+            if values['is_archival_marker']:
+                values['is_deletion_marker'] = False
+                values['is_identifier'] = False
+                values['is_constant_expression'] = True
+        if 'is_identifier' in values:
+            if values['is_identifier']:
+                values['is_mandatory'] = True
+                values['is_deletion_marker'] = False
+                values['is_archival_marker'] = False
+                values['is_constant_expression'] = False
+
+    @api.model
+    def create(self, values):
+        self.fix_consistency(values)
+        super(ColumnMapping, self).create(values)
+
+    def write(self, values):
+        self.fix_consistency(values)
+        if 'target_object' in values:
+            if self.target_object:
+                if self.target_object != values['target_object']:
+                    self.target_field = None
+        super(ColumnMapping, self).write(values)
 

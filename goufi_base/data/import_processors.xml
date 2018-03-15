@@ -11,7 +11,7 @@
 		<field name="needs_mappings">True</field>
 		<field name="tab_support">False</field>
 		<field name="col_group_support">False</field>
-		<field name="processor_module">odoo.addons.goufi_base.processors.textual_mappings</field>
+		<field name="processor_module">odoo.addons.goufi_base.processors.expression_mappings</field>
 		<field name="processor_class">CSVProcessor</field>
 	</record>
 	<record id="textual_mappings_processor_xls" model="goufi.import_processor">
@@ -19,15 +19,7 @@
 		<field name="needs_mappings">True</field>
 		<field name="tab_support">True</field>
 		<field name="col_group_support">False</field>
-		<field name="processor_module">odoo.addons.goufi_base.processors.textual_mappings</field>
+		<field name="processor_module">odoo.addons.goufi_base.processors.expression_mappings</field>
 		<field name="processor_class">XLProcessor</field>
-	</record>
-	<record id="advanced_mappings_processor_xl" model="goufi.import_processor">
-		<field name="name">Processor with Advanced Mappings (XLS*)</field>
-		<field name="needs_mappings">True</field>
-		<field name="tab_support">True</field>
-		<field name="col_group_support">True</field>
-		<field name="processor_module">odoo.addons.goufi_base.processors.advanced_mappings</field>
-		<field name="processor_class">Processor</field>
 	</record>
 </odoo>
