@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_goufi_config" model="ir.ui.view">
+            <field name="name">Goufi: configuration</field>
+            <field name="model">goufi.config.settings</field>
+            <field name="arch" type="xml">
+                <form string="Goufi configuration" class= "oe_form_configuration">
+                    <header>
+                        <button string="Apply" type="object" name="execute" class="oe_highlight"/>
+                        <button string="Cancel" type="object" name="cancel" class="oe_link" special="cancel"/>
+                    </header>
+                    <h2> Goufi Configuration</h2>
+                    <group>
+                    	<field name="config_needs_partner" />
+                    </group>
+                </form>
+            </field>
+        </record>
+        
+        <record id="action_view_configuration" model="ir.actions.act_window">
+            <field name="name">Goufi: configuration</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">goufi.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+        </record>
+
+    </data>
+</odoo>

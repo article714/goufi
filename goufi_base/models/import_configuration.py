@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 23 deb. 2018
+Created on 23 february 2018
 
 @author: C. Guychard
 @copyright: ©2018 Article 714
@@ -50,6 +50,12 @@ class ImportConfiguration(models.Model):
                                                help = _(u"Provides the index of the header line in import file. Header line contains name of columns to be mapped."),
                                                required = True, default = 0)
 
+    needs_partner = fields.Boolean (string = _(u"Does Goufi config needs partner"),
+                                    help = _(u"This is configured for the whole goufi instance"),
+                                    compute = '_get_param_needs_parameter',
+                                    store = False,
+                                    default = False)
+
     default_partner_id = fields.Many2one(string = _(u'Related Partner'),
                                          help = _("The partner that provided the Data"),
                                          comodel_name = 'res.partner', track_visibility = 'onchange')
@@ -96,6 +102,10 @@ class ImportConfiguration(models.Model):
                                       required = False)
 
     #-------------------------------
+
+    def _get_param_needs_partner(self):
+        self.needs_partner = eval(self.env['ir.config_parameter'].get_param('goufi.config_needs_partner', False))
+
     #-------------------------------
     # file detection
     def detect_files(self):

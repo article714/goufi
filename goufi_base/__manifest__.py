@@ -25,6 +25,7 @@ TODO
              'data/import_processors.xml',
             'actions/goufi_base_actions.xml',
             'actions/goufi_automation.xml',
+            'views/goufi_config_view.xml',
             'views/goufi_import_menus.xml',
             'views/import_file_views.xml',
             'views/import_processor_views.xml',

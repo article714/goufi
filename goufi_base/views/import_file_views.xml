@@ -36,7 +36,7 @@
 					<button name="force_process_file" string="Forced Processing" type="object" class="btn-danger btn btn-sm oe_highlight" groups="goufi_base.group_goufi_admin" />
 				</header>
 				<sheet>					
-					<group name="Source" string="Source">
+					<group name="Source" string="Source" attrs="{'invisible':[('needs_partner','=',False)]}"  >
 						<field name="partner_id" />
 					</group>
 					<group name="File" string="File" attrs="{'readonly':True}">

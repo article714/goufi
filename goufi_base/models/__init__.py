@@ -7,6 +7,7 @@ Created on 23 deb. 2018
 @license: AGPL v3
 '''
 
+from . import goufi_config
 from . import import_column_mapping
 from . import import_configuration
 from . import import_file

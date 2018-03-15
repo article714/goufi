@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 23 deb. 2018
+Created on 23 february 2017
 
 @author: C. Guychard
 @copyright: ©2018 Article 714
