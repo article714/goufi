@@ -40,6 +40,8 @@
 						<field name="processor" />
 						<field name="working_dir" />
 						<field name="default_header_line_index" />
+						<field name="needs_partner" invisible='1' />
+						<field name="default_partner_id"  attrs="{'invisible':[('needs_partner','=',False)]}" />
 						<field name="needs_mappings" attrs="{'invisible':True}" />
 						<field name="tab_support" attrs="{'invisible':True}" />
 						<field name="target_object" attrs="{'invisible':['|',('needs_mappings','=',False),('tab_support','=',True)]}" />

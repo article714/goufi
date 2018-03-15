@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 23 deb. 2018
+Created on 23 feb. 2018
 
 @author: C. Guychard
 @copyright: ©2018 Article 714
@@ -24,7 +24,15 @@ class ImportFile(models.Model):
 
     filesize = fields.Float(string = _(u"File size"), default = 0.0)
 
-    partner_id = fields.Many2one(string = _(u'Related Partner'), comodel_name = 'res.partner', track_visibility = 'onchange')
+    needs_partner = fields.Boolean (string = _(u"Does Goufi config needs partner"),
+                                    help = _(u"This is configured for the whole goufi instance"),
+                                    related = 'import_config.needs_partner',
+                                    store = False,
+                                    default = False)
+
+    partner_id = fields.Many2one(string = _(u'Related Partner'),
+                                         help = _("The partner that provided the Data"),
+                                         comodel_name = 'res.partner', track_visibility = 'onchange')
 
     date_addition = fields.Datetime(string = _(u"Addition date"), track_visibility = 'onchange', required = True)
 
@@ -106,3 +114,27 @@ class ImportFile(models.Model):
             records = import_file_model.search(criteria, limit = None)
             for rec in records:
                 rec.process_file()
+
+    #-------------------------------
+    # standard model method override
+
+    def create(self, values):
+        if 'import_config' in values:
+            config = self.env['goufi.import_configuration'].browse((values['import_config'],))
+            if len(config) > 0:
+                config = config[0]
+                if config.partner_id:
+                    values['default_partner_id'] = config.default_partner_id.id
+                values['header_line_index'] = config.default_header_line_index
+
+        return super(ImportFile, self).create(values)
+
+    def write(self, values):
+        if 'import_config' in values:
+            config = self.env['goufi.import_configuration'].browse((values['import_config'],))
+            if len(config) > 0:
+                config = config[0]
+                if config.partner_id:
+                    values['default_partner_id'] = config.default_partner_id.id
+        super(ImportFile, self).write(values)
+

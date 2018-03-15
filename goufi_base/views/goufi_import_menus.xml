@@ -20,6 +20,12 @@
 		groups="group_goufi_admin"
 		action="goufi_import_configuration_show_action" />
 		
+	<menuitem id="goufi_config_menu" name="Configuration"
+		parent="goufi_admin_menu" sequence="340"
+		groups="group_goufi_admin"
+		action="action_view_configuration" />
+		
+		
 	<menuitem id="goufi_import_processor_menu" name="Import Processors"
 		parent="goufi_admin_menu" sequence="350"
 		groups="group_goufi_admin"

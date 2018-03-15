@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 23 deb. 2018
+Created on 23 february 2018
 
 @author: C. Guychard
 @copyright: ©2018 Article 714
@@ -15,8 +15,9 @@ import os
 import re
 
 from odoo import models, fields, _, api
-from odoo.addons.goufi_base.utils.converters import dateToOdooString
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
+
+from odoo.addons.goufi_base.utils.converters import dateToOdooString
 
 
 #------------------------------------------------------------
@@ -48,6 +49,16 @@ class ImportConfiguration(models.Model):
     default_header_line_index = fields.Integer(string = _(u"Default Header line"),
                                                help = _(u"Provides the index of the header line in import file. Header line contains name of columns to be mapped."),
                                                required = True, default = 0)
+
+    needs_partner = fields.Boolean (string = _(u"Does Goufi config needs partner"),
+                                    help = _(u"This is configured for the whole goufi instance"),
+                                    compute = '_get_param_needs_partner',
+                                    store = False,
+                                    default = False)
+
+    default_partner_id = fields.Many2one(string = _(u'Related Partner'),
+                                         help = _("The partner that provided the Data"),
+                                         comodel_name = 'res.partner', track_visibility = 'onchange')
 
     processor = fields.Many2one(string = _(u"Import processor"),
                                 comodel_name = 'goufi.import_processor',
@@ -91,6 +102,11 @@ class ImportConfiguration(models.Model):
                                       required = False)
 
     #-------------------------------
+
+    def _get_param_needs_partner(self):
+        self.needs_partner = self.env['ir.config_parameter'].get_param('goufi.config_needs_partner')
+        return self.needs_partner
+
     #-------------------------------
     # file detection
     def detect_files(self):
