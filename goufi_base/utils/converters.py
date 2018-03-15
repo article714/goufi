@@ -22,14 +22,7 @@ XLS_DATE_REF = date(1900, 1, 1)
 #  Utility: Transfo des chaines en unicode
 def toString(value):
     avalue = ""
-    if isinstance(value, str):
-        try:
-            avalue = unicode(value)
-        except UnicodeError:
-            avalue = unicode(value.decode('iso-8859-1'))
-    elif isinstance(value, unicode):
-        avalue = value
-    elif isinstance(value, Exception):
+    if isinstance(value, Exception):
         avalue = str(type(value)) + " -- " + str(value)
     elif isinstance(value, object):
         avalue = str(value)
