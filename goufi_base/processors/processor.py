@@ -143,6 +143,10 @@ class AbstractProcessor(object):
         else:
             import_file.processing_status = 'failure'
 
+        # unset the processing marker
+
+        import_file.to_process = import_file.process_when_updated
+
         # uploads log aFile
         # TODO: deal with big log files
         if self.logger_fh:
