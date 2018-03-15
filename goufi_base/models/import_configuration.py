@@ -104,7 +104,7 @@ class ImportConfiguration(models.Model):
     #-------------------------------
 
     def _get_param_needs_partner(self):
-        self.needs_partner = eval(self.env['ir.config_parameter'].get_param('goufi.config_needs_partner', False))
+        self.needs_partner = self.env['ir.config_parameter'].get_param('goufi.config_needs_partner')
         return self.needs_partner
 
     #-------------------------------
