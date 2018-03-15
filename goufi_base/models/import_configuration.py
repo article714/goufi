@@ -52,7 +52,7 @@ class ImportConfiguration(models.Model):
 
     needs_partner = fields.Boolean (string = _(u"Does Goufi config needs partner"),
                                     help = _(u"This is configured for the whole goufi instance"),
-                                    compute = '_get_param_needs_parameter',
+                                    compute = '_get_param_needs_partner',
                                     store = False,
                                     default = False)
 
@@ -105,6 +105,7 @@ class ImportConfiguration(models.Model):
 
     def _get_param_needs_partner(self):
         self.needs_partner = eval(self.env['ir.config_parameter'].get_param('goufi.config_needs_partner', False))
+        return self.needs_partner
 
     #-------------------------------
     # file detection
