@@ -15,8 +15,9 @@ import os
 import re
 
 from odoo import models, fields, _, api
-from odoo.addons.goufi_base.utils.converters import dateToOdooString
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
+
+from odoo.addons.goufi_base.utils.converters import dateToOdooString
 
 
 #------------------------------------------------------------
@@ -48,6 +49,10 @@ class ImportConfiguration(models.Model):
     default_header_line_index = fields.Integer(string = _(u"Default Header line"),
                                                help = _(u"Provides the index of the header line in import file. Header line contains name of columns to be mapped."),
                                                required = True, default = 0)
+
+    default_partner_id = fields.Many2one(string = _(u'Related Partner'),
+                                         help = _("The partner that provided the Data"),
+                                         comodel_name = 'res.partner', track_visibility = 'onchange')
 
     processor = fields.Many2one(string = _(u"Import processor"),
                                 comodel_name = 'goufi.import_processor',
