@@ -24,12 +24,6 @@ class ImportFile(models.Model):
 
     filesize = fields.Float(string = _(u"File size"), default = 0.0)
 
-    needs_partner = fields.Boolean (string = _(u"Does Goufi config needs partner"),
-                                    help = _(u"This is configured for the whole goufi instance"),
-                                    related = 'import_config.needs_partner',
-                                    store = False,
-                                    default = False)
-
     partner_id = fields.Many2one(string = _(u'Related Partner'),
                                          help = _("The partner that provided the Data"),
                                          comodel_name = 'res.partner', track_visibility = 'onchange')

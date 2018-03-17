@@ -50,12 +50,6 @@ class ImportConfiguration(models.Model):
                                                help = _(u"Provides the index of the header line in import file. Header line contains name of columns to be mapped."),
                                                required = True, default = 0)
 
-    needs_partner = fields.Boolean (string = _(u"Does Goufi config needs partner"),
-                                    help = _(u"This is configured for the whole goufi instance"),
-                                    compute = '_get_param_needs_partner',
-                                    store = False,
-                                    default = False)
-
     default_partner_id = fields.Many2one(string = _(u'Related Partner'),
                                          help = _("The partner that provided the Data"),
                                          comodel_name = 'res.partner', track_visibility = 'onchange')

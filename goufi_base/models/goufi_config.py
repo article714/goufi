@@ -10,11 +10,14 @@ Created on march 2018
 from odoo import api, fields, models, _
 
 
-class GoufiConfig(models.TransientModel):
+class GoufiConfigSettings(models.TransientModel):
     _name = 'goufi.config.settings'
     _inherit = 'res.config.settings'
 
-    config_needs_partner = fields.Boolean(
-        _(u'Provide partner to identify origin of imported data'),
-        help = _(u'Provide partner to identify origin of imported data'))
-
+    group_config_needs_partner = fields.Selection(
+        [(0, "No partner on import configurations"),
+        (1, 'Partners on import files and configurations')],
+        string = _(u'Provide partner to identify origin of imported data'),
+        help = _(u'Provide partner to identify origin of imported data'),
+        implied_group = 'goufi_base.group_config_needs_partner',
+        default = 0)
