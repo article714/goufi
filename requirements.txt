@@ -1,3 +1,4 @@
 openpyxl>2.4
 xlrd>1.0
 unicodecsv
+enum34
