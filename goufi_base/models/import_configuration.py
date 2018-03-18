@@ -28,8 +28,6 @@ class ImportConfiguration(models.Model):
     _description = _(u"Import Configuration")
     _rec_name = "name"
 
-    recurse = 0
-
     # Configuration identification
     name = fields.Char(string = _(u'Configuration name'), required = True, track_visibility = 'onchange')
 
@@ -114,8 +112,6 @@ class ImportConfiguration(models.Model):
         file_model = self.env['goufi.import_file']
         all_files = []
 
-        ImportConfiguration.recurse += 1
-
         if cur_dir != None:
             all_files = sorted(os.listdir(cur_dir))
         elif self.files_location and file_model != None:
@@ -162,8 +158,6 @@ class ImportConfiguration(models.Model):
 
                     if iFile != None:
                         self.env.cr.commit()
-
-        ImportConfiguration.recurse -= 1
 
     #-------------------------------
     # Process All files for that configuration
