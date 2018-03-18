@@ -69,13 +69,14 @@ class ImportFile(models.Model):
 
     def process_file(self):
         for aFile in self:
-            aFile._process_a_file(force = False)
+            if aFile.active and aFile.import_config and aFile.import_config.active:
+                aFile._process_a_file(force = False)
 
     def _process_a_file(self, force = False):
         if self.import_config:
             cls = None
             mod = None
-            if self.import_config.processor:
+            if self.import_config.processor and self.active and self.import_config.active:
                 # Resolve processor class
                 try:
                     processor = self.import_config.processor
