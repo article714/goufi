@@ -15,7 +15,7 @@
 		parent="goufi_import_menu" sequence="210"
 		action="goufi_import_file_new_show_action" />
 		
-	<menuitem id="goufi_import_running_menu" name="New Files"
+	<menuitem id="goufi_import_running_menu" name="Running Processes"
 		parent="goufi_import_menu" sequence="210"
 		action="goufi_import_file_running_show_action" />
 		
