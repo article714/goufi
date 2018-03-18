@@ -16,9 +16,10 @@
 		<field name="interval_type">hours</field>
 		<field name="numbercall">-1</field>
 		<field name="nextcall" eval="datetime.now()" />
+		<field name="active" eval="False"/>
+		<field name="state">code</field>
         <field name="model_id" ref="model_goufi_import_configuration"/>
-        <field name="function">detect</field>
-        <field name="args" eval="'()'" />
+        <field name="code">model.detect(criteria=[('active','=',True)])</field>
 	</record>
 	
 	
@@ -29,9 +30,10 @@
 		<field name="interval_type">hours</field>
 		<field name="numbercall">-1</field>
 		<field name="nextcall" eval="datetime.now()" />
+		<field name="active" eval="False"/>
+		<field name="state">code</field>
         <field name="model_id" ref="model_goufi_import_file"/>
-        <field name="function">process_files</field>
-        <field name="args" eval="'()'" />
+        <field name="code">model.process_files(criteria=[('active','=',True)])</field>
 	</record>
 	
 	
