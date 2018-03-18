@@ -34,12 +34,12 @@
 					</h2>
 					<group name="File(s) detection" string="File(s) detection">
 						<field name="files_location" />
+						<field name ="recursive_search" />
 						<field name="filename_pattern" />
 					</group>
 					<group name="Processing configuration" string="Processing configuration">
 						<field name="processor" />
 						<field name="working_dir" />
-						<field name ="recursive_search" />
 						<field name="default_header_line_index" />
 						<field name="default_partner_id"  groups="goufi_base.group_config_needs_partner" />
 						<field name="needs_mappings" attrs="{'invisible':True}" />
