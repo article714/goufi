@@ -23,6 +23,7 @@ TODO
     'data': ['security/goufi_security.xml',
              'security/access_model.xml',
              'data/import_processors.xml',
+            'views/import_file_default_filters.xml',
             'actions/goufi_base_actions.xml',
             'actions/goufi_automation.xml',
             'views/goufi_config_view.xml',
