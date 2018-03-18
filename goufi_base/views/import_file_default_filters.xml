@@ -17,6 +17,14 @@
             <field name="active" eval="True"/>
         </record>
         
+        <record id="filter_import_file_running" model="ir.filters">
+        	<field name="name">Running Imports</field>
+            <field name="model_id">goufi.import_file</field>
+            <field name="domain">[('processing_status','=','running')]</field>
+            <field name="user_id" eval="False"/>
+            <field name="active" eval="True"/>
+        </record>
+        
         <record id="filter_import_file_recurrent" model="ir.filters">
         	<field name="name">Recurrent Imports</field>
             <field name="model_id">goufi.import_file</field>
