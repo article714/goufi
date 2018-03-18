@@ -28,6 +28,8 @@ class ImportConfiguration(models.Model):
     _description = _(u"Import Configuration")
     _rec_name = "name"
 
+    recurse = 0
+
     # Configuration identification
     name = fields.Char(string = _(u'Configuration name'), required = True, track_visibility = 'onchange')
 
@@ -107,21 +109,30 @@ class ImportConfiguration(models.Model):
 
     #-------------------------------
     # file detection
-    def detect_files(self, cur_dir = None):
+
+    def detect_files(self, cr = None, uid = None, context = None, cur_dir = None):
         file_model = self.env['goufi.import_file']
         all_files = []
+
+        ImportConfiguration.recurse += 1
 
         if cur_dir != None:
             all_files = sorted(os.listdir(cur_dir))
         elif self.files_location and file_model != None:
             all_files = sorted(os.listdir(self.files_location))
+        else:
+            logging.error ("GOUFI: No files location for configuration " + self.name)
+            return None
 
         for aFile in all_files:
-            cur_path = self.files_location + os.path.sep + aFile
+            if cur_dir != None:
+                cur_path = cur_dir + os.path.sep + aFile
+            else:
+                cur_path = self.files_location + os.path.sep + aFile
 
             if os.path.isdir(cur_path):
                 if self.recursive_search:
-                    self.detect_files(cur_path)
+                    self.detect_files(cr, uid, context, cur_dir = cur_path)
             elif os.path.isfile(cur_path):
                 if re.match(self.filename_pattern, aFile):
                     filesize = os.path.getsize(cur_path)
@@ -151,8 +162,8 @@ class ImportConfiguration(models.Model):
 
                     if iFile != None:
                         self.env.cr.commit()
-        else:
-            logging.error ("GOUFI: No files location for configuration " + self.name)
+
+        ImportConfiguration.recurse -= 1
 
     #-------------------------------
     # Process All files for that configuration
@@ -204,5 +215,5 @@ class ImportConfiguration(models.Model):
         if config_model != None :
             records = config_model.search(criteria, limit = None)
             for rec in records:
-                rec.detect_files()
+                rec.detect_files(cur_dir = None)
 
