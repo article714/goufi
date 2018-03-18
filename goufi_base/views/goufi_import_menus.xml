@@ -10,13 +10,16 @@
 		parent="goufi_base_menu" sequence="200"
 		action="goufi_import_file_show_action" />
 		
+	<menuitem id="goufi_import_files_menu" name="All Files"
+		parent="goufi_import_menu" sequence="210"
+		action="goufi_import_file_show_action" />
 		
 	<menuitem id="goufi_import_new_menu" name="New Files"
-		parent="goufi_import_menu" sequence="210"
+		parent="goufi_import_menu" sequence="220"
 		action="goufi_import_file_new_show_action" />
 		
 	<menuitem id="goufi_import_running_menu" name="Running Processes"
-		parent="goufi_import_menu" sequence="210"
+		parent="goufi_import_menu" sequence="230"
 		action="goufi_import_file_running_show_action" />
 		
 		
