@@ -41,6 +41,10 @@ class ImportConfiguration(models.Model):
                                  required = True, default = "/odoo/file_imports"
                                  )
 
+    recursive_search = fields.Boolean(string = _(u"Recursive search"),
+                                    help = _(u"should we search for files in sub-directories"),
+                                    default = False)
+
     working_dir = fields.Char(string = _(u'Working directory'),
                                  help = _(u" Directory where temp and log files will be put"),
                                  required = True, default = "/odoo/file_imports/_work"
@@ -61,7 +65,7 @@ class ImportConfiguration(models.Model):
     needs_mappings = fields.Boolean(string = _(u"Needs mappings"),
                                     help = _(u"Does the selected processor needs column mappings"),
                                     related = "processor.needs_mappings",
-                                    required = True, default = False)
+                                    default = False)
 
     # Single Tab configuration => a single mapping and target object needed for config.
 
@@ -79,7 +83,7 @@ class ImportConfiguration(models.Model):
     col_group_support = fields.Boolean(string = _(u"Supports column groups"),
                                     help = _(u"Does the processor can process (iterable) group of columns"),
                                     related = "processor.col_group_support",
-                                    required = True, default = False)
+                                    default = False)
 
     # Multi-Tab configuration => several mappings and targets object needed for config.
     #   there will be a target object per tab-mapping
@@ -87,7 +91,7 @@ class ImportConfiguration(models.Model):
     tab_support = fields.Boolean(string = _(u"Supports multi tabs"),
                                     help = _(u"Does the selected processor can process multiple tabs"),
                                     related = "processor.tab_support",
-                                    required = True, default = False)
+                                    default = False)
 
     tab_mappings = fields.One2many(string = _(u"Tab mappings"),
                                     help = _(u"Mapping configuration needed by this processor"),
@@ -103,13 +107,22 @@ class ImportConfiguration(models.Model):
 
     #-------------------------------
     # file detection
-    def detect_files(self):
+    def detect_files(self, cur_dir = None):
         file_model = self.env['goufi.import_file']
-        if self.files_location and file_model != None:
-            all_files = sorted(os.listdir(self.files_location))
-            for aFile in all_files:
-                cur_path = self.files_location + os.path.sep + aFile
+        all_files = []
 
+        if cur_dir != None:
+            all_files = sorted(os.listdir(cur_dir))
+        elif self.files_location and file_model != None:
+            all_files = sorted(os.listdir(self.files_location))
+
+        for aFile in all_files:
+            cur_path = self.files_location + os.path.sep + aFile
+
+            if os.path.isdir(cur_path):
+                if self.recursive_search:
+                    self.detect_files(cur_path)
+            elif os.path.isfile(cur_path):
                 if re.match(self.filename_pattern, aFile):
                     filesize = os.path.getsize(cur_path)
                     str_date = dateToOdooString(datetime.now())
