@@ -19,6 +19,8 @@ class ImportFile(models.Model):
     _description = _(u"Import File")
     _rec_name = "filename"
 
+    active = fields.Boolean('Active', default = True, help = "If unchecked, it will allow you to hide the file without removing it.")
+
     # File identification
     filename = fields.Char(string = _(u'File name'), required = True, track_visibility = 'onchange')
 
