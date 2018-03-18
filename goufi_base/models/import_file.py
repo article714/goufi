@@ -7,6 +7,7 @@ Created on 23 feb. 2018
 @license: AGPL v3
 '''
 
+from os import path
 import importlib
 import logging
 
@@ -113,6 +114,14 @@ class ImportFile(models.Model):
 
     #-------------------------------
     # standard model method override
+
+    @api.depends(lambda self:(self._rec_name,) if self._rec_name else ())
+    def _compute_display_name(self):
+        for record in self:
+            if self.filename and self.import_config:
+                record.displayname = '[' + self.import_config.name + '] ' + path.basename(self.filename)
+            else:
+                models.Model._compute_display_name(record)
 
     def create(self, values):
         if 'import_config' in values:
