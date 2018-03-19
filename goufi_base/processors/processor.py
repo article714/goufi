@@ -141,6 +141,7 @@ class AbstractProcessor(object):
             import_file.processing_status = 'ended'
             import_file.processing_result = 'OK'
         else:
+            self.odooenv.cr.rollback()
             import_file.processing_status = 'failure'
 
         # unset the processing marker
