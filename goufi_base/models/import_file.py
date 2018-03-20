@@ -73,22 +73,22 @@ class ImportFile(models.Model):
             aFile._process_a_file(force = True)
 
     def process_file(self):
-        """
-        Process the files(s)
-        if it/they hashave been updated or are in status new or pending
-        """
         for aFile in self:
             if aFile.active and aFile.import_config and aFile.import_config.active:
-                if aFile.processing_status == 'pending' or ()
-                elif aFile.date_start_processing < aFile.date_updated:
-                    
                 aFile._process_a_file(force = False)
 
     def _process_a_file(self, force = False):
+        """
+        Process the file
+        if it has been updated or are in status new or pending
+        """
         if self.import_config:
             cls = None
             mod = None
-            if self.import_config.processor and self.active and self.import_config.active:
+            to_process = (((self.date_start_processing < self.date_updated) and self.process_when_updated) and (self.processing_status != 'running'))
+            to_process = (to_process or (self.processing_status == 'pending') or (self.processing_status == 'new'))
+            to_process = ((to_process or force) and (self.import_config.processor and self.active and self.import_config.active))
+            if to_process:
                 # Resolve processor class
                 try:
                     processor = self.import_config.processor

@@ -32,8 +32,8 @@
 		<field name="arch" type="xml">
 			<form string="Import File">
 				<header>
-					<button name="process_file" string="Process File" type="object" class="btn btn-sm" attrs="{'invisible': [('to_process', '=', False)]}" groups="goufi_base.group_goufi_user"/>
-					<button name="force_process_file" string="Forced Processing" type="object" class="btn-danger btn btn-sm oe_highlight" groups="goufi_base.group_goufi_admin" />
+					<button name="process_file" string="Process File" type="object" class="btn btn-sm" attrs="{'invisible': ['|',('processing_status', '=', 'running'),('to_process', '=', False)]}" groups="goufi_base.group_goufi_user"/>
+					<button name="force_process_file" string="Forced Processing" type="object" attrs="{'invisible': [('processing_status', '=', 'running'),('to_process', '=', False)]} class="btn-danger btn btn-sm oe_highlight" groups="goufi_base.group_goufi_admin" />
 				</header>
 				<sheet>	
 					<div class="oe_title">
@@ -68,7 +68,7 @@
 					</group>
 					<group name="Status" string="status">
 						<field name="processing_status"  attrs="{'readonly':True}" />
-						<button name="reset_processing_status" string="Reset status" type="object" class="btn-danger btn btn-sm oe_highlight"  />
+						<button name="reset_processing_status" string="Reset status" type="object" class="btn-danger btn btn-sm oe_highlight"  attrs="{'invisible': ['|',('processing_status', '=', 'pending'),('processing_status', '=', 'running')]}" />
 						<field name="date_start_processing"  attrs="{'readonly':True}" />
 						<field name="date_stop_processing"  attrs="{'readonly':True}" />
 						<field name="processing_result"  attrs="{'readonly':True}" />
