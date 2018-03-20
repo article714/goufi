@@ -70,7 +70,7 @@ If no record is found, a new one is created.
 
 There can be several columns used as criteria
 """),
-                                   required = True, default = False)
+                                   default = False)
 
     is_mandatory = fields.Boolean(string = _(u"Mandatory column"),
                                    help = _(u"""There must be a value for this column"""),
@@ -102,14 +102,14 @@ There can be several columns used as criteria
 
     is_constant_expression = fields.Boolean(string = _(u"Expression is a constant"),
                                    help = _(u"""The mapping expression is a string constant"""),
-                                   required = True, default = False)
+                                   default = False)
 
     # is a contextual expression mapping
     # (that is computed from processor properties, not from import file)
 
     is_contextual_expression_mapping = fields.Boolean(string = _(u"Is a contextual expression mapping "),
                                         help = _(u"If this mapping is a contextual expression, then it  is computed from processor properties, not from import file"),
-                                   required = True, default = False)
+                                        default = False)
 
     # target object and target field (when relevant)
     target_object = fields.Many2one(string = _(u"Target object"),
