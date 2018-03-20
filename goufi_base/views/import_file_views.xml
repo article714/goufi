@@ -68,6 +68,7 @@
 					</group>
 					<group name="Status" string="status">
 						<field name="processing_status"  attrs="{'readonly':True}" />
+						<button name="reset_processing_status" string="Reset status" type="object" class="btn-danger btn btn-sm oe_highlight"  />
 						<field name="date_start_processing"  attrs="{'readonly':True}" />
 						<field name="date_stop_processing"  attrs="{'readonly':True}" />
 						<field name="processing_result"  attrs="{'readonly':True}" />

@@ -53,6 +53,7 @@ class ImportFile(models.Model):
     processing_status = fields.Selection([('new', 'new'),
                                 (u'running', u'running'),
                                 (u'ended', u'ended'),
+                                (u'pending', u'pending'),
                                 (u'failure', u'failure')],
                                 string = _(u"Processing status"), default = 'new', track_visibility = 'onchange')
 
@@ -63,13 +64,24 @@ class ImportFile(models.Model):
     #-------------------------------
     # file processing
 
+    def reset_processing_status(self):
+        for aFile in self:
+            aFile.processing_status = 'pending'
+
     def force_process_file(self):
         for aFile in self:
             aFile._process_a_file(force = True)
 
     def process_file(self):
+        """
+        Process the files(s)
+        if it/they hashave been updated or are in status new or pending
+        """
         for aFile in self:
             if aFile.active and aFile.import_config and aFile.import_config.active:
+                if aFile.processing_status == 'pending' or ()
+                elif aFile.date_start_processing < aFile.date_updated:
+                    
                 aFile._process_a_file(force = False)
 
     def _process_a_file(self, force = False):

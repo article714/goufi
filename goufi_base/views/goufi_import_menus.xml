@@ -18,6 +18,10 @@
 		parent="goufi_import_menu" sequence="220"
 		action="goufi_import_file_new_show_action" />
 		
+	<menuitem id="goufi_import_pending_menu" name="Pending Files"
+		parent="goufi_import_menu" sequence="225"
+		action="goufi_import_file_pending_show_action" />
+		
 	<menuitem id="goufi_import_running_menu" name="Running Processes"
 		parent="goufi_import_menu" sequence="230"
 		action="goufi_import_file_running_show_action" />
@@ -25,10 +29,7 @@
 	<menuitem id="goufi_import_failed_menu" name="Failed Imports"
 		parent="goufi_import_menu" sequence="240"
 		action="goufi_import_file_failed_show_action" />
-		
-		
-		
-		
+				
 	<menuitem id="goufi_admin_menu" name="Configuration" 
 		parent="goufi_base_menu"
 		groups="group_goufi_admin"

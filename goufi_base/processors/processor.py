@@ -157,6 +157,7 @@ class AbstractProcessor(object):
             import_file.processing_logs = file_base64
 
         import_file.date_stop_processing = datetime.now()
+        self.odooenv.cr.commit()
         return True
 
     #-------------------------------------------------------------------------------------
@@ -165,15 +166,21 @@ class AbstractProcessor(object):
         Generic method to run all processing steps
         """
         if import_file:
-            if (self.does_file_need_processing(import_file)or force):
-                self.create_dedicated_filelogger(path.basename(import_file.filename))
-                if self.start_processing(import_file):
-                    result = self.process_data(import_file)
-                    result = (result == None) or (result == True)
-                    self.end_processing(import_file, result)
-                else:
-                    self.logger.error("Issue when initiliazing processing")
-                self.close_and_reset_logger()
+            try:
+                if (self.does_file_need_processing(import_file)or force):
+                    self.create_dedicated_filelogger(path.basename(import_file.filename))
+                    if self.start_processing(import_file):
+                        result = self.process_data(import_file)
+                        result = (result == None) or (result == True)
+                        self.end_processing(import_file, result)
+                    else:
+                        self.logger.error("Issue when initiliazing processing")
+                    self.close_and_reset_logger()
+            except Exception as e:
+                self.odooenv.cr.rollback()
+                self.logger.exception("GOUFI: error while import file %s -> %s " % (toString(import_file.filename), str(e)))
+                import_file.processing_status = 'failure'
+                self.odooenv.cr.commit()
         else:
-            logging.error("GOUFI: cannot import " + toString(import_file.filename))
+            self.logger.error("GOUFI: cannot import " + toString(import_file.filename))
 
