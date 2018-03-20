@@ -7,6 +7,7 @@ Created on 23 feb. 2018
 @license: AGPL v3
 '''
 
+from os import path
 import importlib
 import logging
 
@@ -18,6 +19,8 @@ class ImportFile(models.Model):
     _name = 'goufi.import_file'
     _description = _(u"Import File")
     _rec_name = "filename"
+
+    active = fields.Boolean('Active', default = True, help = "If unchecked, it will allow you to hide the file without removing it.")
 
     # File identification
     filename = fields.Char(string = _(u'File name'), required = True, track_visibility = 'onchange')
@@ -66,13 +69,14 @@ class ImportFile(models.Model):
 
     def process_file(self):
         for aFile in self:
-            aFile._process_a_file(force = False)
+            if aFile.active and aFile.import_config and aFile.import_config.active:
+                aFile._process_a_file(force = False)
 
     def _process_a_file(self, force = False):
         if self.import_config:
             cls = None
             mod = None
-            if self.import_config.processor:
+            if self.import_config.processor and self.active and self.import_config.active:
                 # Resolve processor class
                 try:
                     processor = self.import_config.processor
@@ -111,6 +115,14 @@ class ImportFile(models.Model):
 
     #-------------------------------
     # standard model method override
+
+    @api.depends(lambda self:(self._rec_name,) if self._rec_name else ())
+    def _compute_display_name(self):
+        for record in self:
+            if self.filename and self.import_config:
+                record.displayname = '[' + self.import_config.name + '] ' + path.basename(self.filename)
+            else:
+                models.Model._compute_display_name(record)
 
     def create(self, values):
         if 'import_config' in values:

@@ -28,6 +28,8 @@ class ImportConfiguration(models.Model):
     _description = _(u"Import Configuration")
     _rec_name = "name"
 
+    active = fields.Boolean('Active', default = True, help = "If unchecked, it will allow you to hide the configuration without removing it.")
+
     # Configuration identification
     name = fields.Char(string = _(u'Configuration name'), required = True, track_visibility = 'onchange')
 

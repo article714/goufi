@@ -537,7 +537,7 @@ class CSVProcessor(Processor):
                 return
 
         # try with , as a delimiter
-        with open(import_file.filename, 'rb') as csvfile:
+        with open(import_file.filename, 'rt') as csvfile:
             csv_reader = unicodecsv.DictReader(csvfile, delimiter = ',', quotechar = '\"')
             if (len(csv_reader.fieldnames) > 1):
                 if self.prepare_mappings() > 0:
