@@ -60,7 +60,7 @@ class ColumnMapping(models.Model):
     col_group_support = fields.Boolean(string = _(u"Supports column groups"),
                                     help = _(u"Does the processor can process (iterable) group of columns"),
                                     related = "parent_configuration.col_group_support",
-                                    required = True, default = False, store = False)
+                                    default = False, store = False)
 
     # is column part of identifier
     is_identifier = fields.Boolean(string = _(u"Is column part of identifiers?"),
@@ -74,12 +74,12 @@ There can be several columns used as criteria
 
     is_mandatory = fields.Boolean(string = _(u"Mandatory column"),
                                    help = _(u"""There must be a value for this column"""),
-                                   required = True, default = False)
+                                    default = False)
 
     # is column a deletion marker
     is_deletion_marker = fields.Boolean(string = _(u"Does column contain a deletion marker?"),
                                         help = _(u"If True, the selected record (if found) will be deleted"),
-                                   required = True, default = False)
+                                    default = False)
 
     delete_if_expression = fields.Char(string = _(u"Delete if value matches"),
                                        help = _(u"Must contain a regular expression that the column value must match to be evaluated as True and the record be deleted"),
@@ -87,12 +87,12 @@ There can be several columns used as criteria
 
     archive_if_not_deleted = fields.Boolean(string = _(u"Archive if not deleted?"),
                                             help = _(u"Should we archive record if deletion fail?"),
-                                   required = True, default = False)
+                                            default = False)
 
     # is column an archival marker
     is_archival_marker = fields.Boolean(string = _(u"Does column contain an archival marker?"),
                                         help = _(u"If True, the selected record (if found) will be archived"),
-                                   required = True, default = False)
+                                        default = False)
 
     archive_if_expression = fields.Char(string = _(u"Archive if value matches"),
                                        help = _(u"Must contain a regular expression that the column value must match to be evaluated as True and the record be archived"),
