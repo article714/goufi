@@ -16,7 +16,7 @@
 		<field name="interval_type">hours</field>
 		<field name="numbercall">-1</field>
 		<field name="nextcall" eval="datetime.now()" />
-        <field name="model">goufi.import_configuration </field>
+        <field name="model">goufi.import_configuration</field>
         <field name="function">detect</field>
         <field name="args" eval="[[('active','=',True)]]" />
 	</record>
