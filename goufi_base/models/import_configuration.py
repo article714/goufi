@@ -166,6 +166,7 @@ class ImportConfiguration(models.Model):
     def process_all_files(self):
         """
         Process all files that are attached to current configuration
+        if they have been updated or are in status new or pending
         """
 
         for config in self:

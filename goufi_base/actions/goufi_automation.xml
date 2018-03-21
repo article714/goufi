@@ -19,7 +19,8 @@
 		<field name="active" eval="False"/>
 		<field name="state">code</field>
         <field name="model_id" ref="model_goufi_import_configuration"/>
-        <field name="code">model.detect(criteria=[('active','=',True)])</field>
+       <field name="code">model.detect(criteria=[('active','=',True)])</field>
+
 	</record>
 	
 	
