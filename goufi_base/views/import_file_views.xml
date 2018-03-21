@@ -10,7 +10,7 @@
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
 			<tree string="Import Files" default_order="id asc" create="false" >
-				<field name="filename"/>
+				<field name="display_name"/>
 				<field name="filesize"/>
 				<field name="import_config" />
 				<field name="partner_id"/>
