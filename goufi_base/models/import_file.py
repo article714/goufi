@@ -90,7 +90,7 @@ class ImportFile(models.Model):
                 else:
                     lastproc_time = 0
 
-                result = (upd_time > lastproc_time) and (self.processing_status != 'running')
+                result = (lastproc_time > 0) and (upd_time > lastproc_time) and (self.processing_status != 'running')
 
             # File is New or process is waiting for processing
             result = result or (self.processing_status == 'pending') or (self.processing_status == 'new')
