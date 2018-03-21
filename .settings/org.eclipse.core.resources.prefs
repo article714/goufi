@@ -9,6 +9,7 @@ encoding//goufi_base/models/import_processor.py=utf-8
 encoding//goufi_base/models/import_tab_mapping.py=utf-8
 encoding//goufi_base/processors/__init__.py=utf-8
 encoding//goufi_base/processors/do_nothing.py=utf-8
+encoding//goufi_base/processors/expression_mappings.py=utf-8
 encoding//goufi_base/processors/processor.py=utf-8
 encoding//goufi_base/tests/__init__.py=utf-8
 encoding//goufi_base/tests/test_import_configuration.py=utf-8

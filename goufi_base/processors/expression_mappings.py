@@ -490,13 +490,12 @@ class CSVProcessor(Processor):
     """
 
     #-------------------------------------------------------------------------------------
-    def does_file_need_processing(self, import_file):
-        """
-        Returns true if the given ImportFile is to be processed
-        """
-        result = super(CSVProcessor, self).does_file_need_processing(import_file)
+    def process_file(self, import_file, force = False):
         ext = import_file.filename.split('.')[-1]
-        return ((ext in CSV_AUTHORIZED_EXTS) and result)
+        if (ext in CSV_AUTHORIZED_EXTS):
+           super(CSVProcessor, self).process_file(import_file, force)
+        else:
+            self.logger.error("Cannot process file: Wrong extension -> %s" % ext)
 
     #-------------------------------------------------------------------------------------
     def process_data(self, import_file):
@@ -662,13 +661,12 @@ class XLProcessor(Processor):
         return result
 
     #-------------------------------------------------------------------------------------
-    def does_file_need_processing(self, import_file):
-        """
-        Returns true if the given ImportFile is to be processed
-        """
-        result = super(XLProcessor, self).does_file_need_processing(import_file)
+    def process_file(self, import_file, force = False):
         ext = import_file.filename.split('.')[-1]
-        return ((ext in XL_AUTHORIZED_EXTS) and result)
+        if (ext in XL_AUTHORIZED_EXTS):
+            super(XLProcessor, self).process_file(import_file, force)
+        else:
+            self.logger.error("Cannot process file: Wrong extension -> %s" % ext)
 
     #-------------------------------------------------------------------------------------
     def process_data(self, import_file):

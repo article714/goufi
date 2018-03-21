@@ -7,14 +7,12 @@ Created on 26 feb. 2018
 @license: AGPL v3
 '''
 
-from calendar import timegm
 from datetime import datetime
 from os import path, remove
 import base64
 import logging
 
 from odoo.exceptions import ValidationError
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 from odoo.addons.goufi_base.models.import_configuration import ImportConfiguration
 from odoo.addons.goufi_base.models.import_file import ImportFile
@@ -91,27 +89,6 @@ class AbstractProcessor(object):
                 pass
 
     #-------------------------------------------------------------------------------------
-    def does_file_need_processing(self, import_file):
-        """
-        Returns true if the given ImportFile is to be processed
-        """
-        if isinstance(import_file, ImportFile):
-
-            result = import_file.to_process
-            result = result and (import_file.processing_status == 'new' or import_file.process_when_updated)
-            result = result and (import_file.processing_status != 'running')
-            if import_file.process_when_updated:
-                upd_time = timegm(datetime.strptime(import_file.date_updated, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
-                if import_file.date_stop_processing:
-                    lastproc_time = timegm(datetime.strptime(import_file.date_stop_processing, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
-                else:
-                    lastproc_time = 0
-                result = result and (upd_time > lastproc_time)
-            return result
-        else:
-            return False
-
-    #-------------------------------------------------------------------------------------
     def start_processing(self, import_file):
         """
         Method that prepares the processing
@@ -167,7 +144,7 @@ class AbstractProcessor(object):
         """
         if import_file:
             try:
-                if (self.does_file_need_processing(import_file)or force):
+                if import_file.does_file_need_processing(force):
                     self.create_dedicated_filelogger(path.basename(import_file.filename))
                     if self.start_processing(import_file):
                         result = self.process_data(import_file)

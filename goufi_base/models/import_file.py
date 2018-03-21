@@ -7,11 +7,14 @@ Created on 23 feb. 2018
 @license: AGPL v3
 '''
 
+from calendar import timegm
+from datetime import datetime
 from os import path
 import importlib
 import logging
 
 from odoo import models, fields, _, api
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 
 class ImportFile(models.Model):
@@ -64,6 +67,38 @@ class ImportFile(models.Model):
     #-------------------------------
     # file processing
 
+    #-------------------------------------------------------------------------------------
+    @api.one
+    def does_file_need_processing(self, force = False):
+        """
+        Returns true if the given ImportFile is to be processed
+        """
+        if isinstance(import_file, ImportFile):
+
+            result = False
+            # File has been updated and to be processed when update
+            if import_file.process_when_updated:
+                upd_time = timegm(datetime.strptime(import_file.date_updated, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
+                if import_file.date_stop_processing:
+                    lastproc_time = timegm(datetime.strptime(import_file.date_stop_processing, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
+                else:
+                    lastproc_time = 0
+
+                result = (upd_time > lastproc_time) and (import_file.processing_status != 'running')
+
+            # File is New or process is waiting for processing
+            result = result or (import_file.processing_status == 'pending') or (import_file.processing_status == 'new')
+
+            # file is to be processed or process is forced and not already being processed
+            result = result and (import_file.to_process or force) and (import_file.processing_status != 'running')
+
+            # File is active and config also
+            result = result and (import_file.import_config.processor and import_file.active and import_file.import_config.active)
+
+            return result
+        else:
+            return False
+
     def reset_processing_status(self):
         for aFile in self:
             aFile.processing_status = 'pending'
@@ -85,32 +120,27 @@ class ImportFile(models.Model):
         if self.import_config:
             cls = None
             mod = None
-            to_process = (((self.date_start_processing < self.date_updated) and self.process_when_updated) and (self.processing_status != 'running'))
-            to_process = (to_process or (self.processing_status == 'pending') or (self.processing_status == 'new'))
-            to_process = ((to_process or force) and (self.import_config.processor and self.active and self.import_config.active))
-            if to_process:
-                # Resolve processor class
+
+            # Resolve processor class
+            try:
+                processor = self.import_config.processor
+                mod = importlib.import_module(processor.processor_module)
+                if mod:
+                    cls = getattr(mod, processor.processor_class)
+                if cls == None:
+                    logging.error("GOUFI: Cannot process file, no processor class found " + self.filename)
+                    return None
+            except Exception as e:
+                logging.error("GOUFI: Cannot process file, error when evaluating processor module" + self.filename + "(" + str(e) + ")")
+
+            # Process File
+            # TODO: one day provide a way to re-use processor instances?
+            if mod and cls:
+                proc_inst = cls(self.import_config)
                 try:
-                    processor = self.import_config.processor
-                    mod = importlib.import_module(processor.processor_module)
-                    if mod:
-                        cls = getattr(mod, processor.processor_class)
-                    if cls == None:
-                        logging.error("GOUFI: Cannot process file, no processor class found " + self.filename)
-                        return None
-                except Exception as e:
-                    logging.error("GOUFI: Cannot process file, error when evaluating processor module" + self.filename + "(" + str(e) + ")")
-
-                # Process File
-                # TODO: one day provide a way to re-use processor instances?
-                if mod and cls:
-                    proc_inst = cls(self.import_config)
                     proc_inst.process_file(self, force)
-            else:
-                logging.error("GOUFI: Cannot process file, no processor given " + self.filename)
-
-        else:
-            logging.error("GOUFI: Cannot process file, no import config given " + self.filename)
+                except Exception as e:
+                    logging.exception("Not Able to Process import File %s" % self.filename)
 
     #-------------------------------
     # automation of file processing
