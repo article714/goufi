@@ -73,27 +73,27 @@ class ImportFile(models.Model):
         """
         Returns true if the given ImportFile is to be processed
         """
-        if isinstance(import_file, ImportFile):
+        if isinstance(self, ImportFile):
 
             result = False
             # File has been updated and to be processed when update
-            if import_file.process_when_updated:
-                upd_time = timegm(datetime.strptime(import_file.date_updated, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
-                if import_file.date_stop_processing:
-                    lastproc_time = timegm(datetime.strptime(import_file.date_stop_processing, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
+            if self.process_when_updated:
+                upd_time = timegm(datetime.strptime(self.date_updated, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
+                if self.date_stop_processing:
+                    lastproc_time = timegm(datetime.strptime(self.date_stop_processing, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
                 else:
                     lastproc_time = 0
 
-                result = (upd_time > lastproc_time) and (import_file.processing_status != 'running')
+                result = (upd_time > lastproc_time) and (self.processing_status != 'running')
 
             # File is New or process is waiting for processing
-            result = result or (import_file.processing_status == 'pending') or (import_file.processing_status == 'new')
+            result = result or (self.processing_status == 'pending') or (self.processing_status == 'new')
 
             # file is to be processed or process is forced and not already being processed
-            result = result and (import_file.to_process or force) and (import_file.processing_status != 'running')
+            result = result and (self.to_process or force) and (self.processing_status != 'running')
 
             # File is active and config also
-            result = result and (import_file.import_config.processor and import_file.active and import_file.import_config.active)
+            result = result and (self.import_config.processor and self.active and self.import_config.active)
 
             return result
         else:
