@@ -24,6 +24,8 @@ def toString(value):
     avalue = ""
     if isinstance(value, Exception):
         avalue = str(type(value)) + " -- " + str(value)
+    elif isinstance(value, unicode):
+        avalue = value.encode('utf-8')
     elif isinstance(value, object):
         avalue = str(value)
     else:
