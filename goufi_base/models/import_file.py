@@ -168,7 +168,7 @@ class ImportFile(models.Model):
     def _compute_display_name(self):
         for record in self:
             if record.filename and record.import_config:
-                record.displayname = '[' + record.import_config.name + '] ' + path.basename(record.filename)
+                record.display_name = '[' + record.import_config.name + '] ' + path.basename(record.filename)
             else:
                 models.Model._compute_display_name(record)
 
