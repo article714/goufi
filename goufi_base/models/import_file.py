@@ -71,7 +71,7 @@ class ImportFile(models.Model):
 
     def file_needs_processing(self):
         for record in self:
-            record.file_needs_processing = record.does_file_need_processing()
+            record.needs_to_be_processed = record.does_file_need_processing()
 
     #-------------------------------------------------------------------------------------
     @api.one
