@@ -10,7 +10,7 @@
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
 			<tree string="Import Files" default_order="id asc" create="false" >
-				<field name="filename"/>
+				<field name="display_name"/>
 				<field name="filesize"/>
 				<field name="import_config" />
 				<field name="partner_id"/>
@@ -47,13 +47,11 @@
 	                    </div>
 	                </div>
 					<group>
-						<h2 class='oe_read_only'>
-							<field name="display_name" readonly='1' />
+						<h2 >
+							<field name="display_name" readonly='1'  class='oe_read_only' />
+							<field name="filename" readonly='1' class='oe_edit_only' />
 						</h2>
-						<h2 class='oe_edit_only'>
-							<field name="filename" readonly='1' />
-						</h2>
-					</group>				
+					</group>		
 					<group name="Source" string="Source" groups="goufi_base.group_config_needs_partner"  >
 						<field name="partner_id" />
 					</group>

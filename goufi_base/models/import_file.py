@@ -71,7 +71,7 @@ class ImportFile(models.Model):
 
     def file_needs_processing(self):
         for record in self:
-            record.file_needs_processing = record.does_file_need_processing()
+            record.needs_to_be_processed = record.does_file_need_processing()
 
     #-------------------------------------------------------------------------------------
     @api.one
@@ -90,7 +90,7 @@ class ImportFile(models.Model):
                 else:
                     lastproc_time = 0
 
-                result = (upd_time > lastproc_time) and (self.processing_status != 'running')
+                result = (lastproc_time > 0) and (upd_time > lastproc_time) and (self.processing_status != 'running')
 
             # File is New or process is waiting for processing
             result = result or (self.processing_status == 'pending') or (self.processing_status == 'new')
@@ -167,8 +167,8 @@ class ImportFile(models.Model):
     @api.depends(lambda self:(self._rec_name,) if self._rec_name else ())
     def _compute_display_name(self):
         for record in self:
-            if self.filename and self.import_config:
-                record.displayname = '[' + self.import_config.name + '] ' + path.basename(self.filename)
+            if record.filename and record.import_config:
+                record.display_name = '[' + record.import_config.name + '] ' + path.basename(record.filename)
             else:
                 models.Model._compute_display_name(record)
 

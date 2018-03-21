@@ -18,6 +18,7 @@
 		parent="goufi_import_menu" sequence="220"
 		action="goufi_import_file_new_show_action" />
 		
+
 	<menuitem id="goufi_import_pending_menu" name="Pending Files"
 		parent="goufi_import_menu" sequence="225"
 		action="goufi_import_file_pending_show_action" />

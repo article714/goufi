@@ -36,7 +36,6 @@
 		<field name="context">{u'group_by': [u'import_config']}</field>
 	</record>
 	
-	
 	<record id="goufi_import_file_running_show_action" model="ir.actions.act_window">
 		<field name="name">Import files</field>
 		<field name="target">current</field>
