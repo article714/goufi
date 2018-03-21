@@ -45,6 +45,8 @@ class ImportFile(models.Model):
 
     to_process = fields.Boolean(string = _(u"File is to be processed"), default = True, track_visibility = 'onchange')
 
+    needs_to_be_processed = fields.Boolean(string = _(u"File needs be processed"), default = True, compute = 'file_needs_processing')
+
     process_when_updated = fields.Boolean(string = _(u"File is to be re-processed when updated"), default = True, track_visibility = 'onchange')
 
     header_line_index = fields.Integer(string = _(u"Header line"), help = _(u"Fixes the index of the header line in import file"))
@@ -66,6 +68,10 @@ class ImportFile(models.Model):
 
     #-------------------------------
     # file processing
+
+    def file_needs_processing(self):
+        for record in self:
+            record.file_needs_processing = record.does_file_need_processing()
 
     #-------------------------------------------------------------------------------------
     @api.one
