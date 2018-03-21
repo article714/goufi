@@ -167,8 +167,8 @@ class ImportFile(models.Model):
     @api.depends(lambda self:(self._rec_name,) if self._rec_name else ())
     def _compute_display_name(self):
         for record in self:
-            if self.filename and self.import_config:
-                record.displayname = '[' + self.import_config.name + '] ' + path.basename(self.filename)
+            if record.filename and record.import_config:
+                record.displayname = '[' + record.import_config.name + '] ' + path.basename(record.filename)
             else:
                 models.Model._compute_display_name(record)
 
