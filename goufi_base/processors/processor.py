@@ -12,11 +12,10 @@ from os import path, remove
 import base64
 import logging
 
-from odoo.exceptions import ValidationError
-
 from odoo.addons.goufi_base.models.import_configuration import ImportConfiguration
 from odoo.addons.goufi_base.models.import_file import ImportFile
 from odoo.addons.goufi_base.utils.converters  import toString
+from odoo.exceptions import ValidationError
 
 #-------------------------------------------------------------------------------------
 # STATIC GLOBAL Properties
@@ -96,6 +95,7 @@ class AbstractProcessor(object):
         self.logger.info("Start processing of file " + toString(import_file.filename))
         import_file.processing_status = 'running'
         import_file.date_start_processing = datetime.now()
+        import_file.date_end_processing = False
         import_file.processing_result = ''
         self.odooenv.cr.commit()
         return True
