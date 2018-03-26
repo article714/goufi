@@ -115,7 +115,7 @@ class ImportFile(models.Model):
 
     def process_file(self):
         for aFile in self:
-            if aFile.active and aFile.import_config and aFile.import_config.active:
+            if aFile.active and aFile.import_config and aFile.import_config.active and aFile.does_file_need_processing():
                 aFile._process_a_file(force = False)
 
     def _process_a_file(self, force = False):
@@ -152,12 +152,12 @@ class ImportFile(models.Model):
     # automation of file processing
 
     @api.model
-    def process_files(self, criteria = []):
+    def process_files(self, criteria = [], maxFiles = 10):
 
         import_file_model = self.env['goufi.import_file']
 
         if import_file_model != None :
-            records = import_file_model.search(criteria, limit = None)
+            records = import_file_model.search(criteria, limit = maxFiles)
             for rec in records:
                 rec.process_file()
 
