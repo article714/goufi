@@ -19,6 +19,7 @@
 				<field name="date_start_processing"/>
 				<field name="date_stop_processing"/>
 				<field name="processing_status"/>
+				<field name="needs_to_be_processed"/>
 			</tree>
 		</field>
 	</record>
