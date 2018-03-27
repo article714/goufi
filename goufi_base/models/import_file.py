@@ -45,7 +45,7 @@ class ImportFile(models.Model):
 
     to_process = fields.Boolean(string = _(u"File is to be processed"), default = True, track_visibility = 'onchange')
 
-    needs_to_be_processed = fields.Boolean(string = _(u"File needs be processed"), compute = 'file_needs_processing', store = False, required = False)
+    needs_to_be_processed = fields.Boolean(string = _(u"File needs to be processed"), compute = '_file_needs_processing', store = True, default = False, required = False)
 
     process_when_updated = fields.Boolean(string = _(u"File is to be re-processed when updated"), default = True, track_visibility = 'onchange')
 
@@ -68,10 +68,34 @@ class ImportFile(models.Model):
 
     #-------------------------------
     # file processing
-    @api.depends('to_process', 'processing_status', 'date_start_processing', 'date_stop_processing', 'process_when_updated', 'date_updated', 'date_addition')
-    def file_needs_processing(self):
+    @api.depends('active', 'to_process', 'processing_status', 'date_start_processing', 'date_stop_processing', 'process_when_updated', 'date_updated', 'date_addition')
+    def _file_needs_processing(self):
         for record in self:
-            record.needs_to_be_processed = record.does_file_need_processing()
+
+            result = False
+            # File has been updated and to be processed when update
+            if record.process_when_updated:
+                upd_time = timegm(datetime.strptime(record.date_updated, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
+                if record.date_stop_processing:
+                    lastproc_time = timegm(datetime.strptime(record.date_stop_processing, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
+                else:
+                    lastproc_time = 0
+
+                result = (lastproc_time > 0) and (upd_time > lastproc_time) and (record.processing_status != 'running')
+
+            # File is New or process is waiting for processing
+            result = result or (record.processing_status == 'pending') or (record.processing_status == 'new')
+
+            # file is to be processed not already being processed
+            result = result and (record.to_process) and (record.processing_status != 'running')
+
+            # File is active and config also
+            result = result and (record.import_config.processor and record.active and record.import_config.active)
+
+            return result
+        else:
+            return False
+            record.needs_to_be_processed = result
 
     #-------------------------------------------------------------------------------------
     @api.one
@@ -81,25 +105,10 @@ class ImportFile(models.Model):
         """
         if isinstance(self, ImportFile):
 
-            result = False
-            # File has been updated and to be processed when update
-            if self.process_when_updated:
-                upd_time = timegm(datetime.strptime(self.date_updated, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
-                if self.date_stop_processing:
-                    lastproc_time = timegm(datetime.strptime(self.date_stop_processing, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
-                else:
-                    lastproc_time = 0
-
-                result = (lastproc_time > 0) and (upd_time > lastproc_time) and (self.processing_status != 'running')
-
-            # File is New or process is waiting for processing
-            result = result or (self.processing_status == 'pending') or (self.processing_status == 'new')
+            result = self.needs_to_be_processed
 
             # file is to be processed or process is forced and not already being processed
-            result = result and (self.to_process or force) and (self.processing_status != 'running')
-
-            # File is active and config also
-            result = result and (self.import_config.processor and self.active and self.import_config.active)
+            result = result or (force and self.processing_status != 'running')
 
             return result
         else:
