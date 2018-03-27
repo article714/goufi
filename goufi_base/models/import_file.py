@@ -92,9 +92,10 @@ class ImportFile(models.Model):
             # File is active and config also
             result = result and (record.import_config.processor and record.active and record.import_config.active)
 
-            return result
-        else:
-            return False
+            # Partner Needed?
+            if self.env.user.has_group('goufi_base.group_config_needs_partner'):
+                result = result and (len(record.partner_id) > 0)
+
             record.needs_to_be_processed = result
 
     #-------------------------------------------------------------------------------------
