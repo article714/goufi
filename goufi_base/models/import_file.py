@@ -90,7 +90,10 @@ class ImportFile(models.Model):
             result = result and (record.to_process) and (record.processing_status != 'running')
 
             # File is active and config also
-            result = result and (record.import_config.processor and record.active and record.import_config.active)
+            if  len(record.import_config) > 0:
+                result = result and record.import_config.processor and record.active and record.import_config.active
+            else:
+                result = False
 
             # Partner Needed?
             if self.env.user.has_group('goufi_base.group_config_needs_partner'):
@@ -125,7 +128,7 @@ class ImportFile(models.Model):
 
     def process_file(self):
         for aFile in self:
-            if aFile.active and aFile.import_config and aFile.import_config.active and aFile.does_file_need_processing():
+            if aFile.needs_to_be_processed:
                 aFile._process_a_file(force = False)
 
     def _process_a_file(self, force = False):
