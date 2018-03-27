@@ -45,7 +45,7 @@ class ImportFile(models.Model):
 
     to_process = fields.Boolean(string = _(u"File is to be processed"), default = True, track_visibility = 'onchange')
 
-    needs_to_be_processed = fields.Boolean(string = _(u"File needs be processed"), default = True, compute = 'file_needs_processing', store = False)
+    needs_to_be_processed = fields.Boolean(string = _(u"File needs be processed"), compute = 'file_needs_processing', store = False, required = False)
 
     process_when_updated = fields.Boolean(string = _(u"File is to be re-processed when updated"), default = True, track_visibility = 'onchange')
 
@@ -68,7 +68,7 @@ class ImportFile(models.Model):
 
     #-------------------------------
     # file processing
-
+    @api.depends('to_process', 'processing_status', 'date_start_processing', 'date_stop_processing', 'process_when_updated', 'date_updated', 'date_addition')
     def file_needs_processing(self):
         for record in self:
             record.needs_to_be_processed = record.does_file_need_processing()
