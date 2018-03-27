@@ -31,7 +31,7 @@
 		<field name="nextcall" eval="datetime.now()" />
         <field name="model" >goufi.import_file</field>
         <field name="function">process_files</field>
-        <field name="args" eval="[[('active','=',True),('needs_to_be_processed','=',True)]]" />
+        <field name="args" eval="[[('needs_to_be_processed','=',True)],5]" />
 	</record>
 	
 	
