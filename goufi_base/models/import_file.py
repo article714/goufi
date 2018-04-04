@@ -201,7 +201,7 @@ class ImportFile(models.Model):
             config = self.env['goufi.import_configuration'].browse((values['import_config'],))
             if len(config) > 0:
                 config = config[0]
-                if config.partner_id:
+                if config.default_partner_id:
                     values['default_partner_id'] = config.default_partner_id.id
         super(ImportFile, self).write(values)
 
