@@ -20,7 +20,7 @@
 		<field name="auto_search" eval="True" />
 		<field name="view_type">form</field>
 		<field name="view_mode">tree,form</field>
-        <field name="domain" eval="[('processing_status','=','new')]" />
+        <field name="domain" eval="[('processing_status','=','new'),('to_process','=',True)]" />
 		<field name="context">{u'group_by': [u'import_config']}</field>
 	</record>
 	
