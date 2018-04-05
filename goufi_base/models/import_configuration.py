@@ -108,9 +108,8 @@ class ImportConfiguration(models.Model):
 
     @api.multi
     def action_open_tabs_view(self):
-        configs = self.mapped('self')
         action = self.env.ref('goufi_base.goufi_tab_mapping_show_action').read()[0]
-        action['domain'] = [('parent_configuration', 'in', configs.ids)]
+        action['domain'] = [('parent_configuration', 'in', self.id)]
         return action
 
     #-------------------------------
