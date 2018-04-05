@@ -158,6 +158,13 @@ There can be several columns used as criteria
     @api.depends('parent_configuration', 'parent_tab')
     def _get_target_object(self):
         for colMap in  self:
+            # update parent config if needed
+            if colMap.parent_tab:
+                if colMap.parent_configuration and colMap.parent_configuration != colMap.parent_tab.parent_configuration:
+                    colMap.parent_configuration = colMap.parent_tab.parent_configuration
+                else:
+                    colMap.parent_configuration = colMap.parent_tab.parent_configuration
+
             if colMap.tab_support:
                 if colMap.parent_tab:
                     colMap.target_object = colMap.parent_tab.target_object
@@ -201,10 +208,20 @@ There can be several columns used as criteria
     @api.model
     def create(self, values):
         self.fix_consistency(values)
+        if 'parent_tab' in values:
+            if values['parent_tab'] != None:
+                found = self.env['goufi.tab_mapping'].search([('id', '=', values['parent_tab'])], limit = 1)
+                if len(found) == 1:
+                    values['parent_configuration'] = found[0].parent_configuration.id
         super(ColumnMapping, self).create(values)
 
     def write(self, values):
         self.fix_consistency(values)
+        if 'parent_tab' in values:
+            if values['parent_tab'] != None:
+                found = self.env['goufi.tab_mapping'].search([('id', '=', values['parent_tab'])], limit = 1)
+                if len(found) == 1:
+                    values['parent_configuration'] = found[0].parent_configuration.id
         if 'target_object' in values:
             if self.target_object:
                 if self.target_object != values['target_object']:
