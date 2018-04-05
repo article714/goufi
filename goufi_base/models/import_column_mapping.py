@@ -159,9 +159,9 @@ There can be several columns used as criteria
     def _get_target_object(self):
         for colMap in  self:
             if colMap.tab_support:
-                if len(colMap.parent_tab) > 0:
+                if colMap.parent_tab:
                     colMap.target_object = colMap.parent_tab.target_object
-            elif len(colMap.parent_configuration) > 0 :
+            elif colMap.parent_configuration :
                 colMap.target_object = colMap.parent_configuration.target_object
 
     @api.depends('target_object', 'target_field')
