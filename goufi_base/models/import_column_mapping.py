@@ -178,7 +178,7 @@ There can be several columns used as criteria
     @api.onchange('target_object')
     def _reset_colmap_targets(self):
         for aColMap in self:
-                colMap.target_field = None
+                aColMap.target_field = None
 
     def fix_consistency(self, values):
         if 'is_deletion_marker' in values:
