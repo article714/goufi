@@ -53,10 +53,3 @@ class TabMapping(models.Model):
                 colMap.target_field = None
                 colMap.target_object = None
 
-    @api.multi
-    def action_open_tabs_view(self):
-        colmaps = self.mapped('self')
-        action = self.env.ref('goufi_base.goufi_tab_mapping_show_action').read()[0]
-        action['domain'] = [('parent_tab', 'in', colmaps.ids)]
-        return action
-
