@@ -91,7 +91,7 @@ class ImportFile(models.Model):
 
             # File is active and config also
             if  len(record.import_config) > 0:
-                result = result and record.import_config.processor and record.active and record.import_config.active
+                result = result and ((len(record.partner_id) > 0) or (len(record.import_config.default_partner_id) > 0))
             else:
                 result = False
 
