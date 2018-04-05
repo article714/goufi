@@ -167,8 +167,8 @@ There can be several columns used as criteria
     @api.depends('target_object', 'target_field')
     def _compute_display_target(self):
         for colMap in  self:
-            if colMap.target_object:
-                if colMap.target_field:
+            if len(colMap.target_object) > 0:
+                if len(colMap.target_field) > 0 :
                     colMap.display_target = colMap.target_object.model + "." + colMap.target_field.name
                 else:
                     colMap.display_target = colMap.target_object.model + ".?"
