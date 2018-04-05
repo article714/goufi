@@ -9,7 +9,7 @@
 		<field name="mode">primary</field>
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
-			<tree string="Import Configurations" default_order="id asc">		
+			<tree string="Import Configurations" default_order="id asc">
 				<field name="name" />
 				<field name="files_location" />
 				<field name="filename_pattern" />
@@ -26,39 +26,39 @@
 		<field name="arch" type="xml">
 			<form string="Import Configuration">
 				<header>
-					<button name="detect_files" string="Detect File(s)" type="object" class="btn btn-sm" />
+					<button name="detect_files" string="Detect File(s)" type="object"
+						class="btn btn-sm" />
 				</header>
-				<div name="button_box" position="inside">
-                      <button type="object"
-                          name="action_open_tabs_view"
-                          class="oe_stat_button" icon="fa-building-o">
-                      </button>
-                </div>
 				<sheet>
 					<div class="oe_title">
 						<h2>
 							<field name="name" />
 						</h2>
-	                    <div class="oe_button_box" name="button_box">
-	                        <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
-	                            <field name="active" widget="boolean_button" 
-                                    options='{"terminology": {"string_true": "Active", "hover_false": "Archived"}}'/>
-	                        </button>
-	                    </div>
-	                </div>
+						<div class="oe_button_box" name="button_box">
+							<button name="toggle_active" type="object" class="oe_stat_button"
+								icon="fa-archive">
+								<field name="active" widget="boolean_button"
+									options='{"terminology": {"string_true": "Active", "hover_false": "Archived"}}' />
+							</button>
+							<button type="object" name="action_open_tabs_view" class="oe_stat_button"
+								icon="fa-building-o">
+							</button>
+						</div>
+					</div>
 					<group name="File(s) detection" string="File(s) detection">
 						<field name="files_location" />
-						<field name ="recursive_search" />
+						<field name="recursive_search" />
 						<field name="filename_pattern" />
 					</group>
 					<group name="Processing configuration" string="Processing configuration">
 						<field name="processor" />
 						<field name="working_dir" />
 						<field name="default_header_line_index" />
-						<field name="default_partner_id"  groups="goufi_base.group_config_needs_partner" />
+						<field name="default_partner_id" groups="goufi_base.group_config_needs_partner" />
 						<field name="needs_mappings" attrs="{'invisible':True}" />
 						<field name="tab_support" attrs="{'invisible':True}" />
-						<field name="target_object" attrs="{'invisible':['|',('needs_mappings','=',False),('tab_support','=',True)]}" />
+						<field name="target_object"
+							attrs="{'invisible':['|',('needs_mappings','=',False),('tab_support','=',True)]}" />
 						<field name="column_mappings" mode="tree" editable="bottom"
 							attrs="{'invisible':['|',('needs_mappings','=',False),('tab_support','=',True)]}"
 							context="{'target_object':target_object}">
@@ -68,13 +68,13 @@
 								<field name="target_field" />
 								<field name="is_mandatory" />
 								<field name="is_identifier" />
-								<field name="is_contextual_expression_mapping"/>
-								<field name="is_deletion_marker"/>
-								<field name="is_archival_marker"/> 
+								<field name="is_contextual_expression_mapping" />
+								<field name="is_deletion_marker" />
+								<field name="is_archival_marker" />
 							</tree>
 						</field>
 						<field name="tab_mappings" mode="tree" editable="bottom"
-							attrs="{'invisible':['|',('needs_mappings','=',False),('tab_support','=',False)]}" 
+							attrs="{'invisible':['|',('needs_mappings','=',False),('tab_support','=',False)]}"
 							context="{'target_object':target_object}" />
 					</group>
 				</sheet>
