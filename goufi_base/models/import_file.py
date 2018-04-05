@@ -91,13 +91,16 @@ class ImportFile(models.Model):
 
             # File is active and config also
             if  len(record.import_config) > 0:
-                result = result and record.import_config.processor and record.active and record.import_config.active
+                result = result and ((len(record.partner_id) > 0) or (len(record.import_config.default_partner_id) > 0))
             else:
                 result = False
 
             # Partner Needed?
             if self.env.user.has_group('goufi_base.group_config_needs_partner'):
-                result = result and (len(record.partner_id) > 0)
+                if  len(record.import_config) > 0:
+                    result = result and ((len(record.partner_id) > 0) or (len(record.import_config.default_partner_id) > 0))
+                else:
+                    result = result and (len(record.partner_id) > 0)
 
             record.needs_to_be_processed = result
 
@@ -191,7 +194,7 @@ class ImportFile(models.Model):
             if len(config) > 0:
                 config = config[0]
                 if config.default_partner_id:
-                    values['default_partner_id'] = config.default_partner_id.id
+                    values['partner_id'] = config.default_partner_id.id
                 values['header_line_index'] = config.default_header_line_index
 
         return super(ImportFile, self).create(values)
@@ -202,6 +205,6 @@ class ImportFile(models.Model):
             if len(config) > 0:
                 config = config[0]
                 if config.default_partner_id:
-                    values['default_partner_id'] = config.default_partner_id.id
+                    values['partner_id'] = config.default_partner_id.id
         super(ImportFile, self).write(values)
 
