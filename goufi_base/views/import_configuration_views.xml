@@ -41,7 +41,7 @@
 									options='{"terminology": {"string_true": "Active", "hover_false": "Archived"}}' />
 							</button>
 							<button type="object" name="action_open_tabs_view" class="oe_stat_button"
-								attrs="{'invisible':[('tab_support','=',False))]"
+								attrs="{'invisible':[('tab_support','=',False))]}"
 								icon="fa-building-o">
 							</button>
 						</div>
