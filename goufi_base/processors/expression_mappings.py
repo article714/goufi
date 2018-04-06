@@ -353,30 +353,30 @@ class Processor(AbstractProcessor):
                             self.logger.error(DEFAULT_LOG_STRING + "This kind of records can not be archived")
                             TO_BE_ARCHIVED = False
 
-                # compute search criteria
+            # compute search criteria
 
-                for k in self.idFields:
-                    keyfield = self.idFields[k]
-                    if k in data_values:
-                        value = data_values[k]
-                    else:
-                        value = None
+            for k in self.idFields:
+                keyfield = self.idFields[k]
+                if k in data_values:
+                    value = data_values[k]
+                else:
+                    value = None
 
-                    if value != None and value != str(''):
-                        search_criteria.append((keyfield, '=', value))
-                    else:
-                        self.logger.warning(DEFAULT_LOG_STRING + "GOUFI: Do not process line n.%d, as Id column is empty" % (line_index + 1,))
-                        return
+                if value != None and value != str(''):
+                    search_criteria.append((keyfield, '=', value))
+                else:
+                    self.logger.warning(DEFAULT_LOG_STRING + "GOUFI: Do not process line n.%d, as Id column is empty" % (line_index + 1,))
+                    return
 
-                # ajout d'une clause pour rechercher tous les enregistrements
-                if CAN_BE_ARCHIVED:
-                    search_criteria.append('|')
-                    search_criteria.append(('active', '=', True))
-                    search_criteria.append(('active', '=', False))
+            # ajout d'une clause pour rechercher tous les enregistrements
+            if CAN_BE_ARCHIVED:
+                search_criteria.append('|')
+                search_criteria.append(('active', '=', True))
+                search_criteria.append(('active', '=', False))
 
-                # recherche d'un enregistrement existant
-                if len(search_criteria) > 0:
-                    found = self.target_model.search(search_criteria)
+            # recherche d'un enregistrement existant
+            if len(search_criteria) > 0:
+                found = self.target_model.search(search_criteria)
 
             if len(found) == 1:
                 currentObj = found[0]
