@@ -222,20 +222,20 @@ class Processor(AbstractProcessor):
                 if val.is_constant_expression:
                     mappingType = MappingType.Constant
                     if val.mapping_expression  and len(val.mapping_expression) > 2:
-                        self.allMappings[mappingType][val.name] = val.mapping_expression
+                        self.allMappings[mappingType][val.name] = [val.target_field.name, val.mapping_expression]
                     else:
                         self.logger.error("Wrong mapping expression: too short")
                 elif val.is_contextual_expression_mapping:
                     mappingType = MappingType.ContextEval
                     if val.mapping_expression  and len(val.mapping_expression) > 2:
-                        self.allMappings[mappingType][val.name] = val.mapping_expression
+                        self.allMappings[mappingType][val.name] = [val.target_field.name, val.mapping_expression]
                     else:
                         self.logger.error("Wrong mapping expression: too short")
                 elif val.mapping_expression  and len(val.mapping_expression) > 2:
                     if re.match(r'\*.*', val.mapping_expression):
                         mappingType = MappingType.One2Many
                         v = val.mapping_expression.replace('*', '')
-                        vals = [0] + v.split('/')
+                        vals = [0, val.target_field.name] + v.split('/')
                         if re.match(r'.*\&.*', vals[2]):
                             (_fieldname, cond) = vals[2].split('&')
                             vals[2] = _fieldname
@@ -247,12 +247,12 @@ class Processor(AbstractProcessor):
                     elif re.match(r'\+.*', val.mapping_expression):
                         mappingType = MappingType.One2Many
                         v = val.mapping_expression.replace('+', '')
-                        vals = [1] + v.split('/')
+                        vals = [1, val.target_field.name] + v.split('/')
                         self.allMappings[mappingType][val.name] = vals
                     elif re.match(r'\>.*', val.mapping_expression):
                         mappingType = MappingType.Many2One
                         v = val.mapping_expression.replace('>', '')
-                        vals = v.split('/')
+                        vals = [val.target_field.name] + v.split('/')
                         if re.match(r'.*\&.*', vals[1]):
                             (_fieldname, cond) = vals[1].split('&')
                             vals[1] = _fieldname
@@ -263,7 +263,7 @@ class Processor(AbstractProcessor):
                         self.allMappings[mappingType][val.name] = vals
                 else:
                     mappingType = MappingType.Standard
-                    self.allMappings[mappingType][val.name] = val.mapping_expression
+                    self.allMappings[mappingType][val.name] = val.target_field.name
 
             if mappingType != None:
                 numbOfFields += 1
@@ -277,7 +277,7 @@ class Processor(AbstractProcessor):
             if val.is_deletion_marker or val.is_archival_marker:
                 self.delOrArchMarkers[val.name] = (val.is_deletion_marker, val.delete_if_expression, val.is_archival_marker)
 
-            self.logger.warning("Processed Headers [%d]: %s-->%s" % (numbOfFields, str(self.idFields), str(self.delOrArchMarkers)))
+            self.logger.warning("Processed Headers [%d]: %s-->%s --> %s" % (numbOfFields, str(self.idFields), str(self.delOrArchMarkers), str(self.allMappings)))
 
         return numbOfFields
 
@@ -354,13 +354,24 @@ class Processor(AbstractProcessor):
                             TO_BE_ARCHIVED = False
 
             # compute search criteria
-
+            # based on Id fiedls (standard mapping, constant mapping of Many2One are supported
             for k in self.idFields:
-                keyfield = self.idFields[k]
-                if k in data_values:
-                    value = data_values[k]
+                mapType = self.idFields[k]
+                value = None
+                keyfield = None
+                if mapType == MappingType.Standard:
+                    keyfield = self.allMappings[mapType][k]
+                    if k in data_values:
+                        value = data_values[k]
+                elif mapType in (MappingType.Constant, MappingType.ContextEval):
+                    (keyfield, value) = self.allMappings[mapType][k]
+                elif mapType == MappingType.Many2One:
+                    keyfield = self.allMappings[mapType][k][1]
+                    if k in data_values:
+                        value = data_values[k]
                 else:
-                    value = None
+                    self.logger.error(DEFAULT_LOG_STRING + "Wrong identifier column %s" % k)
+                    return 0
 
                 if value != None and value != str(''):
                     search_criteria.append((keyfield, '=', value))
