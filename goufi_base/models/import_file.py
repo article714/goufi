@@ -207,5 +207,5 @@ class ImportFile(models.Model):
                 config = config[0]
                 if config.default_partner_id:
                     values['partner_id'] = config.default_partner_id.id
-        super(ImportFile, self).write(values)
+        return super(ImportFile, self).write(values)
 
