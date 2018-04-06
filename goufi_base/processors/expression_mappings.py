@@ -272,7 +272,6 @@ class Processor(AbstractProcessor):
                     self.mandatoryFields[val.name] = mappingType
 
                 if val.is_identifier:
-                    self.logger.warning("found an Id: %s-->%s" % (val.name, str(val)))
                     self.idFields[val.name] = mappingType
 
             if val.is_deletion_marker or val.is_archival_marker:
