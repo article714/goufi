@@ -277,8 +277,6 @@ class Processor(AbstractProcessor):
             if val.is_deletion_marker or val.is_archival_marker:
                 self.delOrArchMarkers[val.name] = (val.is_deletion_marker, val.delete_if_expression, val.is_archival_marker)
 
-            self.logger.warning("Processed Headers [%d]: %s-->%s --> %s" % (numbOfFields, str(self.idFields), str(self.delOrArchMarkers), str(self.allMappings)))
-
         return numbOfFields
 
     #-------------------------------------------------------------------------------------
