@@ -186,7 +186,7 @@ class Processor(AbstractProcessor):
                 try:
                     self.target_model = self.odooenv[self.parent_config.target_object.model]
                 except:
-                    self.logger.exception("Tab not found: " + toString(tab_name))
+                    self.logger.exception("Model not found for tab: " + toString(tab_name))
                     return -1
 
         # We should have a model now

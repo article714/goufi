@@ -141,7 +141,7 @@ There can be several columns used as criteria
     tab_support = fields.Boolean(string = _(u"Supports multi tabs"),
                                     help = _(u"Does the selected parent configuration's pocessor can process multiple tabs"),
                                     related = "parent_configuration.tab_support",
-                                    required = True, default = False, store = False)
+                                    store = False)
 
     parent_tab = fields.Many2one(string = _(u"Parent Tab (when multi tabs)"),
                                       comodel_name = "goufi.tab_mapping")

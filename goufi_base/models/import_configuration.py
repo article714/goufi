@@ -91,8 +91,7 @@ class ImportConfiguration(models.Model):
 
     tab_support = fields.Boolean(string = _(u"Supports multi tabs"),
                                     help = _(u"Does the selected processor can process multiple tabs"),
-                                    related = "processor.tab_support",
-                                    default = False)
+                                    related = "processor.tab_support")
 
     tab_mappings = fields.One2many(string = _(u"Tab mappings"),
                                     help = _(u"Mapping configuration needed by this processor"),
