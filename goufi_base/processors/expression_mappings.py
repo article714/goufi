@@ -313,15 +313,15 @@ class Processor(AbstractProcessor):
                 # reference Many2One,
                 if data_values[f] and len(data_values[f]) > 0:
                     cond = []
-                    if len(config) > 2:
+                    if len(config) > 3:
                         cond = []
-                        for v in config[2]:
+                        for v in config[3]:
                             cond.append(v)
-                        cond.append((config[1], '=', data_values[f]))
+                        cond.append((config[2], '=', data_values[f]))
                     else:
-                        cond = [(config[1], '=', data_values[f])]
+                        cond = [(config[2], '=', data_values[f])]
 
-                    vals = self.odooenv[config[0]].search(cond, limit = 1)
+                    vals = self.odooenv[config[1]].search(cond, limit = 1)
 
                     if len(vals) == 1:
                         data_values[f] = vals[0].id
