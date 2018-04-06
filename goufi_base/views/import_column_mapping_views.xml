@@ -48,6 +48,7 @@
 						<field name="is_mandatory" />
 						<field name="is_identifier" />
 						<field name="is_contextual_expression_mapping" />
+						<field name="is_constant_expression"/>
 					</group>
 					<group name="deletion_configuration" string="Deletion" attrs="{'invisible':['|',('is_identifier','=',True),('is_archival_marker','=',True)]}">
 						<field name="is_deletion_marker"/>
