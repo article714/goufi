@@ -15,9 +15,8 @@ import os
 import re
 
 from odoo import models, fields, _, api
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
-
 from odoo.addons.goufi_base.utils.converters import dateToOdooString
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 
 #------------------------------------------------------------
@@ -92,8 +91,7 @@ class ImportConfiguration(models.Model):
 
     tab_support = fields.Boolean(string = _(u"Supports multi tabs"),
                                     help = _(u"Does the selected processor can process multiple tabs"),
-                                    related = "processor.tab_support",
-                                    default = False)
+                                    related = "processor.tab_support")
 
     tab_mappings = fields.One2many(string = _(u"Tab mappings"),
                                     help = _(u"Mapping configuration needed by this processor"),
@@ -106,6 +104,12 @@ class ImportConfiguration(models.Model):
     def _get_param_needs_partner(self):
         self.needs_partner = self.env['ir.config_parameter'].get_param('goufi.config_needs_partner')
         return self.needs_partner
+
+    @api.multi
+    def action_open_tabs_view(self):
+        action = self.env.ref('goufi_base.goufi_tab_mapping_show_action').read()[0]
+        action['domain'] = [('parent_configuration', '=', self.id)]
+        return action
 
     #-------------------------------
     # file detection

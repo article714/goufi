@@ -141,7 +141,7 @@ There can be several columns used as criteria
     tab_support = fields.Boolean(string = _(u"Supports multi tabs"),
                                     help = _(u"Does the selected parent configuration's pocessor can process multiple tabs"),
                                     related = "parent_configuration.tab_support",
-                                    required = True, default = False, store = False)
+                                    store = False)
 
     parent_tab = fields.Many2one(string = _(u"Parent Tab (when multi tabs)"),
                                       comodel_name = "goufi.tab_mapping")
@@ -158,17 +158,24 @@ There can be several columns used as criteria
     @api.depends('parent_configuration', 'parent_tab')
     def _get_target_object(self):
         for colMap in  self:
+            # update parent config if needed
+            if colMap.parent_tab:
+                if colMap.parent_configuration and colMap.parent_configuration != colMap.parent_tab.parent_configuration:
+                    colMap.parent_configuration = colMap.parent_tab.parent_configuration
+                else:
+                    colMap.parent_configuration = colMap.parent_tab.parent_configuration
+
             if colMap.tab_support:
                 if colMap.parent_tab:
                     colMap.target_object = colMap.parent_tab.target_object
-            elif colMap.parent_configuration:
+            elif colMap.parent_configuration :
                 colMap.target_object = colMap.parent_configuration.target_object
 
     @api.depends('target_object', 'target_field')
     def _compute_display_target(self):
         for colMap in  self:
-            if colMap.target_object:
-                if colMap.target_field:
+            if len(colMap.target_object) > 0:
+                if len(colMap.target_field) > 0 :
                     colMap.display_target = colMap.target_object.model + "." + colMap.target_field.name
                 else:
                     colMap.display_target = colMap.target_object.model + ".?"
@@ -178,7 +185,7 @@ There can be several columns used as criteria
     @api.onchange('target_object')
     def _reset_colmap_targets(self):
         for aColMap in self:
-                colMap.target_field = None
+                aColMap.target_field = None
 
     def fix_consistency(self, values):
         if 'is_deletion_marker' in values:
@@ -201,10 +208,20 @@ There can be several columns used as criteria
     @api.model
     def create(self, values):
         self.fix_consistency(values)
+        if 'parent_tab' in values:
+            if values['parent_tab'] != None:
+                found = self.env['goufi.tab_mapping'].search([('id', '=', values['parent_tab'])], limit = 1)
+                if len(found) == 1:
+                    values['parent_configuration'] = found[0].parent_configuration.id
         super(ColumnMapping, self).create(values)
 
     def write(self, values):
         self.fix_consistency(values)
+        if 'parent_tab' in values:
+            if values['parent_tab'] != None:
+                found = self.env['goufi.tab_mapping'].search([('id', '=', values['parent_tab'])], limit = 1)
+                if len(found) == 1:
+                    values['parent_configuration'] = found[0].parent_configuration.id
         if 'target_object' in values:
             if self.target_object:
                 if self.target_object != values['target_object']:

@@ -40,6 +40,7 @@ class TabMapping(models.Model):
 
     column_mappings = fields.One2many(string = _(u"Column mappings"),
                                     help = _(u"Mapping configuration needed by this processor"),
+                                      copy = True,
                                       comodel_name = "goufi.column_mapping",
                                       inverse_name = "parent_tab")
 
