@@ -139,6 +139,7 @@ class Processor(AbstractProcessor):
                 col = self.col2fields[f]
                 if col != f:
                     row[col] = val
+                    del(row[f])
                 else:
                     row[f] = val
             else:
