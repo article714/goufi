@@ -71,7 +71,6 @@ class ImportFile(models.Model):
     @api.depends('active', 'to_process', 'processing_status', 'date_start_processing', 'date_stop_processing', 'process_when_updated', 'date_updated', 'date_addition')
     def _file_needs_processing(self):
         for record in self:
-
             result = False
             # File has been updated and to be processed when update
             if record.process_when_updated:
@@ -91,7 +90,7 @@ class ImportFile(models.Model):
 
             # File is active and config also
             if  len(record.import_config) > 0:
-                result = result and ((len(record.partner_id) > 0) or (len(record.import_config.default_partner_id) > 0))
+                result = result and (record.active) and (record.import_config.active)
             else:
                 result = False
 
