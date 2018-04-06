@@ -34,17 +34,16 @@
 						<h2>
 							<field name="name" />
 						</h2>
-						<div class="oe_button_box" name="button_box">
-							<button name="toggle_active" type="object" class="oe_stat_button"
-								icon="fa-archive">
-								<field name="active" widget="boolean_button"
-									options='{"terminology": {"string_true": "Active", "hover_false": "Archived"}}' />
-							</button>
-							<button type="object" name="action_open_tabs_view" class="oe_stat_button"
-								attrs="{'invisible':[('tab_support','=',False)]}"
-								icon="fa-building-o">
-							</button>
-						</div>
+					</div>
+					<div class="oe_button_box" name="button_box">
+						<button name="toggle_active" type="object" class="oe_stat_button"
+							icon="fa-archive">
+							<field name="active" widget="boolean_button"
+								options='{"terminology": {"string_true": "Active", "hover_false": "Archived"}}' />
+						</button>
+						<button type="object" name="action_open_tabs_view" class="oe_stat_button"
+							attrs="{'invisible':[('tab_support','=',False)]}" icon="fa-building-o">
+						</button>
 					</div>
 					<group name="File(s) detection" string="File(s) detection">
 						<field name="files_location" />
