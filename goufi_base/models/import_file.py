@@ -124,6 +124,8 @@ class ImportFile(models.Model):
     def reset_processing_status(self):
         for aFile in self:
             aFile.processing_status = 'pending'
+            aFile.date_start_processing = False
+            aFile.date_stop_processing = False
 
     def force_process_file(self):
         for aFile in self:
