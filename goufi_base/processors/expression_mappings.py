@@ -326,7 +326,7 @@ class Processor(AbstractProcessor):
                     if len(vals) == 1:
                         data_values[f] = vals[0].id
                     else:
-                        self.logger.warning(DEFAULT_LOG_STRING + " found " + toString(len(vals)) + " values for " + toString(data_values[f]) + "  unable to reference " + toString(config[3]) + " " + toString(vals))
+                        self.logger.warning(DEFAULT_LOG_STRING + " found " + toString(len(vals)) + " values for " + toString(data_values[f]) + "  unable to reference " + toString(config[1]) + " " + toString(vals))
 
         # TODO: Document this!
         # If there exists an id config we can process deletion, archival and updates
