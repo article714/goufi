@@ -139,6 +139,7 @@ class Processor(AbstractProcessor):
                 col = self.col2fields[f]
                 if col != f:
                     row[col] = val
+                    del(row[f])
                 else:
                     row[f] = val
             else:
@@ -222,20 +223,20 @@ class Processor(AbstractProcessor):
                 if val.is_constant_expression:
                     mappingType = MappingType.Constant
                     if val.mapping_expression  and len(val.mapping_expression) > 2:
-                        self.allMappings[mappingType][val.name] = val.mapping_expression
+                        self.allMappings[mappingType][val.name] = [val.target_field.name, val.mapping_expression]
                     else:
                         self.logger.error("Wrong mapping expression: too short")
                 elif val.is_contextual_expression_mapping:
                     mappingType = MappingType.ContextEval
                     if val.mapping_expression  and len(val.mapping_expression) > 2:
-                        self.allMappings[mappingType][val.name] = val.mapping_expression
+                        self.allMappings[mappingType][val.name] = [val.target_field.name, val.mapping_expression]
                     else:
                         self.logger.error("Wrong mapping expression: too short")
                 elif val.mapping_expression  and len(val.mapping_expression) > 2:
                     if re.match(r'\*.*', val.mapping_expression):
                         mappingType = MappingType.One2Many
                         v = val.mapping_expression.replace('*', '')
-                        vals = [0] + v.split('/')
+                        vals = [0, val.target_field.name] + v.split('/')
                         if re.match(r'.*\&.*', vals[2]):
                             (_fieldname, cond) = vals[2].split('&')
                             vals[2] = _fieldname
@@ -247,12 +248,12 @@ class Processor(AbstractProcessor):
                     elif re.match(r'\+.*', val.mapping_expression):
                         mappingType = MappingType.One2Many
                         v = val.mapping_expression.replace('+', '')
-                        vals = [1] + v.split('/')
+                        vals = [1, val.target_field.name] + v.split('/')
                         self.allMappings[mappingType][val.name] = vals
                     elif re.match(r'\>.*', val.mapping_expression):
                         mappingType = MappingType.Many2One
                         v = val.mapping_expression.replace('>', '')
-                        vals = v.split('/')
+                        vals = [val.target_field.name] + v.split('/')
                         if re.match(r'.*\&.*', vals[1]):
                             (_fieldname, cond) = vals[1].split('&')
                             vals[1] = _fieldname
@@ -263,7 +264,7 @@ class Processor(AbstractProcessor):
                         self.allMappings[mappingType][val.name] = vals
                 else:
                     mappingType = MappingType.Standard
-                    self.allMappings[mappingType][val.name] = val.mapping_expression
+                    self.allMappings[mappingType][val.name] = val.target_field.name
 
             if mappingType != None:
                 numbOfFields += 1
@@ -273,8 +274,8 @@ class Processor(AbstractProcessor):
                 if val.is_identifier:
                     self.idFields[val.name] = mappingType
 
-        if val.is_deletion_marker or val.is_archival_marker:
-            self.delOrArchMarkers[val.name] = (val.is_deletion_marker, val.mapping_expression, val.is_archival_marker)
+            if val.is_deletion_marker or val.is_archival_marker:
+                self.delOrArchMarkers[val.name] = (val.is_deletion_marker, val.delete_if_expression, val.is_archival_marker)
 
         return numbOfFields
 
@@ -310,20 +311,20 @@ class Processor(AbstractProcessor):
                 # reference Many2One,
                 if data_values[f] and len(data_values[f]) > 0:
                     cond = []
-                    if len(config) > 2:
+                    if len(config) > 3:
                         cond = []
-                        for v in config[2]:
+                        for v in config[3]:
                             cond.append(v)
-                        cond.append((config[1], '=', data_values[f]))
+                        cond.append((config[2], '=', data_values[f]))
                     else:
-                        cond = [(config[1], '=', data_values[f])]
+                        cond = [(config[2], '=', data_values[f])]
 
-                    vals = self.odooenv[config[0]].search(cond, limit = 1)
+                    vals = self.odooenv[config[1]].search(cond, limit = 1)
 
                     if len(vals) == 1:
                         data_values[f] = vals[0].id
                     else:
-                        self.logger.warning(DEFAULT_LOG_STRING + " found " + toString(len(vals)) + " values for " + toString(data_values[f]) + "  unable to reference " + toString(config[3]) + " " + toString(vals))
+                        self.logger.warning(DEFAULT_LOG_STRING + " found " + toString(len(vals)) + " values for " + toString(data_values[f]) + "  unable to reference " + toString(config[1]) + " " + toString(vals))
 
         # TODO: Document this!
         # If there exists an id config we can process deletion, archival and updates
@@ -350,30 +351,41 @@ class Processor(AbstractProcessor):
                             self.logger.error(DEFAULT_LOG_STRING + "This kind of records can not be archived")
                             TO_BE_ARCHIVED = False
 
-                # compute search criteria
-
-                for k in self.idFields:
-                    keyfield = self.idFields[k]
+            # compute search criteria
+            # based on Id fiedls (standard mapping, constant mapping of Many2One are supported
+            for k in self.idFields:
+                mapType = self.idFields[k]
+                value = None
+                keyfield = None
+                if mapType == MappingType.Standard:
+                    keyfield = self.allMappings[mapType][k]
                     if k in data_values:
                         value = data_values[k]
-                    else:
-                        value = None
+                elif mapType in (MappingType.Constant, MappingType.ContextEval):
+                    (keyfield, value) = self.allMappings[mapType][k]
+                elif mapType == MappingType.Many2One:
+                    keyfield = self.allMappings[mapType][k][1]
+                    if k in data_values:
+                        value = data_values[k]
+                else:
+                    self.logger.error(DEFAULT_LOG_STRING + "Wrong identifier column %s" % k)
+                    return 0
 
-                    if value != None and value != str(''):
-                        search_criteria.append((keyfield, '=', value))
-                    else:
-                        self.logger.warning(DEFAULT_LOG_STRING + "GOUFI: Do not process line n.%d, as Id column is empty" % (line_index + 1,))
-                        return
+                if value != None and value != str(''):
+                    search_criteria.append((keyfield, '=', value))
+                else:
+                    self.logger.warning(DEFAULT_LOG_STRING + "GOUFI: Do not process line n.%d, as Id column is empty" % (line_index + 1,))
+                    return
 
-                # ajout d'une clause pour rechercher tous les enregistrements
-                if CAN_BE_ARCHIVED:
-                    search_criteria.append('|')
-                    search_criteria.append(('active', '=', True))
-                    search_criteria.append(('active', '=', False))
+            # ajout d'une clause pour rechercher tous les enregistrements
+            if CAN_BE_ARCHIVED:
+                search_criteria.append('|')
+                search_criteria.append(('active', '=', True))
+                search_criteria.append(('active', '=', False))
 
-                # recherche d'un enregistrement existant
-                if len(search_criteria) > 0:
-                    found = self.target_model.search(search_criteria)
+            # recherche d'un enregistrement existant
+            if len(search_criteria) > 0:
+                found = self.target_model.search(search_criteria)
 
             if len(found) == 1:
                 currentObj = found[0]
@@ -417,6 +429,15 @@ class Processor(AbstractProcessor):
                 except Exception as e:
                     self.odooenv.cr.rollback()
                     self.logger.warning(DEFAULT_LOG_STRING + "Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
+        elif CAN_BE_ARCHIVED:
+            if not currentObj == None:
+                try:
+                    currentObj.write({'active':True})
+                    currentObj.active = True
+                    self.odooenv.cr.commit()
+                except Exception as e:
+                    self.odooenv.cr.rollback()
+                    self.logger.warning(DEFAULT_LOG_STRING + "Not able to activate record (line n. %d) : %s" % (line_index + 1, toString(e),))
             return True
 
         # Create Object if it does not yet exist, else, write updates

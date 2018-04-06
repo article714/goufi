@@ -45,7 +45,7 @@ class ImportFile(models.Model):
 
     to_process = fields.Boolean(string = _(u"File is to be processed"), default = True, track_visibility = 'onchange')
 
-    needs_to_be_processed = fields.Boolean(string = _(u"File needs to be processed"), compute = '_file_needs_processing', store = True, default = False, required = False)
+    needs_to_be_processed = fields.Boolean(string = _(u"File needs to be processed"), compute = '_file_needs_processing', store = True)
 
     process_when_updated = fields.Boolean(string = _(u"File is to be re-processed when updated"), default = True, track_visibility = 'onchange')
 
@@ -71,7 +71,6 @@ class ImportFile(models.Model):
     @api.depends('active', 'to_process', 'processing_status', 'date_start_processing', 'date_stop_processing', 'process_when_updated', 'date_updated', 'date_addition')
     def _file_needs_processing(self):
         for record in self:
-
             result = False
             # File has been updated and to be processed when update
             if record.process_when_updated:
@@ -91,7 +90,7 @@ class ImportFile(models.Model):
 
             # File is active and config also
             if  len(record.import_config) > 0:
-                result = result and ((len(record.partner_id) > 0) or (len(record.import_config.default_partner_id) > 0))
+                result = result and (record.active) and (record.import_config.active)
             else:
                 result = False
 
@@ -124,6 +123,8 @@ class ImportFile(models.Model):
     def reset_processing_status(self):
         for aFile in self:
             aFile.processing_status = 'pending'
+            aFile.date_start_processing = False
+            aFile.date_stop_processing = False
 
     def force_process_file(self):
         for aFile in self:
@@ -206,5 +207,5 @@ class ImportFile(models.Model):
                 config = config[0]
                 if config.default_partner_id:
                     values['partner_id'] = config.default_partner_id.id
-        super(ImportFile, self).write(values)
+        return super(ImportFile, self).write(values)
 
