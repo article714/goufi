@@ -273,8 +273,8 @@ class Processor(AbstractProcessor):
                 if val.is_identifier:
                     self.idFields[val.name] = mappingType
 
-        if val.is_deletion_marker or val.is_archival_marker:
-            self.delOrArchMarkers[val.name] = (val.is_deletion_marker, val.mapping_expression, val.is_archival_marker)
+            if val.is_deletion_marker or val.is_archival_marker:
+                self.delOrArchMarkers[val.name] = (val.is_deletion_marker, val.mapping_expression, val.is_archival_marker)
 
         return numbOfFields
 
