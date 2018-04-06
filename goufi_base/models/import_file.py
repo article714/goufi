@@ -45,7 +45,7 @@ class ImportFile(models.Model):
 
     to_process = fields.Boolean(string = _(u"File is to be processed"), default = True, track_visibility = 'onchange')
 
-    needs_to_be_processed = fields.Boolean(string = _(u"File needs to be processed"), compute = '_file_needs_processing', store = True, default = False, required = False)
+    needs_to_be_processed = fields.Boolean(string = _(u"File needs to be processed"), compute = '_file_needs_processing', store = True)
 
     process_when_updated = fields.Boolean(string = _(u"File is to be re-processed when updated"), default = True, track_visibility = 'onchange')
 
