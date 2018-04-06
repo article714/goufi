@@ -57,7 +57,7 @@
 						<field name="filesize" attrs="{'readonly':True}" />
 						<field name="date_addition" attrs="{'readonly':True}" />
 						<field name="date_updated" attrs="{'readonly':True}" />
-						<field name='needs_to_be_processed' attrs="{'readonly':True}"/>
+						<field name='needs_to_be_processed' invisible='1'/>
 					</group>
 					<group name="Processing configuration" string="Processing configuration">
 						<group>
