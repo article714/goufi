@@ -19,6 +19,7 @@
 				<field name="date_start_processing"/>
 				<field name="date_stop_processing"/>
 				<field name="processing_status"/>
+				<field name="needs_to_be_processed"/>
 			</tree>
 		</field>
 	</record>
@@ -31,7 +32,7 @@
 		<field name="type">form</field>
 		<field name="arch" type="xml">
 			<form string="Import File">
-				<field name='needs_to_be_processed' invisible='1' readonly='1' />
+				<field name='needs_to_be_processed' invisible='1'/>
 				<header >
 					<button name="process_file" string="Process File" type="object" class="oe_read_only btn btn-sm" attrs="{'invisible': [('needs_to_be_processed','=',False)]}" groups="goufi_base.group_goufi_user"/>
 					<button name="force_process_file" string="Forced Processing" type="object" attrs="{'invisible': [('needs_to_be_processed','=',True)]}" class="oe_read_only btn-danger btn btn-sm oe_highlight" groups="goufi_base.group_goufi_admin" />
@@ -39,6 +40,10 @@
 				</header>
 				<sheet>	
 					<div class="oe_title">
+						<h2 decoration-muted="needs_to_be_processed==False" decoration-success="processing_status=='ended'">
+							<field name="display_name" readonly='1'  class='oe_read_only' />
+							<field name="filename" readonly='1' class='oe_edit_only' />
+						</h2>
 	                    <div class="oe_button_box" name="button_box">
 	                        <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
 	                            <field name="active" widget="boolean_button"
@@ -46,12 +51,6 @@
 	                        </button>
 	                    </div>
 	                </div>
-					<group>
-						<h2 >
-							<field name="display_name" readonly='1'  class='oe_read_only' />
-							<field name="filename" readonly='1' class='oe_edit_only' />
-						</h2>
-					</group>		
 					<group name="Source" string="Source" groups="goufi_base.group_config_needs_partner"  >
 						<field name="partner_id" />
 					</group>
