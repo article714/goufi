@@ -430,6 +430,15 @@ class Processor(AbstractProcessor):
                 except Exception as e:
                     self.odooenv.cr.rollback()
                     self.logger.warning(DEFAULT_LOG_STRING + "Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
+        elif CAN_BE_ARCHIVED:
+            if not currentObj == None:
+                try:
+                    currentObj.write({'active':True})
+                    currentObj.active = True
+                    self.odooenv.cr.commit()
+                except Exception as e:
+                    self.odooenv.cr.rollback()
+                    self.logger.warning(DEFAULT_LOG_STRING + "Not able to activate record (line n. %d) : %s" % (line_index + 1, toString(e),))
             return True
 
         # Create Object if it does not yet exist, else, write updates
