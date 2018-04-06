@@ -271,10 +271,13 @@ class Processor(AbstractProcessor):
                     self.mandatoryFields[val.name] = mappingType
 
                 if val.is_identifier:
+                    logging.warning("found an Id: %s-->%s" % (val.name, str(val)))
                     self.idFields[val.name] = mappingType
 
             if val.is_deletion_marker or val.is_archival_marker:
                 self.delOrArchMarkers[val.name] = (val.is_deletion_marker, val.delete_if_expression, val.is_archival_marker)
+
+            logging.warning("Processed Headers [%d]: %s-->%s" % (numbOfFields, str(self.idFields), str(self.delOrArchMarkers)))
 
         return numbOfFields
 
