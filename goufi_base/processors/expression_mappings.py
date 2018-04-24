@@ -303,10 +303,10 @@ class Processor(AbstractProcessor):
         # Process contextual values
         for val in self.allMappings[MappingType.ContextEval]:
             try:
-                value = eval(self.allMappings[MappingType.ContextEval][val])
+                value = eval(self.allMappings[MappingType.ContextEval][val][1])
                 data_values[val] = value
             except Exception as e:
-                self.logger.exception("Failed to evaluate expression from context: " + str(val.name))
+                self.logger.exception("Failed to evaluate expression from context: " + str(val))
 
         # Many To One Fields, might be mandatory, so needs to be treated first and added to StdRow
         for f in self.allMappings[MappingType.Many2One]:
