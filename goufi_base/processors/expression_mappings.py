@@ -17,7 +17,7 @@ import xlrd
 
 from odoo import _
 
-from odoo.addons.goufi_base.utils.converters  import toString
+from odoo.addons.goufi_base.utils.converters import toString
 
 from .processor import AbstractProcessor
 
@@ -150,7 +150,7 @@ class Processor(AbstractProcessor):
     #-------------------------------------------------------------------------------------
     # Process mappings configuration for each tab
 
-    def prepare_mappings(self, tab_name = None):
+    def prepare_mappings(self, tab_name=None):
 
         self.mandatoryFields = {}
         self.idFields = {}
@@ -166,7 +166,8 @@ class Processor(AbstractProcessor):
         # Look for target Model in parent config
         if self.parent_config.tab_support:
             if tab_name != None:
-                found = tabmap_model.search([('parent_configuration', '=', self.parent_config.id), ('name', '=', tab_name)], limit = 1)
+                found = tabmap_model.search(
+                    [('parent_configuration', '=', self.parent_config.id), ('name', '=', tab_name)], limit=1)
                 if len(found) == 1:
                     try:
                         self.target_model = self.odooenv[found[0].target_object.model]
@@ -187,7 +188,7 @@ class Processor(AbstractProcessor):
                 try:
                     self.target_model = self.odooenv[self.parent_config.target_object.model]
                 except:
-                    self.logger.exception("Model not found for tab: " + toString(tab_name))
+                    self.logger.error("Model not found for tab: " + toString(tab_name))
                     return -1
 
         # We should have a model now
@@ -222,17 +223,17 @@ class Processor(AbstractProcessor):
 
                 if val.is_constant_expression:
                     mappingType = MappingType.Constant
-                    if val.mapping_expression  and len(val.mapping_expression) > 2:
+                    if val.mapping_expression and len(val.mapping_expression) > 2:
                         self.allMappings[mappingType][val.name] = [val.target_field.name, val.mapping_expression]
                     else:
                         self.logger.error("Wrong mapping expression: too short")
                 elif val.is_contextual_expression_mapping:
                     mappingType = MappingType.ContextEval
-                    if val.mapping_expression  and len(val.mapping_expression) > 2:
+                    if val.mapping_expression and len(val.mapping_expression) > 2:
                         self.allMappings[mappingType][val.name] = [val.target_field.name, val.mapping_expression]
                     else:
                         self.logger.error("Wrong mapping expression: too short")
-                elif val.mapping_expression  and len(val.mapping_expression) > 2:
+                elif val.mapping_expression and len(val.mapping_expression) > 2:
                     if re.match(r'\*.*', val.mapping_expression):
                         mappingType = MappingType.One2Many
                         v = val.mapping_expression.replace('*', '')
@@ -275,7 +276,8 @@ class Processor(AbstractProcessor):
                     self.idFields[val.name] = mappingType
 
             if val.is_deletion_marker or val.is_archival_marker:
-                self.delOrArchMarkers[val.name] = (val.is_deletion_marker, val.delete_if_expression, val.is_archival_marker)
+                self.delOrArchMarkers[val.name] = (
+                    val.is_deletion_marker, val.delete_if_expression, val.is_archival_marker)
 
         return numbOfFields
 
@@ -319,12 +321,13 @@ class Processor(AbstractProcessor):
                     else:
                         cond = [(config[2], '=', data_values[f])]
 
-                    vals = self.odooenv[config[1]].search(cond, limit = 1)
+                    vals = self.odooenv[config[1]].search(cond, limit=1)
 
                     if len(vals) == 1:
                         data_values[f] = vals[0].id
                     else:
-                        self.logger.warning(DEFAULT_LOG_STRING + " found " + toString(len(vals)) + " values for " + toString(data_values[f]) + "  unable to reference " + toString(config[1]) + " " + toString(vals))
+                        self.logger.warning(DEFAULT_LOG_STRING + " found " + toString(len(vals)) + " values for " +
+                                            toString(data_values[f]) + "  unable to reference " + toString(config[1]) + " " + toString(vals))
 
         # TODO: Document this!
         # If there exists an id config we can process deletion, archival and updates
@@ -344,7 +347,7 @@ class Processor(AbstractProcessor):
                         if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
                             self.logger.error(DEFAULT_LOG_STRING + "This kind of records can not be archived")
                             TO_BE_ARCHIVED = False
-                    else :
+                    else:
                         # archival config
                         TO_BE_ARCHIVED = (re.match(config[1], data_values[f]) != None)
                         if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
@@ -374,7 +377,8 @@ class Processor(AbstractProcessor):
                 if value != None and value != str(''):
                     search_criteria.append((keyfield, '=', value))
                 else:
-                    self.logger.warning(DEFAULT_LOG_STRING + "GOUFI: Do not process line n.%d, as Id column is empty" % (line_index + 1,))
+                    self.logger.warning(DEFAULT_LOG_STRING +
+                                        "GOUFI: Do not process line n.%d, as Id column is empty" % (line_index + 1,))
                     return
 
             # ajout d'une clause pour rechercher tous les enregistrements
@@ -390,7 +394,8 @@ class Processor(AbstractProcessor):
             if len(found) == 1:
                 currentObj = found[0]
             elif len(found) > 1:
-                self.logger.warning(DEFAULT_LOG_STRING + "FOUND TOO MANY RESULT FOR " + toString(self.target_model) + " with " + toString(search_criteria) + "=>   [" + toString(len(found)) + "]")
+                self.logger.warning(DEFAULT_LOG_STRING + "FOUND TOO MANY RESULT FOR " + toString(self.target_model) +
+                                    " with " + toString(search_criteria) + "=>   [" + toString(len(found)) + "]")
                 return
             else:
                 currentObj = None
@@ -398,7 +403,7 @@ class Processor(AbstractProcessor):
         # hook for objects needing to be marked as processed
         # by import
         if currentObj != None and ('import_processed' in self.target_model.fields_get_keys()):
-            currentObj.write({'import_processed':True})
+            currentObj.write({'import_processed': True})
             currentObj.import_processed = True
             self.odooenv.cr.commit()
 
@@ -410,34 +415,38 @@ class Processor(AbstractProcessor):
                 except:
                     if TO_BE_ARCHIVED:
                         self.odooenv.cr.rollback()
-                        self.logger.warning(DEFAULT_LOG_STRING + "Archiving record as it can not be deleted (line n. %d)" % (line_index + 1,))
+                        self.logger.warning(DEFAULT_LOG_STRING +
+                                            "Archiving record as it can not be deleted (line n. %d)" % (line_index + 1,))
                         try:
-                            currentObj.write({'active':False})
+                            currentObj.write({'active': False})
                             currentObj.active = False
                         except Exception as e:
                             self.odooenv.cr.rollback()
-                            self.logger.warning(DEFAULT_LOG_STRING + "Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
+                            self.logger.warning(
+                                DEFAULT_LOG_STRING + "Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
                 currentObj = None
                 self.odooenv.cr.commit()
             return True
         elif TO_BE_ARCHIVED:
             if not currentObj == None:
                 try:
-                    currentObj.write({'active':False})
+                    currentObj.write({'active': False})
                     currentObj.active = False
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning(DEFAULT_LOG_STRING + "Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
+                    self.logger.warning(DEFAULT_LOG_STRING + "Not able to archive record (line n. %d) : %s" %
+                                        (line_index + 1, toString(e),))
         elif CAN_BE_ARCHIVED:
             if not currentObj == None:
                 try:
-                    currentObj.write({'active':True})
+                    currentObj.write({'active': True})
                     currentObj.active = True
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning(DEFAULT_LOG_STRING + "Not able to activate record (line n. %d) : %s" % (line_index + 1, toString(e),))
+                    self.logger.warning(DEFAULT_LOG_STRING + "Not able to activate record (line n. %d) : %s" %
+                                        (line_index + 1, toString(e),))
             return True
 
         # Create Object if it does not yet exist, else, write updates
@@ -456,7 +465,8 @@ class Processor(AbstractProcessor):
             self.odooenv.cr.commit()
         except ValueError as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING + " wrong values where creating/updating object: " + self.target_model.name + " -> " + toString(data_values) + "[" + toString(currentObj) + "]")
+            self.logger.exception(DEFAULT_LOG_STRING + " wrong values where creating/updating object: " +
+                                  self.target_model.name + " -> " + toString(data_values) + "[" + toString(currentObj) + "]")
             self.logger.error("                    MSG: {0}".format(toString(e)))
             currentObj = None
         except Exception as e:
@@ -473,25 +483,27 @@ class Processor(AbstractProcessor):
                     config = self.allMappings[MappingType.One2Many][f]
                     if len(members) > 0 and currentObj != None:
                         if config[0] == 1:
-                            currentObj.write({config[1]:[(5, False, False)] })
+                            currentObj.write({config[1]: [(5, False, False)]})
                         for m in members:
                             if len(m) > 0:
                                 # References records in  One2Many
                                 if config[0] == 0:
-                                    vals = self.odooenv[config[1]].search([(config[2], '=', m)], limit = 1)
+                                    vals = self.odooenv[config[1]].search([(config[2], '=', m)], limit=1)
                                     if len(vals) == 1:
-                                        currentObj.write({config[2]:[(4, vals[0].id, False)] })
+                                        currentObj.write({config[2]: [(4, vals[0].id, False)]})
                                     else:
-                                        self.logger.warning(DEFAULT_LOG_STRING + "found " + toString(len(vals)) + " values for " + toString(m) + "  unable to reference")
+                                        self.logger.warning(DEFAULT_LOG_STRING + "found " + toString(len(vals)) +
+                                                            " values for " + toString(m) + "  unable to reference")
 
                                 # Creates records in  One2Many
                                 elif config[0] == 1:
                                     values = eval(m)
-                                    currentObj.write({config[2]:[(0, False, values)] })
+                                    currentObj.write({config[2]: [(0, False, values)]})
             self.odooenv.cr.commit()
         except ValueError as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING + " Wrong values where updating object: " + self.target_model.name + " -> " + toString(data_values))
+            self.logger.exception(DEFAULT_LOG_STRING + " Wrong values where updating object: " +
+                                  self.target_model.name + " -> " + toString(data_values))
             self.logger.error("                    MSG: {0}".format(toString(e)))
             currentObj = None
         except Exception as e:
@@ -511,10 +523,10 @@ class CSVProcessor(Processor):
     """
 
     #-------------------------------------------------------------------------------------
-    def process_file(self, import_file, force = False):
+    def process_file(self, import_file, force=False):
         ext = import_file.filename.split('.')[-1]
         if (ext in CSV_AUTHORIZED_EXTS):
-           super(CSVProcessor, self).process_file(import_file, force)
+            super(CSVProcessor, self).process_file(import_file, force)
         else:
             self.logger.error("Cannot process file: Wrong extension -> %s" % ext)
 
@@ -558,7 +570,7 @@ class CSVProcessor(Processor):
 
         # try with , as a delimiter
         with open(import_file.filename, 'rt') as csvfile:
-            csv_reader = unicodecsv.DictReader(csvfile, delimiter = ',', quotechar = '\"')
+            csv_reader = unicodecsv.DictReader(csvfile, delimiter=',', quotechar='\"')
             if (len(csv_reader.fieldnames) > 1):
                 if self.prepare_mappings() > 0:
                     processed = True
@@ -572,9 +584,9 @@ class CSVProcessor(Processor):
         # try with ; as a delimiter
         if not processed:
             with open(import_file.filename, 'rb') as csvfile:
-                csv_reader = unicodecsv.DictReader(csvfile, delimiter = ';', quotechar = '\"')
+                csv_reader = unicodecsv.DictReader(csvfile, delimiter=';', quotechar='\"')
 
-                if self.prepare_mappings() > 0 :
+                if self.prepare_mappings() > 0:
 
                     idx = 0
                     for row in csv_reader:
@@ -611,7 +623,7 @@ class XLProcessor(Processor):
             p_ligne = sh.row_values(self.header_line_idx)
             hsize = len(p_ligne)
 
-            if self.prepare_mappings(sh.name) > 0 :
+            if self.prepare_mappings(sh.name) > 0:
 
                 for rownum in range(1, sh.nrows):
                     if rownum > self.header_line_idx:
@@ -630,7 +642,7 @@ class XLProcessor(Processor):
         self.logger.info("PROCESSING XLSX FILE :" + import_file.filename)
 
         result = True
-        wb = load_workbook(import_file.filename, read_only = True, keep_vba = False, guess_types = False, data_only = True)
+        wb = load_workbook(import_file.filename, read_only=True, keep_vba=False, guess_types=False, data_only=True)
         for shname in wb.sheetnames:
 
             sh = wb[shname]
@@ -653,7 +665,8 @@ class XLProcessor(Processor):
                             break
                         elif ('import_processed' in self.target_model.fields_get_keys()):
                             # hook for objects needing to be set as processed through import
-                            self.odooenv.cr.execute('update ' + toString(self.target_model._table) + ' set import_processed = False')
+                            self.odooenv.cr.execute(
+                                'update ' + toString(self.target_model._table) + ' set import_processed = False')
                             self.odooenv.cr.commit()
                 else:
                     if self.target_model == None:
@@ -672,9 +685,10 @@ class XLProcessor(Processor):
 
                 idx += 1
             if self.target_model != None:
-                if  ('import_processed' in self.target_model.fields_get_keys()):
+                if ('import_processed' in self.target_model.fields_get_keys()):
                     # hook for objects needing to be set as processed through import
-                    self.odooenv.cr.execute('update ' + toString(self.target_model._table) + ' set import_processed = False')
+                    self.odooenv.cr.execute('update ' + toString(self.target_model._table) +
+                                            ' set import_processed = False')
                     self.odooenv.cr.commit()
             else:
                 self.logger.error("Did not process tab " + shname + " correctly")
@@ -682,7 +696,7 @@ class XLProcessor(Processor):
         return result
 
     #-------------------------------------------------------------------------------------
-    def process_file(self, import_file, force = False):
+    def process_file(self, import_file, force=False):
         ext = import_file.filename.split('.')[-1]
         if (ext in XL_AUTHORIZED_EXTS):
             super(XLProcessor, self).process_file(import_file, force)
@@ -712,4 +726,3 @@ class XLProcessor(Processor):
             import_file.processing_result = str(e)
             self.odooenv.cr.commit()
             return False
-
