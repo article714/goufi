@@ -292,6 +292,9 @@ class Processor(AbstractProcessor):
         TO_BE_ARCHIVED = False
         TO_BE_DELETED = False
 
+        # Detects if record needs to be deleted or archived
+        CAN_BE_ARCHIVED = ('active' in self.target_fields)
+
         search_criteria = []
 
         if self.target_model == None:
@@ -335,8 +338,6 @@ class Processor(AbstractProcessor):
         found = []
         if len(self.idFields) > 0 and self.target_model != None:
 
-            # Detects if record needs to be deleted or archived
-            CAN_BE_ARCHIVED = ('active' in self.target_fields)
             for f in self.delOrArchMarkers:
                 if f in data_values:
                     config = self.delOrArchMarkers[f]
