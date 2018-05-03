@@ -21,7 +21,6 @@ class TestImportConfiguration(TransactionCase):
         return True
 
     def setUp(self):
-        super(TestComputeVolumeOnProduct, self).setUp()
+        super(TestImportConfiguration, self).setUp()
 
         self.config = self.env['goufi.import_configuration'].new()
-
