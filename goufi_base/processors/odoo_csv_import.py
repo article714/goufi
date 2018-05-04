@@ -19,9 +19,15 @@ from odoo.addons.goufi_base.utils.converters import toString
 
 from .processor import AbstractProcessor
 
+#-----------------------------------------------4--------------------------------------
+# Global private variables
+
+_reHeader = re.compile(r'[0-9]+\_')
 
 #-----------------------------------------------4--------------------------------------
 # MAIN CLASS
+
+
 class OdooCSVProcessor(AbstractProcessor):
     """
     A processor that import csv files that are Odoo compatible (same as in modules source code
@@ -54,11 +60,10 @@ class OdooCSVProcessor(AbstractProcessor):
             self.logger.warning("No target model set on configuration, attempt to find it from file name")
 
             bname = path.basename(import_file.filename)
-            (modelname, ext) = bname.split('.')
+            modelname = '.'.join(bname.split('.')[:-1])
 
-            modelname = modelname.replace('_', '.')
-            if re.match(r'[0-9]+\.', modelname):
-                modelname = re.sub(r'[0-9]+\.', '', modelname)
+            if _reHeader.match(modelname):
+                modelname = re.sub(r'[0-9]+\_', '', modelname)
 
             try:
                 self.target_model = self.odooenv[modelname]
@@ -68,7 +73,7 @@ class OdooCSVProcessor(AbstractProcessor):
                 return False
 
         try:
-            with open(import_file.filename, 'rb', encoding='utf-8') as csvfile:
+            with open(import_file.filename, 'rb') as csvfile:
                 reader = unicodecsv.reader(csvfile, quotechar='"', delimiter=',')
                 fields = reader.next()
 

@@ -395,7 +395,7 @@ class Processor(AbstractProcessor):
                 return False
 
         # try with , as a delimiter
-        with open(filename, 'rb', encoding='utf-8') as csvfile:
+        with open(filename, 'rb') as csvfile:
             csv_reader = unicodecsv.DictReader(csvfile, delimiter=',', quotechar='\"')
             if (len(csv_reader.fieldnames) > 1):
                 if self.process_header(csv_reader.fieldnames) > 0:
@@ -409,7 +409,7 @@ class Processor(AbstractProcessor):
 
         # try with ; as a delimiter
         if not processed:
-            with open(filename, 'rb', encoding='utf-8') as csvfile:
+            with open(filename, 'rb') as csvfile:
                 csv_reader = unicodecsv.DictReader(csvfile, delimiter=';', quotechar='\"')
 
                 if self.process_header(csv_reader.fieldnames) > 0:
