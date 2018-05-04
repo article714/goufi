@@ -8,7 +8,7 @@
 		<field name="mode">primary</field>
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
-			<tree string="Processor Parameters" default_order="id asc" create="false" edit="false" >
+			<tree string="Processor Parameters" default_order="id asc" >
 				<field name="name"/>
 				<field name="value"/>
 				<field name="parent_configuration" invisible='1'/>
@@ -23,7 +23,7 @@
 		<field name="mode">primary</field>
 		<field name="type">form</field>
 		<field name="arch" type="xml">
-			<form string="Processor Parameter"  create="false" edit="false">
+			<form string="Processor Parameter" >
 				<sheet>					
 					<group name="Parameter" string="Parameter"  attrs="{'readonly':True}">
 						<field name="name"/>

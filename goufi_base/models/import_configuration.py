@@ -75,7 +75,8 @@ class ImportConfiguration(models.Model):
     has_parameters = fields.Boolean(string=_(u"Has parameters"),
                                     help=_(u"Does the selected processor accept parameters"),
                                     related="processor.has_parameters",
-                                    default=False)
+                                    default=False,
+                                    read_only=True)
 
     # Parameters when needed
 
