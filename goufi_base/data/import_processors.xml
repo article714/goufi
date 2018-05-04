@@ -13,7 +13,7 @@
 		<field name="processor_module">odoo.addons.goufi_base.processors.odoo_csv_import</field>
 		<field name="processor_class">OdooCSVProcessor</field>
 	</record>
-	<record id="textual_csv_mappings_processor" model="goufi.import_processor">
+	<record id="static_mappings_processor" model="goufi.import_processor">
 		<field name="name">Processor with static in-file Mappings (mapping config in header line))</field>
 		<field name="needs_mappings">False</field>
 		<field name="tab_support">False</field>
@@ -21,7 +21,7 @@
 		<field name="processor_module">odoo.addons.goufi_base.processors.static_mappings</field>
 		<field name="processor_class">Processor</field>
 	</record>
-	<record id="textual_csv_mappings_processor" model="goufi.import_processor">
+	<record id="odoo_csv_processor" model="goufi.import_processor">
 		<field name="name">Processor with configurable Mappings(CSV)</field>
 		<field name="needs_mappings">True</field>
 		<field name="tab_support">False</field>
