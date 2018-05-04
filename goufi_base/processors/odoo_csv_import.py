@@ -82,7 +82,7 @@ class OdooCSVProcessor(AbstractProcessor):
 
         try:
             with open(import_file.filename, 'rb') as csvfile:
-                reader = unicodecsv.reader(csvfile, quotechar='"', delimiter=self.csv_separator)
+                reader = unicodecsv.reader(csvfile, quotechar='"', delimiter=str(self.csv_separator))
                 fields = reader.next()
 
                 if not ('id' in fields):

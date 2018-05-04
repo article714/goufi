@@ -20,19 +20,19 @@ class ImportProcessor(models.Model):
 
     has_parameters = fields.Boolean(string=_(u"Has parameters"),
                                     help=_(u"Does this processor accepts parameters"),
-                                    required=True, default=False)
+                                    default=False)
 
     needs_mappings = fields.Boolean(string=_(u"Needs mappings"),
                                     help=_(u"Does this processor needs column mappings"),
-                                    required=True, default=False)
+                                    default=False)
 
     tab_support = fields.Boolean(string=_(u"Supports multi tabs"),
                                  help=_(u"Does the processor can process multiple tabs"),
-                                 required=True, default=False)
+                                 default=False)
 
     col_group_support = fields.Boolean(string=_(u"Supports column groups"),
                                        help=_(u"Does the processor can process (iterable) group of columns"),
-                                       required=True, default=False)
+                                       default=False)
 
     processor_module = fields.Char(string=_(u'Module containing Processor Class'), required=True)
 
