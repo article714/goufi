@@ -132,7 +132,6 @@ class Processor(AbstractProcessor):
         self.idFields = {}
 
         self.logger.info("NEW SHEET:  Import data for model " + toString(self.target_model))
-        self.target_model = None
 
         target_fields = None
         if self.target_model == None:
