@@ -30,6 +30,7 @@ TODO
              'views/goufi_import_menus.xml',
              'views/import_file_views.xml',
              'views/import_processor_views.xml',
+             'views/processor_parameters_views.xml',
              'views/import_column_mapping_views.xml',
              'views/import_tab_mapping_views.xml',
              'views/import_configuration_views.xml', ],

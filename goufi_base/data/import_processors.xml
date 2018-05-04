@@ -9,6 +9,7 @@
 	<record id="odoo_csv_processor" model="goufi.import_processor">
 		<field name="name">CSV importer based on native Odoo import facility</field>
 		<field name="needs_mappings">False</field>
+		<field name="has_parameters">True</field>
 		<field name="tab_support">False</field>
 		<field name="processor_module">odoo.addons.goufi_base.processors.odoo_csv_import</field>
 		<field name="processor_class">OdooCSVProcessor</field>

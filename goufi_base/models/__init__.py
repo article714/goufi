@@ -13,4 +13,4 @@ from . import import_configuration
 from . import import_file
 from . import import_processor
 from . import import_tab_mapping
-
+from . import processor_parameter

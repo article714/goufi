@@ -52,6 +52,9 @@
 					</group>
 					<group name="Processing configuration" string="Processing configuration">
 						<field name="processor" />
+						<field name="has_parameters" attrs="{'invisible':True}" />
+						<field name="processor_parameters"
+							attrs="{'invisible':[('has_parameters','=',False)]}" />
 						<field name="working_dir" />
 						<field name="default_header_line_index" />
 						<field name="default_partner_id" groups="goufi_base.group_config_needs_partner" />

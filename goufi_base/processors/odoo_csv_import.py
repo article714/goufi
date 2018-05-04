@@ -31,11 +31,19 @@ _reHeader = re.compile(r'[0-9]+\_')
 class OdooCSVProcessor(AbstractProcessor):
     """
     A processor that import csv files that are Odoo compatible (same as in modules source code
+
+    Can use the following parameters:
+        * csv_separator => define the seperator between fields
+
     """
 
     def __init__(self, parent_config):
 
         super(OdooCSVProcessor, self).__init__(parent_config)
+        self.csv_separator = ","
+        for param in parent_config.processor_parameters:
+            if param.name == u'csv_separator':
+                self.csv_separator = param.value
         self.target_model = None
 
     #-------------------------------------------------------------------------------------
@@ -74,7 +82,7 @@ class OdooCSVProcessor(AbstractProcessor):
 
         try:
             with open(import_file.filename, 'rb') as csvfile:
-                reader = unicodecsv.reader(csvfile, quotechar='"', delimiter=',')
+                reader = unicodecsv.reader(csvfile, quotechar='"', delimiter=self.csv_separator)
                 fields = reader.next()
 
                 if not ('id' in fields):

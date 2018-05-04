@@ -11,6 +11,7 @@
 		<field name="arch" type="xml">
 			<tree string="Import Processors" default_order="id asc" create="false" edit="false" >
 				<field name="name"/>
+				<field name="has_parameters"/>
 				<field name="needs_mappings"/>
 				<field name="tab_support" />
 				<field name="col_group_support"/>
@@ -29,6 +30,7 @@
 				<sheet>					
 					<group name="Processor" string="Processor"  attrs="{'readonly':True}">
 						<field name="name"  attrs="{'readonly':True}"/>
+						<field name="has_parameters"/>
 						<field name="needs_mappings" attrs="{'readonly':True}"/>
 						<field name="tab_support"  attrs="{'readonly':True}"/>
 						<field name="col_group_support" attrs="{'readonly':True}"/>

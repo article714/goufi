@@ -15,8 +15,9 @@ import os
 import re
 
 from odoo import models, fields, _, api
-from odoo.addons.goufi_base.utils.converters import dateToOdooString
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
+
+from odoo.addons.goufi_base.utils.converters import dateToOdooString
 
 
 #------------------------------------------------------------
@@ -27,77 +28,93 @@ class ImportConfiguration(models.Model):
     _description = _(u"Import Configuration")
     _rec_name = "name"
 
-    active = fields.Boolean('Active', default = True, help = "If unchecked, it will allow you to hide the configuration without removing it.")
+    active = fields.Boolean('Active', default=True,
+                            help="If unchecked, it will allow you to hide the configuration without removing it.")
 
     # Configuration identification
-    name = fields.Char(string = _(u'Configuration name'), required = True, track_visibility = 'onchange')
+    name = fields.Char(string=_(u'Configuration name'), required=True, track_visibility='onchange')
 
     filename_pattern = fields.Char(_(u'File name pattern'),
-                                      help = _(u""" The pattern that a file should respect to be detected as being processed by the current configuration """),
-                                     required = True)
+                                   help=_(
+                                       u""" The pattern that a file should respect to be detected as being processed by the current configuration """),
+                                   required=True)
 
-    files_location = fields.Char(string = _(u'Files Location'),
-                                 help = _(u""" The place where we should try to find files that will be processed according to the current config
+    files_location = fields.Char(string=_(u'Files Location'),
+                                 help=_(u""" The place where we should try to find files that will be processed according to the current config
                                  """),
-                                 required = True, default = "/odoo/file_imports"
+                                 required=True, default="/odoo/file_imports"
                                  )
 
-    recursive_search = fields.Boolean(string = _(u"Recursive search"),
-                                    help = _(u"should we search for files in sub-directories"),
-                                    default = False)
+    recursive_search = fields.Boolean(string=_(u"Recursive search"),
+                                      help=_(u"should we search for files in sub-directories"),
+                                      default=False)
 
-    working_dir = fields.Char(string = _(u'Working directory'),
-                                 help = _(u" Directory where temp and log files will be put"),
-                                 required = True, default = "/odoo/file_imports/_work"
-                                 )
+    working_dir = fields.Char(string=_(u'Working directory'),
+                              help=_(u" Directory where temp and log files will be put"),
+                              required=True, default="/odoo/file_imports/_work"
+                              )
 
-    default_header_line_index = fields.Integer(string = _(u"Default Header line"),
-                                               help = _(u"Provides the index of the header line in import file. Header line contains name of columns to be mapped."),
-                                               required = True, default = 0)
+    default_header_line_index = fields.Integer(string=_(u"Default Header line"),
+                                               help=_(
+                                                   u"Provides the index of the header line in import file. Header line contains name of columns to be mapped."),
+                                               required=True, default=0)
 
-    default_partner_id = fields.Many2one(string = _(u'Related Partner'),
-                                         help = _("The partner that provided the Data"),
-                                         comodel_name = 'res.partner', track_visibility = 'onchange')
+    default_partner_id = fields.Many2one(string=_(u'Related Partner'),
+                                         help=_("The partner that provided the Data"),
+                                         comodel_name='res.partner', track_visibility='onchange')
 
-    processor = fields.Many2one(string = _(u"Import processor"),
-                                comodel_name = 'goufi.import_processor',
-                                required = True)
+    processor = fields.Many2one(string=_(u"Import processor"),
+                                comodel_name='goufi.import_processor',
+                                required=True)
 
-    needs_mappings = fields.Boolean(string = _(u"Needs mappings"),
-                                    help = _(u"Does the selected processor needs column mappings"),
-                                    related = "processor.needs_mappings",
-                                    default = False)
+    needs_mappings = fields.Boolean(string=_(u"Needs mappings"),
+                                    help=_(u"Does the selected processor need column mappings"),
+                                    related="processor.needs_mappings",
+                                    default=False)
+
+    has_parameters = fields.Boolean(string=_(u"Has parameters"),
+                                    help=_(u"Does the selected processor accept parameters"),
+                                    related="processor.has_parameters",
+                                    default=False)
+
+    # Parameters when needed
+
+    processor_parameters = fields.One2many(string=_(u"Processor parameters"),
+                                           help=_(u"Parameters that will be passed to processor"),
+                                           comodel_name="goufi.processor_parameter",
+                                           inverse_name="parent_configuration",
+                                           required=False)
 
     # Single Tab configuration => a single mapping and target object needed for config.
 
-    target_object = fields.Many2one(string = _(u"Target object"),
-                                    help = _(u"Odoo object that will be targeted by import: create, update or delete instances"),
-                                    comodel_name = "ir.model",
-                                    required = False)
+    target_object = fields.Many2one(string=_(u"Target object"),
+                                    help=_(u"Odoo object that will be targeted by import: create, update or delete instances"),
+                                    comodel_name="ir.model",
+                                    required=False)
 
-    column_mappings = fields.One2many(string = _(u"Column mappings"),
-                                    help = _(u"Mapping configuration needed by this processor"),
-                                      comodel_name = "goufi.column_mapping",
-                                      inverse_name = "parent_configuration",
-                                      required = False)
+    column_mappings = fields.One2many(string=_(u"Column mappings"),
+                                      help=_(u"Mapping configuration needed by this processor"),
+                                      comodel_name="goufi.column_mapping",
+                                      inverse_name="parent_configuration",
+                                      required=False)
 
-    col_group_support = fields.Boolean(string = _(u"Supports column groups"),
-                                    help = _(u"Does the processor can process (iterable) group of columns"),
-                                    related = "processor.col_group_support",
-                                    default = False)
+    col_group_support = fields.Boolean(string=_(u"Supports column groups"),
+                                       help=_(u"Does the processor can process (iterable) group of columns"),
+                                       related="processor.col_group_support",
+                                       default=False)
 
     # Multi-Tab configuration => several mappings and targets object needed for config.
     #   there will be a target object per tab-mapping
 
-    tab_support = fields.Boolean(string = _(u"Supports multi tabs"),
-                                    help = _(u"Does the selected processor can process multiple tabs"),
-                                    related = "processor.tab_support")
+    tab_support = fields.Boolean(string=_(u"Supports multi tabs"),
+                                 help=_(u"Does the selected processor can process multiple tabs"),
+                                 related="processor.tab_support")
 
-    tab_mappings = fields.One2many(string = _(u"Tab mappings"),
-                                    help = _(u"Mapping configuration needed by this processor"),
-                                      comodel_name = "goufi.tab_mapping",
-                                      inverse_name = "parent_configuration",
-                                      required = False)
+    tab_mappings = fields.One2many(string=_(u"Tab mappings"),
+                                   help=_(u"Mapping configuration needed by this processor"),
+                                   comodel_name="goufi.tab_mapping",
+                                   inverse_name="parent_configuration",
+                                   required=False)
 
     #-------------------------------
 
@@ -114,7 +131,7 @@ class ImportConfiguration(models.Model):
     #-------------------------------
     # file detection
 
-    def detect_files(self, cr = None, uid = None, context = None, cur_dir = None):
+    def detect_files(self, cr=None, uid=None, context=None, cur_dir=None):
         file_model = self.env['goufi.import_file']
         all_files = []
 
@@ -123,7 +140,7 @@ class ImportConfiguration(models.Model):
         elif self.files_location and file_model != None:
             all_files = sorted(os.listdir(self.files_location))
         else:
-            logging.error ("GOUFI: No files location for configuration " + self.name)
+            logging.error("GOUFI: No files location for configuration " + self.name)
             return None
 
         for aFile in all_files:
@@ -134,7 +151,7 @@ class ImportConfiguration(models.Model):
 
             if os.path.isdir(cur_path):
                 if self.recursive_search:
-                    self.detect_files(cr, uid, context, cur_dir = cur_path)
+                    self.detect_files(cr, uid, context, cur_dir=cur_path)
             elif os.path.isfile(cur_path):
                 if re.match(self.filename_pattern, aFile):
                     filesize = os.path.getsize(cur_path)
@@ -148,17 +165,17 @@ class ImportConfiguration(models.Model):
                         modtime = os.path.getmtime(cur_path)
 
                         if modtime > timegm(datetime.strptime(iFile.date_updated, DEFAULT_SERVER_DATETIME_FORMAT).timetuple()):
-                            iFile.write({'date_updated':str_date,
-                                         'filesize':filesize})
+                            iFile.write({'date_updated': str_date,
+                                         'filesize': filesize})
 
                     elif nb_found == 0:
-                        iFile = file_model.create({'filename':cur_path,
-                                               'date_addition':str_date,
-                                               'date_updated':str_date,
-                                               'filesize':filesize,
-                                               'import_config': self.id,
-                                               'header_line_index':self.default_header_line_index
-                                               })
+                        iFile = file_model.create({'filename': cur_path,
+                                                   'date_addition': str_date,
+                                                   'date_updated': str_date,
+                                                   'filesize': filesize,
+                                                   'import_config': self.id,
+                                                   'header_line_index': self.default_header_line_index
+                                                   })
                     else:
                         logging.error("GOUFI: multiple import files found for :" + cur_path)
 
@@ -187,7 +204,8 @@ class ImportConfiguration(models.Model):
                         logging.error("GOUFI: Cannot process file, no processor class found " + self.name)
                         return None
                 except Exception as e:
-                    logging.error("GOUFI: Cannot process file, error when evaluating processor module" + self.name + "(" + str(e) + "-" + str(e.message) + ")")
+                    logging.error("GOUFI: Cannot process file, error when evaluating processor module" +
+                                  self.name + "(" + str(e) + "-" + str(e.message) + ")")
 
                 # Process File
                 # instantiate processor
@@ -195,17 +213,18 @@ class ImportConfiguration(models.Model):
                     proc_inst = cls(self)
 
             if file_model != None and proc_inst != None:
-                records = file_model.search([('import_config', '=', config.id)], limit = None)
+                records = file_model.search([('import_config', '=', config.id)], limit=None)
                 for rec in records:
                     try:
                         proc_inst.process_file(rec)
                     except Exception as e:
-                        logging.error("GOUFI: Error when processing file " + rec.filename + "(" + str(e) + "-" + str(e.message) + ")")
+                        logging.error("GOUFI: Error when processing file " + rec.filename +
+                                      "(" + str(e) + "-" + str(e.message) + ")")
 
     #-------------------------------
     # automation of file detection
     @api.model
-    def detect(self, criteria = []):
+    def detect(self, criteria=[]):
         """
         Detects files that can be processed using some import configuration
 
@@ -213,8 +232,7 @@ class ImportConfiguration(models.Model):
         """
         config_model = self.env['goufi.import_configuration']
 
-        if config_model != None :
-            records = config_model.search(criteria, limit = None)
+        if config_model != None:
+            records = config_model.search(criteria, limit=None)
             for rec in records:
-                rec.detect_files(cur_dir = None)
-
+                rec.detect_files(cur_dir=None)
