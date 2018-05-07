@@ -15,7 +15,7 @@
 		<field name="processor_class">OdooCSVProcessor</field>
 	</record>
 	<record id="static_mappings_processor" model="goufi.import_processor">
-		<field name="name">Processor with static in-file Mappings (mapping config in header line))</field>
+		<field name="name">Processor with static in-file Mappings (mapping config in header line)</field>
 		<field name="needs_mappings">False</field>
 		<field name="tab_support">False</field>
 		<field name="col_group_support">False</field>

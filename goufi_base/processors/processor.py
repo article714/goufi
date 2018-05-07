@@ -7,16 +7,16 @@ Created on 26 feb. 2018
 @license: AGPL v3
 '''
 
-from datetime import datetime
-from os import path, remove
 import base64
+from datetime import datetime
 import logging
-
-from odoo.exceptions import ValidationError
+from os import path, remove
 
 from odoo.addons.goufi_base.models.import_configuration import ImportConfiguration
 from odoo.addons.goufi_base.models.import_file import ImportFile
 from odoo.addons.goufi_base.utils.converters  import toString
+from odoo.exceptions import ValidationError
+
 
 #-------------------------------------------------------------------------------------
 # STATIC GLOBAL Properties
@@ -52,7 +52,7 @@ class AbstractProcessor(object):
             self.logger.error("GOUFI: error- wrong parameter type given when creating a new Processor instance")
 
     #-------------------------------------------------------------------------------------
-    def create_dedicated_filelogger(self, name_complement = "hello"):
+    def create_dedicated_filelogger(self, name_complement="hello"):
         """
         Creates a instance of a dedicated logger that will log to a file the current processing results
 
@@ -63,9 +63,9 @@ class AbstractProcessor(object):
 
             logpath = self.parent_config.working_dir + path.sep
             filename_TS = datetime.now().strftime("%Y-%m-%d")
-            fh = logging.FileHandler(filename = logpath + "goufi" + name_complement + '_' + filename_TS + '.log', mode = 'w')
+            fh = logging.FileHandler(filename=logpath + "goufi" + name_complement + '_' + filename_TS + '.log', mode='w')
             fh.setFormatter(procLogFmt)
-            fh.setLevel(level = logging.INFO)
+            fh.setLevel(level=logging.INFO)
             self.logger_fh = fh
             self.logger.addHandler(fh)
         else:
@@ -110,7 +110,7 @@ class AbstractProcessor(object):
         raise ValidationError("GOUFI: un-implemented process_data method")
 
     #-------------------------------------------------------------------------------------
-    def end_processing(self, import_file, success = True):
+    def end_processing(self, import_file, success=True):
         """
         Method that closes-up the processing
         """
@@ -139,7 +139,7 @@ class AbstractProcessor(object):
         return True
 
     #-------------------------------------------------------------------------------------
-    def process_file(self, import_file, force = False):
+    def process_file(self, import_file, force=False):
         """
         Generic method to run all processing steps
         """
@@ -158,6 +158,7 @@ class AbstractProcessor(object):
                 self.odooenv.cr.rollback()
                 self.logger.exception("GOUFI: error while import file %s -> %s " % (toString(import_file.filename), str(e)))
                 import_file.processing_status = 'failure'
+                self.end_processing(import_file, result)
                 self.odooenv.cr.commit()
         else:
             self.logger.error("GOUFI: cannot import " + toString(import_file.filename))
