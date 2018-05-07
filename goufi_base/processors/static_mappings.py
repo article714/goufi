@@ -211,7 +211,7 @@ class Processor(AbstractProcessor):
         if len(self.idFields) > 0:
 
             # traitement des enregistrements à "archiver" ou "supprimer"
-            allvals = u"".join(map(toString, data_values.values()))
+            allvals = u"".join(data_values.values())
 
             if u'supprimer de la base odoo' in allvals:
                 TO_BE_ARCHIVED = True
