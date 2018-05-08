@@ -1,0 +1,5 @@
+"ID(name)";">parent_id/res.partner/name";"email";"company_type";"type";"is_company";"notify_email";"employee";"supplier";"customer";"lang";"tz";"contact_type"
+"Jeannot Lapin";"My Company";"jeannot@oualou.fr";"person";"contact";"False";"none";"True";"False";"False";"fr_FR";"Europe/Paris";"standalone"
+"Raymond Tlao";"My Company";"raymond@oualou.fr";"person";"contact";"False";"none";"True";"False";"False";"fr_FR";"Europe/Paris";"standalone"
+"Hector Piller";"My Company";"hector@oualou.fr";"person";"contact";"False";"none";"True";"False";"False";"fr_FR";"Europe/Paris";"standalone"
+"Groin De Porc";"My Company";"groin@oualou.fr";"person";"contact";"False";"none";"True";"False";"False";"fr_FR";"Europe/Paris";"standalone"

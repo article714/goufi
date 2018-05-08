@@ -1,0 +1,3 @@
+id,name,filename_pattern,files_location,recursive_search,working_dir,processor:id
+gic_nothing,je ne fais rien,^.*\.txt,/mnt/extra-addons/input_data/odoo_csv,False,/tmp,goufi_base.do_nothing_processor
+gic_static_csv,Tests Static CSV,^.*\.csv,/mnt/extra-addons/input_data/static_csv,False,/tmp,goufi_base.static_mappings_processor

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<record model="ir.ui.view" id="view_goufi_processor_parameter_tree">
+		<field name="name">view_goufi_processor_parameter_tree</field>
+		<field name="model">goufi.processor_parameter</field>
+		<field name="priority" eval="16" />
+		<field name="mode">primary</field>
+		<field name="type">tree</field>
+		<field name="arch" type="xml">
+			<tree string="Processor Parameters" default_order="id asc" >
+				<field name="name"/>
+				<field name="value"/>
+				<field name="parent_configuration" invisible='1'/>
+			</tree>
+		</field>
+	</record>
+	
+	<record model="ir.ui.view" id="view_goufi_processor_parameter_form">
+		<field name="name">view_goufi_processor_parameter_form</field>
+		<field name="model">goufi.processor_parameter</field>
+		<field name="priority" eval="16" />
+		<field name="mode">primary</field>
+		<field name="type">form</field>
+		<field name="arch" type="xml">
+			<form string="Processor Parameter" >
+				<sheet>					
+					<group name="Parameter" string="Parameter"  attrs="{'readonly':True}">
+						<field name="name"/>
+						<field name="value"/>
+						<field name="parent_configuration" invisible='1'/>
+					</group>
+				</sheet>
+			</form>
+		</field>
+	</record>
+
+</odoo>
+           
