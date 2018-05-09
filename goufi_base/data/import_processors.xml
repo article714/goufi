@@ -14,6 +14,14 @@
 		<field name="processor_module">odoo.addons.goufi_base.processors.odoo_csv_import</field>
 		<field name="processor_class">OdooCSVProcessor</field>
 	</record>
+	<record id="odoo_xls_processor" model="goufi.import_processor">
+		<field name="name">XLS importer based on native Odoo import facility</field>
+		<field name="needs_mappings">False</field>
+		<field name="has_parameters">False</field>
+		<field name="tab_support">False</field>
+		<field name="processor_module">odoo.addons.goufi_base.processors.odoo_xls_import</field>
+		<field name="processor_class">OdooXLSProcessor</field>
+	</record>
 	<record id="static_mappings_processor" model="goufi.import_processor">
 		<field name="name">Processor with static in-file Mappings (mapping config in header line)</field>
 		<field name="needs_mappings">False</field>
