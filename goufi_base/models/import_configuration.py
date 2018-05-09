@@ -68,7 +68,7 @@ class ImportConfiguration(models.Model):
 
     needs_mappings = fields.Boolean(string=_(u"Needs mappings"),
                                     help=_(u"Does the selected processor need column mappings"),
-                                    related="processor.needs_mappings"),
+                                    related="processor.needs_mappings",
                                     read_only=True)
 
     has_parameters = fields.Boolean(string=_(u"Has parameters"),
