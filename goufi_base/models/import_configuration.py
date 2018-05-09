@@ -15,9 +15,8 @@ import os
 import re
 
 from odoo import models, fields, _, api
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
-
 from odoo.addons.goufi_base.utils.converters import dateToOdooString
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 
 #------------------------------------------------------------
@@ -69,13 +68,12 @@ class ImportConfiguration(models.Model):
 
     needs_mappings = fields.Boolean(string=_(u"Needs mappings"),
                                     help=_(u"Does the selected processor need column mappings"),
-                                    related="processor.needs_mappings",
-                                    default=False)
+                                    related="processor.needs_mappings"),
+                                    read_only=True)
 
     has_parameters = fields.Boolean(string=_(u"Has parameters"),
                                     help=_(u"Does the selected processor accept parameters"),
                                     related="processor.has_parameters",
-                                    default=False,
                                     read_only=True)
 
     # Parameters when needed
@@ -102,14 +100,15 @@ class ImportConfiguration(models.Model):
     col_group_support = fields.Boolean(string=_(u"Supports column groups"),
                                        help=_(u"Does the processor can process (iterable) group of columns"),
                                        related="processor.col_group_support",
-                                       default=False)
+                                       read_only=True)
 
     # Multi-Tab configuration => several mappings and targets object needed for config.
     #   there will be a target object per tab-mapping
 
     tab_support = fields.Boolean(string=_(u"Supports multi tabs"),
                                  help=_(u"Does the selected processor can process multiple tabs"),
-                                 related="processor.tab_support")
+                                 related="processor.tab_support,
+                                       read_only=True")
 
     tab_mappings = fields.One2many(string=_(u"Tab mappings"),
                                    help=_(u"Mapping configuration needed by this processor"),
@@ -205,7 +204,7 @@ class ImportConfiguration(models.Model):
                         logging.error("GOUFI: Cannot process file, no processor class found " + self.name)
                         return None
                 except Exception as e:
-                    logging.error("GOUFI: Cannot process file, error when evaluating processor module" +
+                    logging.error("GOUFI: Cannot process file, error when evaluating processor module" + 
                                   self.name + "(" + str(e) + "-" + str(e.message) + ")")
 
                 # Process File
@@ -219,7 +218,7 @@ class ImportConfiguration(models.Model):
                     try:
                         proc_inst.process_file(rec)
                     except Exception as e:
-                        logging.error("GOUFI: Error when processing file " + rec.filename +
+                        logging.error("GOUFI: Error when processing file " + rec.filename + 
                                       "(" + str(e) + "-" + str(e.message) + ")")
 
     #-------------------------------
