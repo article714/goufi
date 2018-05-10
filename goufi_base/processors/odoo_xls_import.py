@@ -131,7 +131,7 @@ class OdooXLSProcessor(AbstractProcessor):
                 return False
 
         try:
-            book = xlrd.open_workbook(file_contents=self.file)
+            book = xlrd.open_workbook(import_file.filename)
             sh = book.sheet_by_index(0)
             
             # header
