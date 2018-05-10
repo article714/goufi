@@ -197,7 +197,7 @@ class Processor(AbstractProcessor):
             self.logger.error("MODEL NOT FOUND ")
             return -1
         else:
-            self.logger.info("NEW SHEET [%s]:  Import data for model " % (tab_name, toString(self.target_model._name)))
+            self.logger.info("NEW SHEET [%s]:  Import data for model %s" % (tab_name, toString(self.target_model._name)))
 
         # List of fields in target model
         self.target_fields = None
