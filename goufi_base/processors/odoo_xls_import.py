@@ -67,42 +67,6 @@ class OdooXLSProcessor(AbstractProcessor):
             self.logger.error("Cannot process file: Wrong extension -> %s" % ext)
             self.end_processing(import_file, False)
 
-    def data_generator(self, sh):
-            # data
-            for rownum in range(1, sh.nrows):
-                row = sh.row(rownum)
-                # copied from base_import odoo source code
-                values = []
-                for cell in row:
-                    if cell.ctype is xlrd.XL_CELL_NUMBER:
-                        is_float = cell.value % 1 != 0.0
-                        values.append(
-                            unicode(cell.value)
-                            if is_float
-                            else unicode(int(cell.value))
-                        )
-                    elif cell.ctype is xlrd.XL_CELL_DATE:
-                        is_datetime = cell.value % 1 != 0.0
-                        # emulate xldate_as_datetime for pre-0.9.3
-                        dt = datetime.datetime(*xlrd.xldate.xldate_as_tuple(cell.value, sh.book.datemode))
-                        values.append(
-                            dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
-                            if is_datetime
-                            else dt.strftime(DEFAULT_SERVER_DATE_FORMAT)
-                        )
-                    elif cell.ctype is xlrd.XL_CELL_BOOLEAN:
-                        values.append(u'True' if cell.value else u'False')
-                    elif cell.ctype is xlrd.XL_CELL_ERROR:
-                        raise ValueError(
-                            _("Error cell found while reading XLS/XLSX file: %s") % 
-                            xlrd.error_text_from_code.get(
-                                cell.value, "unknown error code %s" % cell.value)
-                        )
-                    else:
-                        values.append(cell.value)
-                if any(x for x in values if x.strip()):
-                    yield values
-                    
                     
                     
     #-------------------------------------------------------------------------------------
@@ -141,7 +105,44 @@ class OdooXLSProcessor(AbstractProcessor):
                 self.logger.error("Import specification does not contain 'id', Cannot continue.")
                 return False
 
-            result = self.target_model.load(fields, self.data_generator(sh))
+            # datas
+            datas = []
+            for rownum in range(1, sh.nrows):
+                row = sh.row(rownum)
+                # copied from base_import odoo source code
+                values = []
+                for cell in row:
+                    if cell.ctype is xlrd.XL_CELL_NUMBER:
+                        is_float = cell.value % 1 != 0.0
+                        values.append(
+                            unicode(cell.value)
+                            if is_float
+                            else unicode(int(cell.value))
+                        )
+                    elif cell.ctype is xlrd.XL_CELL_DATE:
+                        is_datetime = cell.value % 1 != 0.0
+                        # emulate xldate_as_datetime for pre-0.9.3
+                        dt = datetime.datetime(*xlrd.xldate.xldate_as_tuple(cell.value, sh.book.datemode))
+                        values.append(
+                            dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
+                            if is_datetime
+                            else dt.strftime(DEFAULT_SERVER_DATE_FORMAT)
+                        )
+                    elif cell.ctype is xlrd.XL_CELL_BOOLEAN:
+                        values.append(u'True' if cell.value else u'False')
+                    elif cell.ctype is xlrd.XL_CELL_ERROR:
+                        raise ValueError(
+                            _("Error cell found while reading XLS/XLSX file: %s") % 
+                            xlrd.error_text_from_code.get(
+                                cell.value, "unknown error code %s" % cell.value)
+                        )
+                    else:
+                        values.append(cell.value)
+                if any(x for x in values if x.strip()):
+                    datas.append(values)
+            book.close()
+
+            result = self.target_model.load(fields, datas)
             if any(msg['type'] == 'error' for msg in result['messages']):
                 # Report failed import and abort module install
                 warning_msg = "\n".join(msg['message'] for msg in result['messages'])
