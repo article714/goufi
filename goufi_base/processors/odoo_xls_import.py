@@ -93,6 +93,8 @@ class OdooXLSProcessor(AbstractProcessor):
                 self.target_model = None
                 self.logger.exception("Not able to guess target model from filename: " + toString(import_file.filename))
                 return False
+            
+            self.logger.warning("Found target model from file name: %s" % str(self.target_model))
 
         try:
             datas = []
