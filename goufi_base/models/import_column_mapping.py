@@ -25,9 +25,9 @@ class ColumnGroup(models.Model):
     _rec_name = "name"
 
     # Column Group
-    name = fields.Char(string = _(u'Columns Group name'),
-                       help = _(u"Name of the group to map"),
-                       required = True, track_visibility = 'onchange')
+    name = fields.Char(string=_(u'Columns Group name'),
+                       help=_(u"Name of the group to map"),
+                       required=True, track_visibility='onchange')
 
 
 class ColumnMapping(models.Model):
@@ -38,85 +38,85 @@ class ColumnMapping(models.Model):
 
     # Column mapping
     # name of the column
-    name = fields.Char(string = _(u'Column name'),
-                       help = _(u"Name of the column to map"),
-                       required = True, track_visibility = 'onchange')
+    name = fields.Char(string=_(u'Column name'),
+                       help=_(u"Name of the column to map"),
+                       required=True, track_visibility='onchange')
 
-    sequence = fields.Integer(string = _(u'Sequence'),
-                              default = 1, help = _(u"Used to order mappings. Lower is better."))
+    sequence = fields.Integer(string=_(u'Sequence'),
+                              default=1, help=_(u"Used to order mappings. Lower is better."))
 
     # expression
-    mapping_expression = fields.Char(string = _(u'Mapping Expression'),
-                                     help = _(u"Expression used to process column content, meaning depends on chosen processor."),
-                                     required = False, track_visibility = 'onchange')
+    mapping_expression = fields.Char(string=_(u'Mapping Expression'),
+                                     help=_(u"Expression used to process column content, meaning depends on chosen processor."),
+                                     required=False, track_visibility='onchange')
 
     # is column part of a group
 
-    member_of = fields.Many2one(string = _(u"Group"),
-                                    help = _(u"Set of columns this one belongs to"),
-                                    comodel_name = 'goufi.column_mapping_group',
-                                    required = False)
+    member_of = fields.Many2one(string=_(u"Group"),
+                                    help=_(u"Set of columns this one belongs to"),
+                                    comodel_name='goufi.column_mapping_group',
+                                    required=False)
 
-    col_group_support = fields.Boolean(string = _(u"Supports column groups"),
-                                    help = _(u"Does the processor can process (iterable) group of columns"),
-                                    related = "parent_configuration.col_group_support",
-                                    default = False, store = False)
+    col_group_support = fields.Boolean(string=_(u"Supports column groups"),
+                                    help=_(u"Does the processor can process (iterable) group of columns"),
+                                    related="parent_configuration.col_group_support",
+                                    default=False, store=False)
 
     # is column part of identifier
-    is_identifier = fields.Boolean(string = _(u"Is column part of identifiers?"),
-                                   help = _(u"""The value of the mapping is used to find existing records in Odoo database.
+    is_identifier = fields.Boolean(string=_(u"Is column part of identifiers?"),
+                                   help=_(u"""The value of the mapping is used to find existing records in Odoo database.
 If a record is found with given value in 'key field' (i.e. field given in expression), the record is updated with data.
 If no record is found, a new one is created.
 
 There can be several columns used as criteria
 """),
-                                   default = False)
+                                   default=False)
 
-    is_mandatory = fields.Boolean(string = _(u"Mandatory column"),
-                                   help = _(u"""There must be a value for this column"""),
-                                    default = False)
+    is_mandatory = fields.Boolean(string=_(u"Mandatory column"),
+                                   help=_(u"""There must be a value for this column"""),
+                                    default=False)
 
     # is column a deletion marker
-    is_deletion_marker = fields.Boolean(string = _(u"Does column contain a deletion marker?"),
-                                        help = _(u"If True, the selected record (if found) will be deleted"),
-                                    default = False)
+    is_deletion_marker = fields.Boolean(string=_(u"Does column contain a deletion marker?"),
+                                        help=_(u"If True, the selected record (if found) will be deleted"),
+                                    default=False)
 
-    delete_if_expression = fields.Char(string = _(u"Delete if value matches"),
-                                       help = _(u"Must contain a regular expression that the column value must match to be evaluated as True and the record be deleted"),
-                                       required = False, default = _(u"Yes"), size = 64)
+    delete_if_expression = fields.Char(string=_(u"Delete if value matches"),
+                                       help=_(u"Must contain a regular expression that the column value must match to be evaluated as True and the record be deleted"),
+                                       required=False, default=_(u"Yes"), size=64)
 
-    archive_if_not_deleted = fields.Boolean(string = _(u"Archive if not deleted?"),
-                                            help = _(u"Should we archive record if deletion fail?"),
-                                            default = False)
+    archive_if_not_deleted = fields.Boolean(string=_(u"Archive if not deleted?"),
+                                            help=_(u"Should we archive record if deletion fail?"),
+                                            default=False)
 
     # is column an archival marker
-    is_archival_marker = fields.Boolean(string = _(u"Does column contain an archival marker?"),
-                                        help = _(u"If True, the selected record (if found) will be archived"),
-                                        default = False)
+    is_archival_marker = fields.Boolean(string=_(u"Does column contain an archival marker?"),
+                                        help=_(u"If True, the selected record (if found) will be archived"),
+                                        default=False)
 
-    archive_if_expression = fields.Char(string = _(u"Archive if value matches"),
-                                       help = _(u"Must contain a regular expression that the column value must match to be evaluated as True and the record be archived"),
-                                       required = False, default = _(u"Yes"), size = 64)
+    archive_if_expression = fields.Char(string=_(u"Archive if value matches"),
+                                       help=_(u"Must contain a regular expression that the column value must match to be evaluated as True and the record be archived"),
+                                       required=False, default=_(u"Yes"), size=64)
 
     # is a constant expression
 
-    is_constant_expression = fields.Boolean(string = _(u"Expression is a constant"),
-                                   help = _(u"""The mapping expression is a string constant"""),
-                                   default = False)
+    is_constant_expression = fields.Boolean(string=_(u"Expression is a constant"),
+                                   help=_(u"""The mapping expression is a string constant"""),
+                                   default=False)
 
     # is a contextual expression mapping
     # (that is computed from processor properties, not from import file)
 
-    is_contextual_expression_mapping = fields.Boolean(string = _(u"Is a contextual expression mapping "),
-                                        help = _(u"If this mapping is a contextual expression, then it  is computed from processor properties, not from import file"),
-                                        default = False)
+    is_contextual_expression_mapping = fields.Boolean(string=_(u"Is a contextual expression mapping "),
+                                        help=_(u"If this mapping is a contextual expression, then it  is computed from processor properties, not from import file"),
+                                        default=False)
 
     # target object and target field (when relevant)
-    target_object = fields.Many2one(string = _(u"Target object"),
-                                    help = _(u"Odoo object that will be targeted by import: create, update or delete instances"),
-                                    comodel_name = "ir.model",
-                                    required = False,
-                                    compute = '_get_target_object')
+    target_object = fields.Many2one(string=_(u"Target object"),
+                                    help=_(u"Odoo object that will be targeted by import: create, update or delete instances"),
+                                    comodel_name="ir.model",
+                                    required=False,
+                                    compute='_get_target_object')
 
     def _get_target_field_dom(self):
         model_id = self._context.get('target_object')
@@ -127,31 +127,31 @@ There can be several columns used as criteria
             return [('model_id', '=', target_object.id)]
         return []
 
-    target_field = fields.Many2one(string = _(u"Target field"),
-                                    help = _(u"Odoo object's field that will be targeted by import: create, update or delete instances"),
-                                    comodel_name = "ir.model.fields",
-                                    required = False,
-                                    domain = _get_target_field_dom)
+    target_field = fields.Many2one(string=_(u"Target field"),
+                                    help=_(u"Odoo object's field that will be targeted by import: create, update or delete instances"),
+                                    comodel_name="ir.model.fields",
+                                    required=False,
+                                    domain=_get_target_field_dom)
 
     # Info about parent configuration and parent tab (if relevant)
 
-    parent_configuration = fields.Many2one(string = _(u"Parent configuration"),
-                                      comodel_name = "goufi.import_configuration")
+    parent_configuration = fields.Many2one(string=_(u"Parent configuration"),
+                                      comodel_name="goufi.import_configuration")
 
-    tab_support = fields.Boolean(string = _(u"Supports multi tabs"),
-                                    help = _(u"Does the selected parent configuration's pocessor can process multiple tabs"),
-                                    related = "parent_configuration.tab_support",
-                                    store = False)
+    tab_support = fields.Boolean(string=_(u"Supports multi tabs"),
+                                    help=_(u"Does the selected parent configuration's pocessor can process multiple tabs"),
+                                    related="parent_configuration.tab_support",
+                                    store=False)
 
-    parent_tab = fields.Many2one(string = _(u"Parent Tab (when multi tabs)"),
-                                      comodel_name = "goufi.tab_mapping")
+    parent_tab = fields.Many2one(string=_(u"Parent Tab (when multi tabs)"),
+                                      comodel_name="goufi.tab_mapping")
 
     # computed field
 
-    display_target = fields.Char(string = _(u"Target Field"), help = _(u"Target field for target object"),
-                                required = False,
-                                store = False,
-                                compute = '_compute_display_target')
+    display_target = fields.Char(string=_(u"Target Field"), help=_(u"Target field for target object"),
+                                required=False,
+                                store=False,
+                                compute='_compute_display_target')
 
     # ******************************************************************************
 
@@ -207,19 +207,22 @@ There can be several columns used as criteria
 
     @api.model
     def create(self, values):
-        self.fix_consistency(values)
-        if 'parent_tab' in values:
-            if values['parent_tab'] != None:
-                found = self.env['goufi.tab_mapping'].search([('id', '=', values['parent_tab'])], limit = 1)
-                if len(found) == 1:
-                    values['parent_configuration'] = found[0].parent_configuration.id
+        try:
+            self.fix_consistency(values)
+            if 'parent_tab' in values:
+                if values['parent_tab'] != None:
+                    found = self.env['goufi.tab_mapping'].search([('id', '=', values['parent_tab'])], limit=1)
+                    if len(found) == 1:
+                        values['parent_configuration'] = found[0].parent_configuration.id
+        except Exception as e:
+            logging.exception("Not able to check values when creating column mapping %s : %s" % (type(e), unicode(e.message or e.name)))
         super(ColumnMapping, self).create(values)
 
     def write(self, values):
         self.fix_consistency(values)
         if 'parent_tab' in values:
             if values['parent_tab'] != None:
-                found = self.env['goufi.tab_mapping'].search([('id', '=', values['parent_tab'])], limit = 1)
+                found = self.env['goufi.tab_mapping'].search([('id', '=', values['parent_tab'])], limit=1)
                 if len(found) == 1:
                     values['parent_configuration'] = found[0].parent_configuration.id
         if 'target_object' in values:
