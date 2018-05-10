@@ -380,7 +380,7 @@ class Processor(AbstractProcessor):
                     search_criteria.append((keyfield, '=', value))
                 else:
                     self.logger.warning(DEFAULT_LOG_STRING + 
-                                        "GOUFI: Do not process line n.%d, as Id column is empty" % (line_index + 1,))
+                                        "GOUFI: Do not process line n.%d, as Id column (%s) is empty" % (line_index + 1, k))
                     return
 
             # ajout d'une clause pour rechercher tous les enregistrements
