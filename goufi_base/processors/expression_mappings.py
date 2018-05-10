@@ -7,19 +7,20 @@ Created on 23 deb. 2018
 @license: AGPL v3
 '''
 
-from enum import IntEnum, unique
-from openpyxl.cell.read_only import EmptyCell
-from openpyxl.reader.excel import load_workbook
 from os import path
 import re
-import unicodecsv
+
+from openpyxl.cell.read_only import EmptyCell
+from openpyxl.reader.excel import load_workbook
 import xlrd
 
+from enum import IntEnum, unique
 from odoo import _
-
 from odoo.addons.goufi_base.utils.converters import toString
+import unicodecsv
 
 from .processor import AbstractProcessor
+
 
 #-------------------------------------------------------------------------------------
 # CONSTANTS
@@ -196,7 +197,7 @@ class Processor(AbstractProcessor):
             self.logger.error("MODEL NOT FOUND ")
             return -1
         else:
-            self.logger.info("NEW SHEET:  Import data for model " + toString(self.target_model._name))
+            self.logger.info("NEW SHEET [%s]:  Import data for model " % (tab_name, toString(self.target_model._name)))
 
         # List of fields in target model
         self.target_fields = None
@@ -329,7 +330,7 @@ class Processor(AbstractProcessor):
                     if len(vals) == 1:
                         data_values[f] = vals[0].id
                     else:
-                        self.logger.warning(DEFAULT_LOG_STRING + " found " + toString(len(vals)) + " values for " +
+                        self.logger.warning(DEFAULT_LOG_STRING + " found " + toString(len(vals)) + " values for " + 
                                             toString(data_values[f]) + "  unable to reference " + toString(config[1]) + " " + toString(vals))
 
         # TODO: Document this!
@@ -378,7 +379,7 @@ class Processor(AbstractProcessor):
                 if value != None and value != str(''):
                     search_criteria.append((keyfield, '=', value))
                 else:
-                    self.logger.warning(DEFAULT_LOG_STRING +
+                    self.logger.warning(DEFAULT_LOG_STRING + 
                                         "GOUFI: Do not process line n.%d, as Id column is empty" % (line_index + 1,))
                     return
 
@@ -395,7 +396,7 @@ class Processor(AbstractProcessor):
             if len(found) == 1:
                 currentObj = found[0]
             elif len(found) > 1:
-                self.logger.warning(DEFAULT_LOG_STRING + "FOUND TOO MANY RESULT FOR " + toString(self.target_model) +
+                self.logger.warning(DEFAULT_LOG_STRING + "FOUND TOO MANY RESULT FOR " + toString(self.target_model) + 
                                     " with " + toString(search_criteria) + "=>   [" + toString(len(found)) + "]")
                 return
             else:
@@ -416,7 +417,7 @@ class Processor(AbstractProcessor):
                 except:
                     if TO_BE_ARCHIVED:
                         self.odooenv.cr.rollback()
-                        self.logger.warning(DEFAULT_LOG_STRING +
+                        self.logger.warning(DEFAULT_LOG_STRING + 
                                             "Archiving record as it can not be deleted (line n. %d)" % (line_index + 1,))
                         try:
                             currentObj.write({'active': False})
@@ -436,7 +437,7 @@ class Processor(AbstractProcessor):
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning(DEFAULT_LOG_STRING + "Not able to archive record (line n. %d) : %s" %
+                    self.logger.warning(DEFAULT_LOG_STRING + "Not able to archive record (line n. %d) : %s" % 
                                         (line_index + 1, toString(e),))
         elif CAN_BE_ARCHIVED:
             if not currentObj == None:
@@ -446,7 +447,7 @@ class Processor(AbstractProcessor):
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning(DEFAULT_LOG_STRING + "Not able to activate record (line n. %d) : %s" %
+                    self.logger.warning(DEFAULT_LOG_STRING + "Not able to activate record (line n. %d) : %s" % 
                                         (line_index + 1, toString(e),))
             return True
 
@@ -466,7 +467,7 @@ class Processor(AbstractProcessor):
             self.odooenv.cr.commit()
         except ValueError as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING + " wrong values where creating/updating object: " +
+            self.logger.exception(DEFAULT_LOG_STRING + " wrong values where creating/updating object: " + 
                                   self.target_model.name + " -> " + toString(data_values) + "[" + toString(currentObj) + "]")
             self.logger.error("                    MSG: {0}".format(toString(e)))
             currentObj = None
@@ -493,7 +494,7 @@ class Processor(AbstractProcessor):
                                     if len(vals) == 1:
                                         currentObj.write({config[2]: [(4, vals[0].id, False)]})
                                     else:
-                                        self.logger.warning(DEFAULT_LOG_STRING + "found " + toString(len(vals)) +
+                                        self.logger.warning(DEFAULT_LOG_STRING + "found " + toString(len(vals)) + 
                                                             " values for " + toString(m) + "  unable to reference")
 
                                 # Creates records in  One2Many
@@ -503,7 +504,7 @@ class Processor(AbstractProcessor):
             self.odooenv.cr.commit()
         except ValueError as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING + " Wrong values where updating object: " +
+            self.logger.exception(DEFAULT_LOG_STRING + " Wrong values where updating object: " + 
                                   self.target_model.name + " -> " + toString(data_values))
             self.logger.error("                    MSG: {0}".format(toString(e)))
             currentObj = None
@@ -688,7 +689,7 @@ class XLProcessor(Processor):
             if self.target_model != None:
                 if ('import_processed' in self.target_model.fields_get_keys()):
                     # hook for objects needing to be set as processed through import
-                    self.odooenv.cr.execute('update ' + toString(self.target_model._table) +
+                    self.odooenv.cr.execute('update ' + toString(self.target_model._table) + 
                                             ' set import_processed = False')
                     self.odooenv.cr.commit()
             else:
