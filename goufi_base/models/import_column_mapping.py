@@ -216,7 +216,7 @@ There can be several columns used as criteria
                         values['parent_configuration'] = found[0].parent_configuration.id
         except Exception as e:
             logging.exception("Not able to check values when creating column mapping %s : %s" % (type(e), unicode(e.message or e.name)))
-        super(ColumnMapping, self).create(values)
+        return super(ColumnMapping, self).create(values)
 
     def write(self, values):
         self.fix_consistency(values)
