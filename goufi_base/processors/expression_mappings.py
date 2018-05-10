@@ -618,25 +618,27 @@ class XLProcessor(Processor):
     def process_xls(self, import_file):
         self.logger.info("PROCESSING XLS FILE :" + import_file.filename)
 
-        wb = xlrd.open_workbook(import_file.filename)
-        for sh in wb.sheets():
-
-            # la ligne se sont les intitutlés
-            p_ligne = sh.row_values(self.header_line_idx)
-            hsize = len(p_ligne)
-
-            if self.prepare_mappings(sh.name) > 0:
-
-                for rownum in range(1, sh.nrows):
-                    if rownum > self.header_line_idx:
-                        values = {}
-                        row_vals = sh.row_values(rownum)
-                        for idx in range(0, hsize):
-                            values[p_ligne[idx]] = row_vals[idx]
-                    try:
-                        self.process_values(import_file.filename, rownum, values)
-                    except Exception as e:
-                        self.logger.exception(u"Error when processing line N°" + str(rownum) + " in " + sh.name)
+        with xlrd.open_workbook(import_file.filename) as wb:
+            try:
+                for sh in wb.sheets():
+                    # la ligne se sont les intitutlés
+                    p_ligne = sh.row_values(self.header_line_idx)
+                    hsize = len(p_ligne)
+        
+                    if self.prepare_mappings(sh.name) > 0:
+        
+                        for rownum in range(1, sh.nrows):
+                            if rownum > self.header_line_idx:
+                                values = {}
+                                row_vals = sh.row_values(rownum)
+                                for idx in range(0, hsize):
+                                    values[p_ligne[idx]] = row_vals[idx]
+                            try:
+                                self.process_values(import_file.filename, rownum, values)
+                            except Exception as e:
+                                self.logger.exception(u"Error when processing line N°" + str(rownum) + " in " + sh.name)            
+            except Exception as e:
+                self.logger.exception(u"Error when processing file" + str(import_file.filename))
         return True
 
     #-------------------------------------------------------------------------------------

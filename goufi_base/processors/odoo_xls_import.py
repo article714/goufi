@@ -95,52 +95,52 @@ class OdooXLSProcessor(AbstractProcessor):
                 return False
 
         try:
-            book = xlrd.open_workbook(import_file.filename)
-            sh = book.sheet_by_index(0)
-            
-            # header
-            fields = sh.row_values(0)
-                    
-            if not ('id' in fields):
-                self.logger.error("Import specification does not contain 'id', Cannot continue.")
-                return False
-
-            # datas
             datas = []
-            for rownum in range(1, sh.nrows):
-                row = sh.row(rownum)
-                # copied from base_import odoo source code
-                values = []
-                for cell in row:
-                    if cell.ctype is xlrd.XL_CELL_NUMBER:
-                        is_float = cell.value % 1 != 0.0
-                        values.append(
-                            unicode(cell.value)
-                            if is_float
-                            else unicode(int(cell.value))
-                        )
-                    elif cell.ctype is xlrd.XL_CELL_DATE:
-                        is_datetime = cell.value % 1 != 0.0
-                        # emulate xldate_as_datetime for pre-0.9.3
-                        dt = datetime.datetime(*xlrd.xldate.xldate_as_tuple(cell.value, sh.book.datemode))
-                        values.append(
-                            dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
-                            if is_datetime
-                            else dt.strftime(DEFAULT_SERVER_DATE_FORMAT)
-                        )
-                    elif cell.ctype is xlrd.XL_CELL_BOOLEAN:
-                        values.append(u'True' if cell.value else u'False')
-                    elif cell.ctype is xlrd.XL_CELL_ERROR:
-                        raise ValueError(
-                            _("Error cell found while reading XLS/XLSX file: %s") % 
-                            xlrd.error_text_from_code.get(
-                                cell.value, "unknown error code %s" % cell.value)
-                        )
-                    else:
-                        values.append(cell.value)
-                if any(x for x in values if x.strip()):
-                    datas.append(values)
-            book.close()
+            fields = None
+            with xlrd.open_workbook(import_file.filename) as book:
+                sh = book.sheet_by_index(0)
+                
+                # header
+                fields = sh.row_values(0)
+                        
+                if not ('id' in fields):
+                    self.logger.error("Import specification does not contain 'id', Cannot continue.")
+                    return False
+    
+                # datas
+                for rownum in range(1, sh.nrows):
+                    row = sh.row(rownum)
+                    # copied from base_import odoo source code
+                    values = []
+                    for cell in row:
+                        if cell.ctype is xlrd.XL_CELL_NUMBER:
+                            is_float = cell.value % 1 != 0.0
+                            values.append(
+                                unicode(cell.value)
+                                if is_float
+                                else unicode(int(cell.value))
+                            )
+                        elif cell.ctype is xlrd.XL_CELL_DATE:
+                            is_datetime = cell.value % 1 != 0.0
+                            # emulate xldate_as_datetime for pre-0.9.3
+                            dt = datetime.datetime(*xlrd.xldate.xldate_as_tuple(cell.value, sh.book.datemode))
+                            values.append(
+                                dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
+                                if is_datetime
+                                else dt.strftime(DEFAULT_SERVER_DATE_FORMAT)
+                            )
+                        elif cell.ctype is xlrd.XL_CELL_BOOLEAN:
+                            values.append(u'True' if cell.value else u'False')
+                        elif cell.ctype is xlrd.XL_CELL_ERROR:
+                            raise ValueError(
+                                _("Error cell found while reading XLS/XLSX file: %s") % 
+                                xlrd.error_text_from_code.get(
+                                    cell.value, "unknown error code %s" % cell.value)
+                            )
+                        else:
+                            values.append(cell.value)
+                    if any(x for x in values if x.strip()):
+                        datas.append(values)
 
             result = self.target_model.load(fields, datas)
             if any(msg['type'] == 'error' for msg in result['messages']):
