@@ -30,7 +30,6 @@
 						class="btn btn-sm" />
 				</header>
 				<sheet>
-					<field name="needs_partner" invisible="1" />
 					<div class="oe_button_box" name="button_box">
 						<button name="toggle_active" type="object" class="oe_stat_button"
 							icon="fa-archive">
@@ -55,6 +54,7 @@
 						<field name="filename_pattern" />
 					</group>
 					<group name="Processing configuration" string="Processing configuration">
+						<field name="needs_partner" invisible="1" />
 						<field name="processor" />
 						<field name="has_parameters" attrs="{'invisible':True}" />
 						<field name="processor_parameters"
