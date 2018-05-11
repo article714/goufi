@@ -9,11 +9,6 @@ Created on march 2018
 
 from odoo import api, fields, models, _
 
-PARAMS = [
-    ("config_needs_partner", "goufi.config_needs_partner"),
-    ("delete_obsolete_files", "goufi.delete_obsolete_files"),
-]
-
 
 class GoufiConfigSettings(models.TransientModel):
     _name = 'goufi.config.settings'
@@ -24,40 +19,25 @@ class GoufiConfigSettings(models.TransientModel):
         help=_(u'Do we need to provide partner to identify origin of imported data'),
         default=0)
 
-
     delete_obsolete_files = fields.Boolean(
         string=_(u'Are obsolete (non-existant) files deleted?'),
         help=_(u'When this parameter is True, import_files are deleted, else, they are archived'),
         default=False)
 
+    @api.multi
+    def set_config_needs_partner(self):
+        return self.env['ir.config_parameter'].sudo().set_param(
+            'goufi.config_needs_partner', self.config_needs_partner)
 
-    @api.one
-    def set_params(self):
-        for field_name, key_name in PARAMS:
-            obj = getattr(self, field_name, '')
-            value = None
-            if isinstance(self[field_name], models.Model):
-                value = obj.id
-            elif isinstance(obj, str):
-                value = obj.strip()
-            elif isinstance(obj, unicode):
-                value = obj.strip()
-            else:
-                value = str(obj).strip()
+    @api.multi
+    def set_delete_obsolete_files(self):
+        return self.env['ir.config_parameter'].sudo().set_param(
+            'goufi.delete_obsolete_files', self.delete_obsolete_files)
 
-            self.env['ir.config_parameter'].set_param(key_name, value)
+    @api.model
+    def get_default_config_needs_partner(self, fields):
+        return {'config_needs_partner': True if self.env['ir.config_parameter'].sudo().get_param('goufi.config_needs_partner') == 'True' else False}
 
-    def get_default_params(self, context=None):
-        res = {}
-        for field_name, key_name in PARAMS:
-            param_value = self.env['ir.config_parameter'].get_param(key_name, '')
-            if isinstance(self[field_name], models.Model):
-                if param_value != None and param_value != '':
-                    val = self[field_name].search([('id', '=', param_value)])
-                    res[field_name] = val.id
-            elif isinstance(self[field_name], bool):
-                    res[field_name] = True if param_value == 'True' else False
-            else:
-                res[field_name] = param_value.strip()
-        return res
-
+    @api.model
+    def get_default_obsolete_files(self, fields):
+        return {'delete_obsolete_files': True if self.env['ir.config_parameter'].sudo().get_param('goufi.delete_obsolete_files') == 'True' else False}
