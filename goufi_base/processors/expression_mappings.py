@@ -171,6 +171,10 @@ class Processor(AbstractProcessor):
                     [('parent_configuration', '=', self.parent_config.id), ('name', '=', tab_name)], limit=1)
                 if len(found) == 1:
                     try:
+                        # Explicitly ignore
+                        if found[0].ignore_tab:
+                            self.logger.info("Tab ignored by configuration: " + toString(tab_name))
+                            return 0
                         self.target_model = self.odooenv[found[0].target_object.model]
                         col_mappings = found[0].column_mappings
                         self.header_line_idx = found[0].default_header_line_index
@@ -178,7 +182,7 @@ class Processor(AbstractProcessor):
                         self.logger.exception("Target model not found for " + toString(tab_name))
                         return -1
                 else:
-                    self.logger.error("Tab not found: " + toString(tab_name))
+                    self.logger.error("Tab configuration not found: " + toString(tab_name))
                     return -1
             else:
                 self.logger.error("No tab name given")

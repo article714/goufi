@@ -38,9 +38,16 @@ class TabMapping(models.Model):
     parent_configuration = fields.Many2one(string=_(u"Parent configuration"),
                                       comodel_name="goufi.import_configuration")
 
+    # Does the tab should be ignored
+    
+    ignore_tab = fields.Boolean(string=_(u"Ignore"),
+                                    help=_(u"Does the processor should explicitely ignore this tab"),
+                                    default=False)
+    
+    
     # Does the tab processing needs tab col_mappings
     needs_col_mappings = fields.Boolean(string=_(u"Needs column mappings"),
-                                    help=_(u"Does th processor needs column mappings for this Tab"),
+                                    help=_(u"Does the processor needs column mappings for this Tab"),
                                     default=True)
     
     column_mappings = fields.One2many(string=_(u"Column mappings"),

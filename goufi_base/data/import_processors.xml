@@ -30,7 +30,7 @@
 		<field name="processor_module">odoo.addons.goufi_base.processors.static_mappings</field>
 		<field name="processor_class">Processor</field>
 	</record>
-	<record id="textual_csv_mappings_processor" model="goufi.import_processor">
+	<record id="expression_mappings_csv_processor" model="goufi.import_processor">
 		<field name="name">Processor with configurable Mappings(CSV)</field>
 		<field name="needs_mappings">True</field>
 		<field name="tab_support">False</field>
@@ -38,7 +38,7 @@
 		<field name="processor_module">odoo.addons.goufi_base.processors.expression_mappings</field>
 		<field name="processor_class">CSVProcessor</field>
 	</record>
-	<record id="textual_mappings_processor_xls" model="goufi.import_processor">
+	<record id="expression_mappings_xls_processor" model="goufi.import_processor">
 		<field name="name">Processor with configurable Mappings(XLS*)</field>
 		<field name="needs_mappings">True</field>
 		<field name="tab_support">True</field>

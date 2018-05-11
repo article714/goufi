@@ -45,10 +45,15 @@
 							<field name="name" />
 						</h2>
 					</div>
-					<group name="File(s) detection" string="File(s) detection">
-						<field name="files_location" />
-						<field name="recursive_search" />
-						<field name="filename_pattern" />
+					<group>
+						<group name="Description">
+							<field name="description" />
+						</group>
+						<group name="File(s) detection" string="File(s) detection">
+							<field name="files_location" />
+							<field name="recursive_search" />
+							<field name="filename_pattern" />
+						</group>
 					</group>
 					<group name="Processing configuration" string="Processing configuration">
 						<field name="processor" />

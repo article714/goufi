@@ -32,6 +32,8 @@ class ImportConfiguration(models.Model):
 
     # Configuration identification
     name = fields.Char(string=_(u'Configuration name'), required=True, track_visibility='onchange')
+    
+    description = fields.Char(string=_(u'Description'), required=False, size=256)
 
     filename_pattern = fields.Char(_(u'File name pattern'),
                                    help=_(

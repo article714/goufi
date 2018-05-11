@@ -29,6 +29,7 @@
 					<group name="Tab Mapping" string="Tab Mapping">
 						<field name="name"/>
 						<field name="needs_col_mappings"/>
+						<field name="ignore_tab"/>
 						<field name="target_object"/>
 						<field name="parent_configuration" invisible='1' attrs="{'readonly':True}"/>
 					</group>
