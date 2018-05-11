@@ -124,10 +124,13 @@ class ImportConfiguration(models.Model):
                                    required=False)
 
     #-------------------------------
-
-    def _get_param_needs_partner(self):
-        self.needs_partner = self.env['ir.config_parameter'].get_param('goufi.config_needs_partner')
-        return self.needs_partner
+    @api.multi
+    @api.depends('processor', 'name', 'active', 'default_partner_id')
+    def _get_param_needs_partner(self): 
+        needs_partner_val = self.env['ir.config_parameter'].get_param('goufi.config_needs_partner')
+        needs_partner = True if needs_partner_val == 'True' else False
+        for obj in self:
+            obj.needs_partner = needs_partner
 
     @api.multi
     def action_open_tabs_view(self):
@@ -140,7 +143,8 @@ class ImportConfiguration(models.Model):
 
     def detect_files(self, cr=None, uid=None, context=None, cur_dir=None):
         file_model = self.env['goufi.import_file']
-        delete_files = self.env['ir.config_parameter'].get_param('goufi.delete_obsolete_files', False)
+        delete_files_val = self.env['ir.config_parameter'].get_param('goufi.delete_obsolete_files', False)
+        delete_files = True if delete_files_val == 'True' else False
         all_files = []
 
         # detection of obsolete files
