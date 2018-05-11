@@ -44,4 +44,4 @@ class GoufiConfigSettings(models.TransientModel):
         super(GoufiConfigSettings, self).set_values()
         ICPSudo = self.env['ir.config_parameter'].sudo()
         ICPSudo.set_param('goufi.config_needs_partner', self.config_needs_partner)
-        ICPSudo.set_param('goufi.config_needs_partner', self.delete_obsolete_files)
+        ICPSudo.set_param('goufi.delete_obsolete_files', self.delete_obsolete_files)
