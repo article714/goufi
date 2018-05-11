@@ -6,6 +6,7 @@ encoding//models/import_configuration.py=utf-8
 encoding//models/import_file.py=utf-8
 encoding//models/import_processor.py=utf-8
 encoding//models/import_tab_mapping.py=utf-8
+encoding//models/processor_parameter.py=utf-8
 encoding//processors/__init__.py=utf-8
 encoding//processors/expression_mappings.py=utf-8
 encoding//processors/odoo_xls_import.py=utf-8
