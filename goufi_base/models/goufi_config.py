@@ -38,11 +38,6 @@ class GoufiConfigSettings(models.TransientModel):
             value = None
             if isinstance(self[field_name], models.Model):
                 value = obj.id
-            elif isinstance(self[field_name], fields.Selection):
-                if obj:
-                    value = obj
-                else:
-                    value = 0 
             elif isinstance(obj, str):
                 value = obj.strip()
             elif isinstance(obj, unicode):
@@ -60,12 +55,7 @@ class GoufiConfigSettings(models.TransientModel):
                 if param_value != None and param_value != '':
                     val = self[field_name].search([('id', '=', param_value)])
                     res[field_name] = val.id
-            elif isinstance(self[field_name], fields.Selection):
-                    if param_value:
-                        res[field_name] = int(param_value)
-                    else:
-                        res[field_name] = 0
-            elif isinstance(self[field_name], fields.Boolean):
+            elif isinstance(self[field_name], bool):
                     res[field_name] = True if param_value == 'True' else False
             else:
                 res[field_name] = param_value.strip()
