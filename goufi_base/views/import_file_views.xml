@@ -50,7 +50,7 @@
 						</h2>
 	                </div>
 					<field name="needs_partner" invisible="1" />
-					<group name="Source" string="Source"  attrs="{'invisible':['needs_partner','=',False]}" >
+					<group name="Source" string="Source"  attrs="{'invisible':[('needs_partner','=',False)]}" >
 						<field name="partner_id" />
 					</group>
 					<group name="File" string="File" attrs="{'readonly':True}">

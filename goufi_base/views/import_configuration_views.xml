@@ -61,7 +61,7 @@
 							attrs="{'invisible':[('has_parameters','=',False)]}" />
 						<field name="working_dir" />
 						<field name="default_header_line_index" />
-						<field name="default_partner_id" attrs="{'invisible':['needs_partner','=',False]}" />
+						<field name="default_partner_id" attrs="{'invisible':[('needs_partner','=',False)]}" />
 						<field name="needs_mappings" attrs="{'invisible':True}" />
 						<field name="tab_support" attrs="{'invisible':True}" />
 						<field name="target_object"
