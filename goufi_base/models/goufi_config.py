@@ -10,7 +10,7 @@ Created on march 2018
 from odoo import api, fields, models, _
 
 PARAMS = [
-    ("group_config_needs_partner", "goufi.group_config_needs_partner"),
+    ("config_needs_partner", "goufi.config_needs_partner"),
     ("delete_obsolete_files", "goufi.delete_obsolete_files"),
 ]
 
@@ -19,7 +19,7 @@ class GoufiConfigSettings(models.TransientModel):
     _name = 'goufi.config.settings'
     _inherit = 'res.config.settings'
 
-    group_config_needs_partner = fields.Boolean(
+    config_needs_partner = fields.Boolean(
         string=_(u'Provide partner to identify origin of imported data'),
         help=_(u'Do we need to provide partner to identify origin of imported data'),
         default=0)

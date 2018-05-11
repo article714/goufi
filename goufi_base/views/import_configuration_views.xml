@@ -30,6 +30,7 @@
 						class="btn btn-sm" />
 				</header>
 				<sheet>
+					<field name="needs_partner" invisible="1" />
 					<div class="oe_button_box" name="button_box">
 						<button name="toggle_active" type="object" class="oe_stat_button"
 							icon="fa-archive">
@@ -60,7 +61,7 @@
 							attrs="{'invisible':[('has_parameters','=',False)]}" />
 						<field name="working_dir" />
 						<field name="default_header_line_index" />
-						<field name="default_partner_id" groups="goufi_base.group_config_needs_partner" />
+						<field name="default_partner_id" attrs="{'invisible':['needs_partner','=',False]}" />
 						<field name="needs_mappings" attrs="{'invisible':True}" />
 						<field name="tab_support" attrs="{'invisible':True}" />
 						<field name="target_object"

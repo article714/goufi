@@ -63,6 +63,11 @@ class ImportConfiguration(models.Model):
     default_partner_id = fields.Many2one(string=_(u'Related Partner'),
                                          help=_("The partner that provided the Data"),
                                          comodel_name='res.partner', track_visibility='onchange')
+    
+    needs_partner = fields.Boolean(string=_(u"Needs partner"),
+                                    help=_(u"Does the selected configuration needs a partner reference"),
+                                    compute="_get_param_needs_partner",
+                                    read_only=True, store=False)
 
     processor = fields.Many2one(string=_(u"Import processor"),
                                 comodel_name='goufi.import_processor',

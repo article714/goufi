@@ -34,6 +34,11 @@ class ImportFile(models.Model):
     partner_id = fields.Many2one(string=_(u'Related Partner'),
                                          help=_("The partner that provided the Data"),
                                          comodel_name='res.partner', track_visibility='onchange')
+    
+    needs_partner = fields.Boolean(string=_(u"Needs partner"),
+                                    help=_(u"Does the selected configuration needs a partner reference"),
+                                    related="import_config.needs_partner",
+                                    read_only=True, store=False)
 
     date_addition = fields.Datetime(string=_(u"Addition date"), track_visibility='onchange', required=True)
 
@@ -96,8 +101,8 @@ class ImportFile(models.Model):
                 result = False
 
             # Partner Needed?
-            group_config_needs_partner = self.env['ir.config_parameter'].get_param('goufi.group_config_needs_partner', False)
-            if group_config_needs_partner:
+            config_needs_partner = self.env['ir.config_parameter'].get_param('goufi.config_needs_partner', False)
+            if config_needs_partner:
                 if  len(record.import_config) > 0:
                     result = result and ((len(record.partner_id) > 0) or (len(record.import_config.default_partner_id) > 0))
                 else:
