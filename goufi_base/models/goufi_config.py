@@ -42,6 +42,11 @@ class GoufiConfigSettings(models.TransientModel):
             value = None
             if isinstance(self[field_name], models.Model):
                 value = obj.id
+            elif isinstance(self[field_name], fields.Selection):
+                if obj:
+                    value = obj
+                else:
+                    value = 0 
             elif isinstance(obj, str):
                 value = obj.strip()
             elif isinstance(obj, unicode):
