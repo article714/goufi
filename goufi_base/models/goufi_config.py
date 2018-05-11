@@ -19,19 +19,15 @@ class GoufiConfigSettings(models.TransientModel):
     _name = 'goufi.config.settings'
     _inherit = 'res.config.settings'
 
-    group_config_needs_partner = fields.Selection(
-        [(0, "No partner on import configurations"),
-        (1, 'Partners on import files and configurations')],
+    group_config_needs_partner = fields.Boolean(
         string=_(u'Provide partner to identify origin of imported data'),
-        help=_(u'Provide partner to identify origin of imported data'),
-        implied_group='goufi_base.group_config_needs_partner',
+        help=_(u'Do we need to provide partner to identify origin of imported data'),
         default=0)
 
 
     delete_obsolete_files = fields.Boolean(
         string=_(u'Are obsolete (non-existant) files deleted?'),
         help=_(u'When this parameter is True, import_files are deleted, else, they are archived'),
-        implied_group='goufi_base.group_config_needs_partner',
         default=False)
 
 
