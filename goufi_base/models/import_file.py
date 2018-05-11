@@ -106,7 +106,8 @@ class ImportFile(models.Model):
                 result = False
 
             # Partner Needed?
-            config_needs_partner = self.env['ir.config_parameter'].get_param('goufi.config_needs_partner', False)
+            needs_partner_val = self.env['ir.values'].get_default('goufi.config.settings', 'config_needs_partner')
+            config_needs_partner = True if needs_partner_val == 'True' else False
             if config_needs_partner:
                 if len(record.import_config) > 0:
                     result = result and ((len(record.partner_id) > 0) or (

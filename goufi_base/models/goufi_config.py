@@ -29,26 +29,19 @@ class GoufiConfigSettings(models.TransientModel):
         help=_(u'When this parameter is True, import_files are deleted, else, they are archived'),
         default=False)
 
-    @api.multi
-    def set_config_needs_partner(self):
-        return self.env['ir.values'].sudo().set_default(
-            'goufi.config.settings', 'config_needs_partner', self.config_needs_partner)
-
-    @api.multi
-    def set_delete_obsolete_files(self):
-        return self.env['ir.values'].sudo().set_default(
-            'goufi.config.settings', 'delete_obsolete_files', self.delete_obsolete_files)
-
     @api.model
-    def get_default_config_needs_partner(self, fields):
-        default_val = self.env['ir.values'].get_default('goufi.config.settings', 'config_needs_partner')
-        return {
-            'config_needs_partner': 1 if default_val == 'True' else False,
-        }
+    def get_values(self):
+        res = super(GoufiConfigSettings, self).get_values()
+        ICPSudo = self.env['ir.config_parameter'].sudo()
+        res.update(
+            config_needs_partner=ICPSudo.get_param('goufi.config_needs_partner'),
+            delete_obsolete_files=ICPSudo.get_param('goufi.delete_obsolete_files'),
+        )
+        return res
 
-    @api.model
-    def get_default_delete_obsolete_files(self, fields):
-        default_val = self.env['ir.values'].get_default('goufi.config.settings', 'delete_obsolete_files')
-        return {
-            'delete_obsolete_files': 1 if default_val == 'True' else False,
-        }
+    @api.multi
+    def set_values(self):
+        super(GoufiConfigSettings, self).set_values()
+        ICPSudo = self.env['ir.config_parameter'].sudo()
+        ICPSudo.set_param('goufi.config_needs_partner', self.config_needs_partner)
+        ICPSudo.set_param('goufi.config_needs_partner', self.delete_obsolete_files)
