@@ -23,12 +23,6 @@
         	<field name="implied_ids" eval="[(4, ref('group_goufi_admin'))]"/>
         </record>
         
-        
-        <!-- technical group -->
-	    <record id="group_config_needs_partner" model="res.groups">
-	        <field name="name">Provide contact on Goufi import configs</field>
-	        <field name="category_id" ref="base.module_category_hidden"/>
-	    </record>
 	    
 	</data>        
         

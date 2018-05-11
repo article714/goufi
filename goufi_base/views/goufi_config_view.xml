@@ -12,7 +12,8 @@
                     </header>
                     <h2> Goufi Configuration</h2>
                     <group>
-                    	<field name="group_config_needs_partner" />
+                    	<field name="delete_obsolete_files" />
+                    	<field name="config_needs_partner" />
                     </group>
                 </form>
             </field>

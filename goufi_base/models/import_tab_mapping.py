@@ -19,30 +19,42 @@ class TabMapping(models.Model):
     _order = "sequence"
 
     # Tab Name
-    name = fields.Char(string = _(u'Tab name'),
-                       help = _(u"Name of the tab to process with this mapping"),
-                       required = True, track_visibility = 'onchange')
+    name = fields.Char(string=_(u'Tab name'),
+                       help=_(u"Name of the tab to process with this mapping"),
+                       required=True, track_visibility='onchange')
 
-    sequence = fields.Integer(string = _(u'Sequence'),
-                              default = 1, help = _(u"Used to order mappings. Lower is better."))
+    sequence = fields.Integer(string=_(u'Sequence'),
+                              default=1, help=_(u"Used to order mappings. Lower is better."))
 
-    target_object = fields.Many2one(string = _(u"Target object"),
-                                    help = _(u"Odoo object that will be targeted by import: create, update or delete instances"),
-                                    comodel_name = "ir.model",
-                                    required = True)
+    target_object = fields.Many2one(string=_(u"Target object"),
+                                    help=_(u"Odoo object that will be targeted by import: create, update or delete instances"),
+                                    comodel_name="ir.model",
+                                    required=True)
 
-    default_header_line_index = fields.Integer(string = _(u"Default Header line"),
-                                               help = _(u"Provides the index of the header line in import file. Header line contains name of columns to be mapped."),
-                                               required = True, default = 0)
+    default_header_line_index = fields.Integer(string=_(u"Default Header line"),
+                                               help=_(u"Provides the index of the header line in import file. Header line contains name of columns to be mapped."),
+                                               required=True, default=0)
 
-    parent_configuration = fields.Many2one(string = _(u"Parent configuration"),
-                                      comodel_name = "goufi.import_configuration")
+    parent_configuration = fields.Many2one(string=_(u"Parent configuration"),
+                                      comodel_name="goufi.import_configuration")
 
-    column_mappings = fields.One2many(string = _(u"Column mappings"),
-                                    help = _(u"Mapping configuration needed by this processor"),
-                                      copy = True,
-                                      comodel_name = "goufi.column_mapping",
-                                      inverse_name = "parent_tab")
+    # Does the tab should be ignored
+    
+    ignore_tab = fields.Boolean(string=_(u"Ignore"),
+                                    help=_(u"Does the processor should explicitely ignore this tab"),
+                                    default=False)
+    
+    
+    # Does the tab processing needs tab col_mappings
+    needs_col_mappings = fields.Boolean(string=_(u"Needs column mappings"),
+                                    help=_(u"Does the processor needs column mappings for this Tab"),
+                                    default=True)
+    
+    column_mappings = fields.One2many(string=_(u"Column mappings"),
+                                    help=_(u"Mapping configuration needed by this processor"),
+                                      copy=True,
+                                      comodel_name="goufi.column_mapping",
+                                      inverse_name="parent_tab")
 
     # ******************************************************************************
 

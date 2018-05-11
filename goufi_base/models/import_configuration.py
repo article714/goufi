@@ -34,6 +34,8 @@ class ImportConfiguration(models.Model):
     # Configuration identification
     name = fields.Char(string=_(u'Configuration name'), required=True, track_visibility='onchange')
 
+    description = fields.Char(string=_(u'Description'), required=False, size=256)
+
     filename_pattern = fields.Char(_(u'File name pattern'),
                                    help=_(
                                        u""" The pattern that a file should respect to be detected as being processed by the current configuration """),
@@ -63,19 +65,22 @@ class ImportConfiguration(models.Model):
                                          help=_("The partner that provided the Data"),
                                          comodel_name='res.partner', track_visibility='onchange')
 
+    needs_partner = fields.Boolean(string=_(u"Needs partner"),
+                                   help=_(u"Does the selected configuration needs a partner reference"),
+                                   compute="_get_param_needs_partner",
+                                   read_only=True, store=False)
+
     processor = fields.Many2one(string=_(u"Import processor"),
                                 comodel_name='goufi.import_processor',
                                 required=True)
 
     needs_mappings = fields.Boolean(string=_(u"Needs mappings"),
                                     help=_(u"Does the selected processor need column mappings"),
-                                    related="processor.needs_mappings",
-                                    default=False)
+                                    related="processor.needs_mappings")
 
     has_parameters = fields.Boolean(string=_(u"Has parameters"),
                                     help=_(u"Does the selected processor accept parameters"),
                                     related="processor.has_parameters",
-                                    default=False,
                                     read_only=True)
 
     # Parameters when needed
@@ -102,14 +107,15 @@ class ImportConfiguration(models.Model):
     col_group_support = fields.Boolean(string=_(u"Supports column groups"),
                                        help=_(u"Does the processor can process (iterable) group of columns"),
                                        related="processor.col_group_support",
-                                       default=False)
+                                       read_only=True)
 
     # Multi-Tab configuration => several mappings and targets object needed for config.
     #   there will be a target object per tab-mapping
 
     tab_support = fields.Boolean(string=_(u"Supports multi tabs"),
                                  help=_(u"Does the selected processor can process multiple tabs"),
-                                 related="processor.tab_support")
+                                 related="processor.tab_support",
+                                 read_only=True)
 
     tab_mappings = fields.One2many(string=_(u"Tab mappings"),
                                    help=_(u"Mapping configuration needed by this processor"),
@@ -118,10 +124,13 @@ class ImportConfiguration(models.Model):
                                    required=False)
 
     #-------------------------------
-
+    @api.multi
+    @api.depends('processor', 'name', 'active', 'default_partner_id')
     def _get_param_needs_partner(self):
-        self.needs_partner = self.env['ir.config_parameter'].get_param('goufi.config_needs_partner')
-        return self.needs_partner
+        needs_partner_val = self.env['ir.config_parameter'].get_param('goufi.config_needs_partner')
+        needs_partner = True if needs_partner_val == 'True' else False
+        for obj in self:
+            obj.needs_partner = needs_partner
 
     @api.multi
     def action_open_tabs_view(self):
@@ -134,7 +143,26 @@ class ImportConfiguration(models.Model):
 
     def detect_files(self, cr=None, uid=None, context=None, cur_dir=None):
         file_model = self.env['goufi.import_file']
+        delete_files_val = self.env['ir.config_parameter'].get_param('goufi.delete_obsolete_files', False)
+        delete_files = True if delete_files_val == 'True' else False
         all_files = []
+
+        # detection of obsolete files
+
+        all_existing_files = file_model.search([('import_config', '=', self.id)])
+        for aFile in all_existing_files:
+            try:
+                if not os.path.exists(aFile.filename):
+                    if delete_files:
+                        aFile.unlink()
+                        self.env.cr.commit()
+                    else:
+                        aFile.active = False
+                        self.env.cr.commit()
+            except:
+                logging.exception(u"Goufi failed to archive/delete import_file:%s" % aFile.filename)
+
+        # detection of new or updated files
 
         if cur_dir != None:
             all_files = sorted(os.listdir(cur_dir))

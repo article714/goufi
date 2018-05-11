@@ -7,19 +7,20 @@ Created on 23 deb. 2018
 @license: AGPL v3
 '''
 
-from enum import IntEnum, unique
-from openpyxl.cell.read_only import EmptyCell
-from openpyxl.reader.excel import load_workbook
 from os import path
 import re
-import unicodecsv
+
+from openpyxl.cell.read_only import EmptyCell
+from openpyxl.reader.excel import load_workbook
 import xlrd
 
+from enum import IntEnum, unique
 from odoo import _
-
 from odoo.addons.goufi_base.utils.converters import toString
+import unicodecsv
 
 from .processor import AbstractProcessor
+
 
 #-------------------------------------------------------------------------------------
 # CONSTANTS
@@ -170,6 +171,10 @@ class Processor(AbstractProcessor):
                     [('parent_configuration', '=', self.parent_config.id), ('name', '=', tab_name)], limit=1)
                 if len(found) == 1:
                     try:
+                        # Explicitly ignore
+                        if found[0].ignore_tab:
+                            self.logger.info("Tab ignored by configuration: " + toString(tab_name))
+                            return 0
                         self.target_model = self.odooenv[found[0].target_object.model]
                         col_mappings = found[0].column_mappings
                         self.header_line_idx = found[0].default_header_line_index
@@ -177,7 +182,7 @@ class Processor(AbstractProcessor):
                         self.logger.exception("Target model not found for " + toString(tab_name))
                         return -1
                 else:
-                    self.logger.error("Tab not found: " + toString(tab_name))
+                    self.logger.error("Tab configuration not found: " + toString(tab_name))
                     return -1
             else:
                 self.logger.error("No tab name given")
@@ -196,7 +201,7 @@ class Processor(AbstractProcessor):
             self.logger.error("MODEL NOT FOUND ")
             return -1
         else:
-            self.logger.info("NEW SHEET:  Import data for model " + toString(self.target_model._name))
+            self.logger.info("NEW SHEET [%s]:  Import data for model %s" % (tab_name, toString(self.target_model._name)))
 
         # List of fields in target model
         self.target_fields = None
@@ -329,7 +334,7 @@ class Processor(AbstractProcessor):
                     if len(vals) == 1:
                         data_values[f] = vals[0].id
                     else:
-                        self.logger.warning(DEFAULT_LOG_STRING + " found " + toString(len(vals)) + " values for " +
+                        self.logger.warning(DEFAULT_LOG_STRING + " found " + toString(len(vals)) + " values for " + 
                                             toString(data_values[f]) + "  unable to reference " + toString(config[1]) + " " + toString(vals))
 
         # TODO: Document this!
@@ -378,8 +383,8 @@ class Processor(AbstractProcessor):
                 if value != None and value != str(''):
                     search_criteria.append((keyfield, '=', value))
                 else:
-                    self.logger.warning(DEFAULT_LOG_STRING +
-                                        "GOUFI: Do not process line n.%d, as Id column is empty" % (line_index + 1,))
+                    self.logger.warning(DEFAULT_LOG_STRING + 
+                                        "GOUFI: Do not process line n.%d, as Id column (%s) is empty" % (line_index + 1, k))
                     return
 
             # ajout d'une clause pour rechercher tous les enregistrements
@@ -395,7 +400,7 @@ class Processor(AbstractProcessor):
             if len(found) == 1:
                 currentObj = found[0]
             elif len(found) > 1:
-                self.logger.warning(DEFAULT_LOG_STRING + "FOUND TOO MANY RESULT FOR " + toString(self.target_model) +
+                self.logger.warning(DEFAULT_LOG_STRING + "FOUND TOO MANY RESULT FOR " + toString(self.target_model) + 
                                     " with " + toString(search_criteria) + "=>   [" + toString(len(found)) + "]")
                 return
             else:
@@ -416,7 +421,7 @@ class Processor(AbstractProcessor):
                 except:
                     if TO_BE_ARCHIVED:
                         self.odooenv.cr.rollback()
-                        self.logger.warning(DEFAULT_LOG_STRING +
+                        self.logger.warning(DEFAULT_LOG_STRING + 
                                             "Archiving record as it can not be deleted (line n. %d)" % (line_index + 1,))
                         try:
                             currentObj.write({'active': False})
@@ -436,7 +441,7 @@ class Processor(AbstractProcessor):
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning(DEFAULT_LOG_STRING + "Not able to archive record (line n. %d) : %s" %
+                    self.logger.warning(DEFAULT_LOG_STRING + "Not able to archive record (line n. %d) : %s" % 
                                         (line_index + 1, toString(e),))
         elif CAN_BE_ARCHIVED:
             if not currentObj == None:
@@ -446,9 +451,8 @@ class Processor(AbstractProcessor):
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning(DEFAULT_LOG_STRING + "Not able to activate record (line n. %d) : %s" %
+                    self.logger.warning(DEFAULT_LOG_STRING + "Not able to activate record (line n. %d) : %s" % 
                                         (line_index + 1, toString(e),))
-            return True
 
         # Create Object if it does not yet exist, else, write updates
         try:
@@ -466,7 +470,7 @@ class Processor(AbstractProcessor):
             self.odooenv.cr.commit()
         except ValueError as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING + " wrong values where creating/updating object: " +
+            self.logger.exception(DEFAULT_LOG_STRING + " wrong values where creating/updating object: " + 
                                   self.target_model.name + " -> " + toString(data_values) + "[" + toString(currentObj) + "]")
             self.logger.error("                    MSG: {0}".format(toString(e)))
             currentObj = None
@@ -493,7 +497,7 @@ class Processor(AbstractProcessor):
                                     if len(vals) == 1:
                                         currentObj.write({config[2]: [(4, vals[0].id, False)]})
                                     else:
-                                        self.logger.warning(DEFAULT_LOG_STRING + "found " + toString(len(vals)) +
+                                        self.logger.warning(DEFAULT_LOG_STRING + "found " + toString(len(vals)) + 
                                                             " values for " + toString(m) + "  unable to reference")
 
                                 # Creates records in  One2Many
@@ -503,7 +507,7 @@ class Processor(AbstractProcessor):
             self.odooenv.cr.commit()
         except ValueError as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING + " Wrong values where updating object: " +
+            self.logger.exception(DEFAULT_LOG_STRING + " Wrong values where updating object: " + 
                                   self.target_model.name + " -> " + toString(data_values))
             self.logger.error("                    MSG: {0}".format(toString(e)))
             currentObj = None
@@ -617,25 +621,27 @@ class XLProcessor(Processor):
     def process_xls(self, import_file):
         self.logger.info("PROCESSING XLS FILE :" + import_file.filename)
 
-        wb = xlrd.open_workbook(import_file.filename)
-        for sh in wb.sheets():
-
-            # la ligne se sont les intitutlés
-            p_ligne = sh.row_values(self.header_line_idx)
-            hsize = len(p_ligne)
-
-            if self.prepare_mappings(sh.name) > 0:
-
-                for rownum in range(1, sh.nrows):
-                    if rownum > self.header_line_idx:
-                        values = {}
-                        row_vals = sh.row_values(rownum)
-                        for idx in range(0, hsize):
-                            values[p_ligne[idx]] = row_vals[idx]
-                    try:
-                        self.process_values(import_file.filename, rownum, values)
-                    except Exception as e:
-                        self.logger.exception(u"Error when processing line N°" + str(rownum) + " in " + sh.name)
+        with xlrd.open_workbook(import_file.filename) as wb:
+            try:
+                for sh in wb.sheets():
+                    # la ligne se sont les intitutlés
+                    p_ligne = sh.row_values(self.header_line_idx)
+                    hsize = len(p_ligne)
+        
+                    if self.prepare_mappings(sh.name) > 0:
+        
+                        for rownum in range(1, sh.nrows):
+                            if rownum > self.header_line_idx:
+                                values = {}
+                                row_vals = sh.row_values(rownum)
+                                for idx in range(0, hsize):
+                                    values[p_ligne[idx]] = row_vals[idx]
+                            try:
+                                self.process_values(import_file.filename, rownum, values)
+                            except Exception as e:
+                                self.logger.exception(u"Error when processing line N°" + str(rownum) + " in " + sh.name)            
+            except Exception as e:
+                self.logger.exception(u"Error when processing file" + str(import_file.filename))
         return True
 
     #-------------------------------------------------------------------------------------
@@ -688,7 +694,7 @@ class XLProcessor(Processor):
             if self.target_model != None:
                 if ('import_processed' in self.target_model.fields_get_keys()):
                     # hook for objects needing to be set as processed through import
-                    self.odooenv.cr.execute('update ' + toString(self.target_model._table) +
+                    self.odooenv.cr.execute('update ' + toString(self.target_model._table) + 
                                             ' set import_processed = False')
                     self.odooenv.cr.commit()
             else:
