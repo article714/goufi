@@ -453,7 +453,6 @@ class Processor(AbstractProcessor):
                     self.odooenv.cr.rollback()
                     self.logger.warning(DEFAULT_LOG_STRING + "Not able to activate record (line n. %d) : %s" % 
                                         (line_index + 1, toString(e),))
-            return True
 
         # Create Object if it does not yet exist, else, write updates
         try:
