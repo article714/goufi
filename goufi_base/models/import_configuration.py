@@ -15,8 +15,9 @@ import os
 import re
 
 from odoo import models, fields, _, api
-from odoo.addons.goufi_base.utils.converters import dateToOdooString
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
+
+from odoo.addons.goufi_base.utils.converters import dateToOdooString
 
 
 #------------------------------------------------------------
@@ -126,7 +127,7 @@ class ImportConfiguration(models.Model):
     @api.multi
     @api.depends('processor', 'name', 'active', 'default_partner_id')
     def _get_param_needs_partner(self):
-        needs_partner_val = self.env['ir.values'].get_default('goufi.config.settings', 'config_needs_partner')
+        needs_partner_val = self.env['ir.config_parameter'].get_param('goufi.config_needs_partner')
         needs_partner = True if needs_partner_val == 'True' else False
         for obj in self:
             obj.needs_partner = needs_partner
@@ -142,7 +143,7 @@ class ImportConfiguration(models.Model):
 
     def detect_files(self, cr=None, uid=None, context=None, cur_dir=None):
         file_model = self.env['goufi.import_file']
-        delete_files_val = self.env['ir.values'].get_default('goufi.config.settings', 'delete_obsolete_files')
+        delete_files_val = self.env['ir.config_parameter'].get_param('goufi.delete_obsolete_files')
         delete_files = True if delete_files_val == 'True' else False
         all_files = []
 
