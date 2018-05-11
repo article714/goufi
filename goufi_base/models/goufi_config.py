@@ -60,7 +60,10 @@ class GoufiConfigSettings(models.TransientModel):
                     val = self[field_name].search([('id', '=', param_value)])
                     res[field_name] = val.id
             elif isinstance(self[field_name], fields.Selection):
-                    res[field_name] = int(param_value)
+                    if param_value:
+                        res[field_name] = int(param_value)
+                    else:
+                        res[field_name] = 0
             elif isinstance(self[field_name], fields.Boolean):
                     res[field_name] = True if param_value == 'True' else False
             else:
