@@ -4,7 +4,7 @@
 	<!-- Goufi specific menus -->
 
 	<menuitem id="goufi_base_menu" name="Import Files"
-		groups="group_goufi_user" sequence="0" />
+		groups="group_goufi_user" sequence="499" />
 
 	<menuitem id="goufi_import_menu" name="Import Files"
 		parent="goufi_base_menu" sequence="200"
