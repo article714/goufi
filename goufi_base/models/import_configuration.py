@@ -15,8 +15,9 @@ import os
 import re
 
 from odoo import models, fields, _, api
-from odoo.addons.goufi_base.utils.converters import dateToOdooString
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
+
+from odoo.addons.goufi_base.utils.converters import dateToOdooString
 
 
 #------------------------------------------------------------
@@ -32,7 +33,7 @@ class ImportConfiguration(models.Model):
 
     # Configuration identification
     name = fields.Char(string=_(u'Configuration name'), required=True, track_visibility='onchange')
-    
+
     description = fields.Char(string=_(u'Description'), required=False, size=256)
 
     filename_pattern = fields.Char(_(u'File name pattern'),
@@ -63,11 +64,11 @@ class ImportConfiguration(models.Model):
     default_partner_id = fields.Many2one(string=_(u'Related Partner'),
                                          help=_("The partner that provided the Data"),
                                          comodel_name='res.partner', track_visibility='onchange')
-    
+
     needs_partner = fields.Boolean(string=_(u"Needs partner"),
-                                    help=_(u"Does the selected configuration needs a partner reference"),
-                                    compute="_get_param_needs_partner",
-                                    read_only=True, store=False)
+                                   help=_(u"Does the selected configuration needs a partner reference"),
+                                   compute="_get_param_needs_partner",
+                                   read_only=True, store=False)
 
     processor = fields.Many2one(string=_(u"Import processor"),
                                 comodel_name='goufi.import_processor',
@@ -75,8 +76,7 @@ class ImportConfiguration(models.Model):
 
     needs_mappings = fields.Boolean(string=_(u"Needs mappings"),
                                     help=_(u"Does the selected processor need column mappings"),
-                                    related="processor.needs_mappings",
-                                    read_only=True)
+                                    related="processor.needs_mappings")
 
     has_parameters = fields.Boolean(string=_(u"Has parameters"),
                                     help=_(u"Does the selected processor accept parameters"),
@@ -126,7 +126,7 @@ class ImportConfiguration(models.Model):
     #-------------------------------
     @api.multi
     @api.depends('processor', 'name', 'active', 'default_partner_id')
-    def _get_param_needs_partner(self): 
+    def _get_param_needs_partner(self):
         needs_partner_val = self.env['ir.config_parameter'].get_param('goufi.config_needs_partner')
         needs_partner = True if needs_partner_val == 'True' else False
         for obj in self:
@@ -143,12 +143,11 @@ class ImportConfiguration(models.Model):
 
     def detect_files(self, cr=None, uid=None, context=None, cur_dir=None):
         file_model = self.env['goufi.import_file']
-        delete_files_val = self.env['ir.config_parameter'].get_param('goufi.delete_obsolete_files', False)
+        delete_files_val = self.env['ir.config_parameter'].get_param('goufi.delete_obsolete_files')
         delete_files = True if delete_files_val == 'True' else False
         all_files = []
 
         # detection of obsolete files
-        
         all_existing_files = file_model.search([('import_config', '=', self.id)])
         for aFile in all_existing_files:
             try:
@@ -161,9 +160,8 @@ class ImportConfiguration(models.Model):
                         self.env.cr.commit()
             except:
                 logging.exception(u"Goufi failed to archive/delete import_file:%s" % aFile.filename)
-            
-        # detection of new or updated files
 
+        # detection of new or updated files
         if cur_dir != None:
             all_files = sorted(os.listdir(cur_dir))
         elif self.files_location and file_model != None:
@@ -233,7 +231,7 @@ class ImportConfiguration(models.Model):
                         logging.error("GOUFI: Cannot process file, no processor class found " + self.name)
                         return None
                 except Exception as e:
-                    logging.error("GOUFI: Cannot process file, error when evaluating processor module" + 
+                    logging.error("GOUFI: Cannot process file, error when evaluating processor module" +
                                   self.name + "(" + str(e) + "-" + str(e.message) + ")")
 
                 # Process File
@@ -247,7 +245,7 @@ class ImportConfiguration(models.Model):
                     try:
                         proc_inst.process_file(rec)
                     except Exception as e:
-                        logging.error("GOUFI: Error when processing file " + rec.filename + 
+                        logging.error("GOUFI: Error when processing file " + rec.filename +
                                       "(" + str(e) + "-" + str(e.message) + ")")
 
     #-------------------------------

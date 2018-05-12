@@ -9,9 +9,9 @@ Created on 23 feb. 2018
 
 from calendar import timegm
 from datetime import datetime
+from os import path
 import importlib
 import logging
-from os import path
 
 from odoo import models, fields, _, api
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
@@ -24,7 +24,8 @@ class ImportFile(models.Model):
     _rec_name = "filename"
     _order = "filename"
 
-    active = fields.Boolean('Active', default=True, help="If unchecked, it will allow you to hide the file without removing it.")
+    active = fields.Boolean('Active', default=True,
+                            help="If unchecked, it will allow you to hide the file without removing it.")
 
     # File identification
     filename = fields.Char(string=_(u'File name'), required=True, track_visibility='onchange')
@@ -32,13 +33,13 @@ class ImportFile(models.Model):
     filesize = fields.Float(string=_(u"File size"), default=0.0)
 
     partner_id = fields.Many2one(string=_(u'Related Partner'),
-                                         help=_("The partner that provided the Data"),
-                                         comodel_name='res.partner', track_visibility='onchange')
-    
+                                 help=_("The partner that provided the Data"),
+                                 comodel_name='res.partner', track_visibility='onchange')
+
     needs_partner = fields.Boolean(string=_(u"Needs partner"),
-                                    help=_(u"Does the selected configuration needs a partner reference"),
-                                    related="import_config.needs_partner",
-                                    read_only=True, store=False)
+                                   help=_(u"Does the selected configuration needs a partner reference"),
+                                   related="import_config.needs_partner",
+                                   read_only=True, store=False)
 
     date_addition = fields.Datetime(string=_(u"Addition date"), track_visibility='onchange', required=True)
 
@@ -47,26 +48,29 @@ class ImportFile(models.Model):
     # parametrage du traitement
 
     import_config = fields.Many2one(string=_(u'Related import configuration'), comodel_name='goufi.import_configuration',
-                                     track_visibility='onchange', required=True)
+                                    track_visibility='onchange', required=True)
 
     to_process = fields.Boolean(string=_(u"File is to be processed"), default=True, track_visibility='onchange')
 
-    needs_to_be_processed = fields.Boolean(string=_(u"File needs to be processed"), compute='_file_needs_processing', store=True)
+    needs_to_be_processed = fields.Boolean(string=_(u"File needs to be processed"),
+                                           compute='_file_needs_processing', store=True)
 
-    process_when_updated = fields.Boolean(string=_(u"File is to be re-processed when updated"), default=True, track_visibility='onchange')
+    process_when_updated = fields.Boolean(
+        string=_(u"File is to be re-processed when updated"), default=True, track_visibility='onchange')
 
-    header_line_index = fields.Integer(string=_(u"Header line"), help=_(u"Fixes the index of the header line in import file"))
+    header_line_index = fields.Integer(string=_(u"Header line"), help=_(
+        u"Fixes the index of the header line in import file"))
 
     # etat du traitement
     date_start_processing = fields.Datetime(string=_(u"Processing started on"), track_visibility='onchange')
     date_stop_processing = fields.Datetime(string=_(u"Processing ended on"), track_visibility='onchange')
 
     processing_status = fields.Selection([('new', 'new'),
-                                (u'running', u'running'),
-                                (u'ended', u'ended'),
-                                (u'pending', u'pending'),
-                                (u'failure', u'failure')],
-                                string=_(u"Processing status"), default='new', track_visibility='onchange')
+                                          (u'running', u'running'),
+                                          (u'ended', u'ended'),
+                                          (u'pending', u'pending'),
+                                          (u'failure', u'failure')],
+                                         string=_(u"Processing status"), default='new', track_visibility='onchange')
 
     processing_result = fields.Text()
 
@@ -82,7 +86,8 @@ class ImportFile(models.Model):
             if record.process_when_updated:
                 upd_time = timegm(datetime.strptime(record.date_updated, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
                 if record.date_stop_processing:
-                    lastproc_time = timegm(datetime.strptime(record.date_stop_processing, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
+                    lastproc_time = timegm(datetime.strptime(record.date_stop_processing,
+                                                             DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
                 else:
                     lastproc_time = 0
 
@@ -95,16 +100,18 @@ class ImportFile(models.Model):
             result = result and (record.to_process) and (record.processing_status != 'running')
 
             # File is active and config also
-            if  len(record.import_config) > 0:
+            if len(record.import_config) > 0:
                 result = result and (record.active) and (record.import_config.active)
             else:
                 result = False
 
             # Partner Needed?
-            config_needs_partner = self.env['ir.config_parameter'].get_param('goufi.config_needs_partner', False)
+            needs_partner_val = self.env['ir.config_parameter'].get_param('goufi.config_needs_partner')
+            config_needs_partner = True if needs_partner_val == 'True' else False
             if config_needs_partner:
-                if  len(record.import_config) > 0:
-                    result = result and ((len(record.partner_id) > 0) or (len(record.import_config.default_partner_id) > 0))
+                if len(record.import_config) > 0:
+                    result = result and ((len(record.partner_id) > 0) or (
+                        len(record.import_config.default_partner_id) > 0))
                 else:
                     result = result and (len(record.partner_id) > 0)
 
@@ -161,7 +168,8 @@ class ImportFile(models.Model):
                     logging.error("GOUFI: Cannot process file, no processor class found " + self.filename)
                     return None
             except Exception as e:
-                logging.error("GOUFI: Cannot process file, error when evaluating processor module" + self.filename + "(" + str(e) + ")")
+                logging.error("GOUFI: Cannot process file, error when evaluating processor module" +
+                              self.filename + "(" + str(e) + ")")
 
             # Process File
             # TODO: one day provide a way to re-use processor instances?
@@ -180,7 +188,7 @@ class ImportFile(models.Model):
 
         import_file_model = self.env['goufi.import_file']
 
-        if import_file_model != None :
+        if import_file_model != None:
             records = ()
             if anOrder == None:
                 records = import_file_model.search(criteria, limit=maxFiles)
@@ -192,7 +200,7 @@ class ImportFile(models.Model):
     #-------------------------------
     # standard model method override
 
-    @api.depends(lambda self:(self._rec_name,) if self._rec_name else ())
+    @api.depends(lambda self: (self._rec_name,) if self._rec_name else ())
     def _compute_display_name(self):
         for record in self:
             if record.filename and record.import_config:
@@ -219,4 +227,3 @@ class ImportFile(models.Model):
                 if config.default_partner_id:
                     values['partner_id'] = config.default_partner_id.id
         return super(ImportFile, self).write(values)
-
