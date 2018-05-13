@@ -350,7 +350,7 @@ class Processor(AbstractProcessor):
                         except:
                             self.logger.error(DEFAULT_LOG_STRING + " failed to create a new record for " +
                                               toString(data_values[f]) + "  for model " + toString(config[1]))
-                        del data_values[f]
+                            del data_values[f]
 
                     else:
                         self.logger.warning(DEFAULT_LOG_STRING + " found " + toString(len(vals)) + " values for " +
