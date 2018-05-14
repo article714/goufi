@@ -8,17 +8,17 @@ Created on 3 mai 2018
 '''
 
 
+from openpyxl.cell.read_only import EmptyCell
+from openpyxl.reader.excel import load_workbook
 from os import path
 import os
 import re
-
-from openpyxl.cell.read_only import EmptyCell
-from openpyxl.reader.excel import load_workbook
+import unicodecsv
 import xlrd
 
 from odoo import _
+
 from odoo.addons.goufi_base.utils.converters import toString
-import unicodecsv
 
 from .processor import AbstractProcessor
 
@@ -243,7 +243,7 @@ class Processor(AbstractProcessor):
             if len(found) == 1:
                 currentObj = found[0]
             elif len(found) > 1:
-                self.logger.warning(DEFAULT_LOG_STRING + "FOUND TOO MANY RESULT FOR " + toString(self.target_model) + 
+                self.logger.warning(DEFAULT_LOG_STRING + "FOUND TOO MANY RESULT FOR " + toString(self.target_model) +
                                     " with " + toString(search_criteria) + "=>   [" + toString(len(found)) + "]")
                 return
             else:
@@ -295,7 +295,7 @@ class Processor(AbstractProcessor):
                 self.odooenv.cr.commit()
             except ValueError as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " wrong values where creating/updating object: " + 
+                self.logger.error(DEFAULT_LOG_STRING + " wrong values where creating/updating object: " +
                                   self.target_model + " -> " + toString(stdRow) + "[" + toString(currentObj) + "]")
                 self.logger.error("                    MSG: {0}".format(toString(e)))
                 currentObj = None
@@ -333,7 +333,7 @@ class Processor(AbstractProcessor):
                 self.odooenv.cr.commit()
             except ValueError as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " Wrong values where updating object: " + 
+                self.logger.error(DEFAULT_LOG_STRING + " Wrong values where updating object: " +
                                   self.target_model + " -> " + toString(stdRow))
                 self.logger.error("                    MSG: {0}".format(toString(e)))
                 currentObj = None
@@ -355,8 +355,8 @@ class Processor(AbstractProcessor):
                 self.odooenv.cr.commit()
             except ValueError as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " error where creating/updating object: " + 
-                                  self.target_model + " -> " + toString(data_values) + "[" + toString(currentObj) + "]")
+                self.logger.error(DEFAULT_LOG_STRING + " error where creating/updating object: %s --> %s [%s]" % (
+                    str(self.target_model), toString(data_values), toString(currentObj)))
                 self.logger.error("                    MSG: {0}".format(toString(e)))
             except Exception as e:
                 self.odooenv.cr.rollback()
