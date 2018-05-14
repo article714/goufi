@@ -334,7 +334,7 @@ class Processor(AbstractProcessor):
         # Process Function Call values
         for val in self.allMappings[MappingType.FunctionCall]:
             try:
-                function = self.allMappings[MappingType.ContextEval][val][1]
+                function = self.allMappings[MappingType.FunctionCall][val][1]
                 value = function(self, data_values[val])
                 if value != None:
                     data_values[val] = value
