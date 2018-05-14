@@ -497,6 +497,7 @@ class Processor(AbstractProcessor):
                                         (line_index + 1, toString(e),))
 
         # Create Object if it does not yet exist, else, write updates
+        actual_values = None
         try:
 
             # check mandatory fields
@@ -504,7 +505,6 @@ class Processor(AbstractProcessor):
                 if f not in data_values:
                     self.logger.error(DEFAULT_LOG_STRING + "missing value for mandatory column: " + str(f))
                     return False
-            actual_values = None
             actual_values = self.map_values(data_values)
             if currentObj == None:
                 currentObj = self.target_model.create(actual_values)
