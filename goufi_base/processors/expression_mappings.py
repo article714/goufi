@@ -252,7 +252,7 @@ class Processor(AbstractProcessor):
                     mappingType = MappingType.FunctionCall
                     if val.mapping_expression and len(val.mapping_expression) > 2 and hasattr(self, val.mapping_expression):
                         self.allMappings[mappingType][val.name] = [
-                            val.target_field.name, self.getattr(val.mapping_expression)]
+                            val.target_field.name, getattr(self, val.mapping_expression)]
                     else:
                         self.logger.error(u"Wrong mapping expression for %s: too short or method does not exist (%s)" % (
                             val.name, str(val.mapping_expression)))
