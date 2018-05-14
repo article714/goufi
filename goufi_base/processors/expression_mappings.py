@@ -374,8 +374,8 @@ class Processor(AbstractProcessor):
                             del data_values[f]
 
                     else:
-                        self.logger.warning(DEFAULT_LOG_STRING + " found " + toString(len(vals)) + " values for " +
-                                            toString(data_values[f]) + "  unable to reference " + toString(config[1]) + " " + toString(vals))
+                        self.logger.warning(DEFAULT_LOG_STRING + " found %d values for %s  ,unable to reference %s -> %s" %
+                                            (len(vals), toString(data_values[f]), toString(config[1]), toString(vals)))
                         del data_values[f]
 
         # TODO: Document this!
@@ -504,17 +504,18 @@ class Processor(AbstractProcessor):
                 if f not in data_values:
                     self.logger.error(DEFAULT_LOG_STRING + "missing value for mandatory column: " + str(f))
                     return False
+            actual_values = None
+            actual_values = self.map_values(data_values)
             if currentObj == None:
-                currentObj = self.target_model.create(self.map_values(data_values))
+                currentObj = self.target_model.create(actual_values)
             else:
-                currentObj.write(self.map_values(data_values))
+                currentObj.write(actual_values)
 
             self.odooenv.cr.commit()
         except ValueError as e:
             self.odooenv.cr.rollback()
             self.logger.exception(DEFAULT_LOG_STRING + " wrong values where creating/updating object: %s -> %s [%s] " % (
-                str(self.target_model), toString(data_values), toString(currentObj)))
-            self.logger.error("                    MSG: {0}" % format(toString(e)))
+                str(self.target_model), toString(actual_values), toString(currentObj)))
             currentObj = None
         except Exception as e:
             self.odooenv.cr.rollback()
