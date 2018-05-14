@@ -513,7 +513,7 @@ class Processor(AbstractProcessor):
         except ValueError as e:
             self.odooenv.cr.rollback()
             self.logger.exception(DEFAULT_LOG_STRING + " wrong values where creating/updating object: %s -> %s [%s] " % (
-                str(self.target_model, toString(data_values), toString(currentObj))))
+                str(self.target_model), toString(data_values), toString(currentObj)))
             self.logger.error("                    MSG: {0}" % format(toString(e)))
             currentObj = None
         except Exception as e:
