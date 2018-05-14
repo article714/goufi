@@ -35,6 +35,7 @@ class MappingType(IntEnum):
     Many2One = 2
     ContextEval = 3
     Constant = 4
+    FunctionCall = 5
 
 #-------------------------------------------------------------------------------------
 # MAIN CLASS
@@ -247,6 +248,14 @@ class Processor(AbstractProcessor):
                         self.allMappings[mappingType][val.name] = [val.target_field.name, val.mapping_expression]
                     else:
                         self.logger.error("Wrong mapping expression: too short")
+                elif val.is_function_call:
+                    mappingType = MappingType.FunctionCall
+                    if val.mapping_expression and len(val.mapping_expression) > 2 and hasattr(self, val.mapping_expression):
+                        self.allMappings[mappingType][val.name] = [
+                            val.target_field.name, self.getattr(val.mapping_expression)]
+                    else:
+                        self.logger.error(u"Wrong mapping expression for %s: too short or method does not exist (%s)" % (
+                            val.name, str(val.mapping_expression)))
                 elif val.mapping_expression and len(val.mapping_expression) > 2:
                     if re.match(r'\*.*', val.mapping_expression):
                         mappingType = MappingType.One2Many
@@ -320,7 +329,19 @@ class Processor(AbstractProcessor):
                 value = eval(self.allMappings[MappingType.ContextEval][val][1])
                 data_values[val] = value
             except Exception as e:
-                self.logger.exception("Failed to evaluate expression from context: " + str(val))
+                self.logger.exception("Failed to evaluate expression from context: %s " % str(val))
+
+        # Process Function Call values
+        for val in self.allMappings[MappingType.FunctionCall]:
+            try:
+                function = self.allMappings[MappingType.ContextEval][val][1]
+                value = function(self, data_values[val])
+                if value != None:
+                    data_values[val] = value
+                else:
+                    del data_values[val]
+            except Exception as e:
+                self.logger.exception("Failed to compute value from function call: %s" % str(val))
 
         # Many To One Fields, might be mandatory, so needs to be treated first and added to StdRow
         for f in self.allMappings[MappingType.Many2One]:
@@ -428,6 +449,7 @@ class Processor(AbstractProcessor):
 
         # hook for objects needing to be marked as processed
         # by import
+        # TODO: document and check this
         if currentObj != None and ('import_processed' in self.target_model.fields_get_keys()):
             currentObj.write({'import_processed': True})
             currentObj.import_processed = True
@@ -490,7 +512,8 @@ class Processor(AbstractProcessor):
             self.odooenv.cr.commit()
         except ValueError as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING + " wrong values where creating/updating object: %s -> %s [%s] "%(str(self.target_model ,toString(data_values) , toString(currentObj) ))
+            self.logger.exception(DEFAULT_LOG_STRING + " wrong values where creating/updating object: %s -> %s [%s] " % (
+                str(self.target_model, toString(data_values), toString(currentObj))))
             self.logger.error("                    MSG: {0}" % format(toString(e)))
             currentObj = None
         except Exception as e:
