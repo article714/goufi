@@ -36,6 +36,13 @@ class ColumnMapping(models.Model):
     _rec_name = "name"
     _order = "sequence"
 
+    # unique column name per configuration and tab
+
+    _sql_constraints = [
+        ('unique_column_name', 'UNIQUE(name,parent_configuration,parent_tab)', _(
+            u"Name of the column must be unique per configuration/tab \n")),
+    ]
+
     # Column mapping
     # name of the column
     name = fields.Char(string=_(u'Column name'),
