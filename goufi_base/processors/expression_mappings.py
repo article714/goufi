@@ -417,7 +417,7 @@ class Processor(AbstractProcessor):
                 elif mapType in (MappingType.Constant, MappingType.ContextEval):
                     (keyfield, value) = self.allMappings[mapType][k]
                 elif mapType == MappingType.Many2One:
-                    keyfield = target_field.name
+                    keyfield = self.col2fields[k]
                     if k in data_values:
                         value = data_values[k]
                 else:
