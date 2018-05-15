@@ -138,7 +138,7 @@ Function must return the value to be assigned to mapping or None"""),
         if model_id:
             return [('model_id', '=', model_id)]
         if self.target_object:
-            return [('model_id', '=', target_object.id)]
+            return [('model_id', '=', self.target_object.id)]
         return []
 
     target_field = fields.Many2one(string=_(u"Target field"),
