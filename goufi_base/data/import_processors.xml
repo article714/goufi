@@ -34,6 +34,7 @@
 		<field name="name">Processor with configurable Mappings(CSV)</field>
 		<field name="needs_mappings">True</field>
 		<field name="tab_support">False</field>
+		<field name="has_parameters">True</field>
 		<field name="col_group_support">False</field>
 		<field name="processor_module">odoo.addons.goufi_base.processors.expression_mappings</field>
 		<field name="processor_class">CSVProcessor</field>
@@ -42,6 +43,7 @@
 		<field name="name">Processor with configurable Mappings(XLS*)</field>
 		<field name="needs_mappings">True</field>
 		<field name="tab_support">True</field>
+		<field name="has_parameters">True</field>
 		<field name="col_group_support">False</field>
 		<field name="processor_module">odoo.addons.goufi_base.processors.expression_mappings</field>
 		<field name="processor_class">XLProcessor</field>

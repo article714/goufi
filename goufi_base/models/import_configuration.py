@@ -164,6 +164,21 @@ class ImportConfiguration(models.Model):
 
         # detection of new or updated files
 
+        # detection of obsolete files
+        all_existing_files = file_model.search([('import_config', '=', self.id)])
+        for aFile in all_existing_files:
+            try:
+                if not os.path.exists(aFile.filename):
+                    if delete_files:
+                        aFile.unlink()
+                        self.env.cr.commit()
+                    else:
+                        aFile.active = False
+                        self.env.cr.commit()
+            except:
+                logging.exception(u"Goufi failed to archive/delete import_file:%s" % aFile.filename)
+
+        # detection of new or updated files
         if cur_dir != None:
             all_files = sorted(os.listdir(cur_dir))
         elif self.files_location and file_model != None:
