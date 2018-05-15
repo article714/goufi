@@ -15,9 +15,8 @@ import os
 import re
 
 from odoo import models, fields, _, api
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
-
 from odoo.addons.goufi_base.utils.converters import dateToOdooString
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 
 #------------------------------------------------------------
@@ -82,6 +81,29 @@ class ImportConfiguration(models.Model):
                                     help=_(u"Does the selected processor accept parameters"),
                                     related="processor.has_parameters",
                                     read_only=True)
+
+    # Languate configuration
+
+    @api.multi
+    def _get_default_language(self):
+        lang_model = self.env['res.lang']
+        strid = self.env['ir.config_parameter'].sudo().get_param('goufi.goufi_default_language')
+        id = 0
+        try:
+            id = int(strid)
+        except:
+            return False
+        language = lang_model.browse(id)
+        if language:
+            return language
+        else:
+            return False
+
+    context_language = fields.Many2one(
+        string=_(u'Language to use'),
+        help=_(u'Language to be used for import'),
+        comodel_name='res.lang',
+        default=_get_default_language)
 
     # Parameters when needed
 
