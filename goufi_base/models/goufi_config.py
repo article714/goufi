@@ -15,19 +15,16 @@ class GoufiConfigSettings(models.TransientModel):
 
     config_needs_partner = fields.Boolean(
         string=_(u'Provide partner to identify origin of imported data'),
-        help=_(u'Do we need to provide partner to identify origin of imported data'),
-        default=0)
+        help=_(u'Do we need to provide partner to identify origin of imported data'))
 
     delete_obsolete_files = fields.Boolean(
         string=_(u'Are obsolete (non-existant) files deleted?'),
-        help=_(u'When this parameter is True, import_files are deleted, else, they are archived'),
-        default=False)
+        help=_(u'When this parameter is True, import_files are deleted, else, they are archived'))
 
     goufi_default_language = fields.Many2one(
         string=_(u'Default language'),
         help=_(u'Default language to be used for import'),
-        comodel_name='res.lang',
-        default=False)
+        comodel_name='res.lang')
 
     @api.multi
     def set_config_needs_partner(self):
@@ -53,7 +50,7 @@ class GoufiConfigSettings(models.TransientModel):
         return {'delete_obsolete_files': True if self.env['ir.config_parameter'].sudo().get_param('goufi.delete_obsolete_files') == 'True' else False}
 
     @api.multi
-    def get_goufi_default_language(self):
+    def get_default_goufi_default_language(self, fields):
         lang_model = self.env['res.lang']
         strid = self.env['ir.config_parameter'].sudo().get_param('goufi.goufi_default_language')
         id = 0
