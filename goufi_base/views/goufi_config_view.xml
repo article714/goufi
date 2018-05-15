@@ -14,6 +14,7 @@
                     <group>
                     	<field name="delete_obsolete_files" />
                     	<field name="config_needs_partner" />
+                    	<field name="goufi_default_language" />
                     </group>
                 </form>
             </field>

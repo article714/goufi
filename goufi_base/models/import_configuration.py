@@ -83,6 +83,29 @@ class ImportConfiguration(models.Model):
                                     related="processor.has_parameters",
                                     read_only=True)
 
+    # Languate configuration
+
+    @api.multi
+    def _get_default_language(self):
+        lang_model = self.env['res.lang']
+        strid = self.env['ir.config_parameter'].sudo().get_param('goufi.goufi_default_language')
+        id = 0
+        try:
+            id = int(strid)
+        except:
+            return False
+        language = lang_model.browse(id)
+        if language:
+            return language
+        else:
+            return False
+
+    context_language = fields.Many2one(
+        string=_(u'Language to use'),
+        help=_(u'Language to be used for import'),
+        comodel_name='res.lang',
+        default=_get_default_language)
+
     # Parameters when needed
 
     processor_parameters = fields.One2many(string=_(u"Processor parameters"),
@@ -146,23 +169,6 @@ class ImportConfiguration(models.Model):
         delete_files_val = self.env['ir.config_parameter'].get_param('goufi.delete_obsolete_files')
         delete_files = True if delete_files_val == 'True' else False
         all_files = []
-
-        # detection of obsolete files
-
-        all_existing_files = file_model.search([('import_config', '=', self.id)])
-        for aFile in all_existing_files:
-            try:
-                if not os.path.exists(aFile.filename):
-                    if delete_files:
-                        aFile.unlink()
-                        self.env.cr.commit()
-                    else:
-                        aFile.active = False
-                        self.env.cr.commit()
-            except:
-                logging.exception(u"Goufi failed to archive/delete import_file:%s" % aFile.filename)
-
-        # detection of new or updated files
 
         # detection of obsolete files
         all_existing_files = file_model.search([('import_config', '=', self.id)])

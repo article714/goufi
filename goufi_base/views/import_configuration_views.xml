@@ -52,6 +52,7 @@
 						<field name="files_location" />
 						<field name="recursive_search" />
 						<field name="filename_pattern" />
+                    	<field name="context_language" />
 					</group>
 					<group name="Processing configuration" string="Processing configuration">
 						<field name="needs_partner" invisible="1" />

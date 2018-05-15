@@ -147,7 +147,13 @@ class ImportFile(models.Model):
     def process_file(self):
         for aFile in self:
             if aFile.needs_to_be_processed:
-                aFile._process_a_file(force=False)
+                lang = aFile.import_config.context_language
+                if lang == False:
+                    lang = aFile.import_config._get_default_language()
+                if lang:
+                    aFile.with_context({'lang': lang.code})._process_a_file(force=False)
+                else:
+                    aFile.with_context({'lang': lang.code})._process_a_file(force=False)
 
     def _process_a_file(self, force=False):
         """

@@ -166,6 +166,7 @@ class Processor(AbstractProcessor):
         self.idFields = {}
         self.delOrArchMarkers = {}
         self.col2fields = {}
+        self.column_groups = {}
         self.allMappings = range(len(MappingType))
         numbOfFields = 0
 
@@ -232,6 +233,7 @@ class Processor(AbstractProcessor):
         for val in col_mappings:
 
             mappingType = None
+
             if val.target_field.name in self.target_fields:
 
                 self.col2fields[val.name] = val.target_field.name
@@ -278,9 +280,9 @@ class Processor(AbstractProcessor):
                         mappingType = MappingType.Many2One
                         v = val.mapping_expression.replace('>', '')
                         vals = [val.target_field.name] + v.split('/')
-                        if re.match(r'.*\&.*', vals[1]):
-                            (_fieldname, cond) = vals[1].split('&')
-                            vals[1] = _fieldname
+                        if re.match(r'.*\&.*', vals[2]):
+                            (_fieldname, cond) = vals[2].split('&')
+                            vals[2] = _fieldname
                             try:
                                 vals.append(eval(cond))
                             except Exception as a:
@@ -414,7 +416,7 @@ class Processor(AbstractProcessor):
                 elif mapType in (MappingType.Constant, MappingType.ContextEval):
                     (keyfield, value) = self.allMappings[mapType][k]
                 elif mapType == MappingType.Many2One:
-                    keyfield = self.allMappings[mapType][k][1]
+                    keyfield = self.col2fields[k]
                     if k in data_values:
                         value = data_values[k]
                 else:
