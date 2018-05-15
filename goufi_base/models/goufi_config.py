@@ -11,6 +11,7 @@ from odoo import api, fields, models, _
 
 
 class GoufiConfigSettings(models.TransientModel):
+    _name = 'goufi.config.settings'
     _inherit = 'res.config.settings'
 
     config_needs_partner = fields.Boolean(
