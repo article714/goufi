@@ -59,4 +59,4 @@ class GoufiConfigSettings(models.TransientModel):
         ICPSudo = self.env['ir.config_parameter'].sudo()
         ICPSudo.set_param('goufi.config_needs_partner', self.config_needs_partner)
         ICPSudo.set_param('goufi.delete_obsolete_files', self.delete_obsolete_files)
-        ICPSudo.set_param('goufi.self.goufi_default_language.id', self.goufi_default_language.id)
+        ICPSudo.set_param('goufi.self.goufi_default_language', self.goufi_default_language.id)
