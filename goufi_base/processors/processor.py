@@ -25,9 +25,12 @@ from odoo.addons.goufi_base.utils.converters import toString
 procLogFmt = logging.Formatter('%(asctime)s -(%(filename)s,%(lineno)d) - [%(levelname)s] - %(message)s')
 procLogDefaultLogger = logging.Logger("GoufiImportProcessor", logging.INFO)
 
+_reHeader = re.compile(r'[0-9]+[\_\.]')
 
 #-------------------------------------------------------------------------------------
 # MAIN CLASS
+
+
 class AbstractProcessor(object):
     """
     A base class to provide standard utilities an default implementation of any Processor method
@@ -124,20 +127,24 @@ class AbstractProcessor(object):
             self.logger.warning("No target model set on configuration, attempt to find it from file name")
 
             bname = path.basename(import_file.filename)
-            modelname = bname.split('.')[0]
+            modelname = '.'.join(bname.split('.')[:-1])
 
-            modelname = modelname.replace('_', '.')
-            if re.match(r'[0-9]+\.', modelname):
-                modelname = re.sub(r'[0-9]+\.', '', modelname)
+            if _reHeader.match(modelname):
+                modelname = _reHeader.sub('', modelname)
 
             try:
                 self.target_model = self.odooenv[modelname]
             except:
-                self.target_model = None
-                self.logger.exception("Not able to guess target model from filename: " + toString(import_file.filename))
-                self.end_processing(import_file, success=False, status='failure',
-                                    any_message=u"Model Not found: %s" % modelname)
-                return
+                modelname = modelname.replace('_', '.')
+            if self.target_model == None:
+                try:
+                    self.target_model = self.odooenv[modelname]
+                except:
+                    self.target_model = None
+                    self.logger.exception("Not able to guess target model from filename: " +
+                                          toString(import_file.filename))
+                    self.end_processing(import_file, success=False, status='failure',
+                                        any_message=u"Model Not found: %s" % modelname)
 
     #-------------------------------------------------------------------------------------
     def start_processing(self, import_file):
