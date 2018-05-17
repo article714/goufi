@@ -163,7 +163,7 @@ class AbstractProcessor(object):
                             result = self.process_data(import_file)
                             result = (result == None) or (result == True)
                             # reports result
-                            if self.errorCount > 0:
+                            if self.errorCount == 0:
                                 self.end_processing(import_file, success=result, status='ended')
                             else:
                                 self.end_processing(import_file, success=result, status='error',
