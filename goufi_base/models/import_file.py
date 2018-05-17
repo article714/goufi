@@ -68,6 +68,7 @@ class ImportFile(models.Model):
     processing_status = fields.Selection([('new', 'new'),
                                           (u'running', u'running'),
                                           (u'ended', u'ended'),
+                                          (u'error', u'ended with errors'),
                                           (u'pending', u'pending'),
                                           (u'failure', u'failure')],
                                          string=_(u"Processing status"), default='new', track_visibility='onchange')
