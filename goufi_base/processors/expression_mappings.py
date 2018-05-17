@@ -212,13 +212,13 @@ class Processor(AbstractProcessor):
             self.logger.error("MODEL NOT FOUND ")
             return -1
         else:
-            self.logger.info("NEW SHEET [%s]:  Import data for model %s" %
-                             (tab_name, toString(self.target_model._name)))
+            self.logger.info("NEW SHEET [%s]:  Import data for model %s",
+                             tab_name, toString(self.target_model._name))
 
         # List of fields in target model
         self.target_fields = None
         if self.target_model == None:
-            raise Exception('FAILED', "FAILED => NO TARGET MODEL FOUND")
+            raise Exception('FAILED', u"FAILED => NO TARGET MODEL FOUND")
         else:
             self.target_fields = self.target_model.fields_get_keys()
 
@@ -257,8 +257,8 @@ class Processor(AbstractProcessor):
                         self.allMappings[mappingType][val.name] = [
                             val.target_field.name, getattr(self, val.mapping_expression)]
                     else:
-                        self.logger.error(u"Wrong mapping expression for %s: too short or method does not exist (%s)" % (
-                            val.name, str(val.mapping_expression)))
+                        self.logger.error(u"Wrong mapping expression for %s: too short or method does not exist (%s)",
+                                          val.name, str(val.mapping_expression))
                 elif val.mapping_expression and len(val.mapping_expression) > 2:
                     if re.match(r'\*.*', val.mapping_expression):
                         mappingType = MappingType.One2Many
@@ -311,8 +311,7 @@ class Processor(AbstractProcessor):
     # Process line values
     def process_values(self, filename, line_index, data_values):
 
-        # TODO: optimization: remove systematic generation of that string
-        DEFAULT_LOG_STRING = "<" + toString(filename) + "> [ line " + toString(line_index + 1) + "] -> "
+        DEFAULT_LOG_STRING = u"< %s > [ line %d ] -> %s"
 
         currentObj = None
         TO_BE_ARCHIVED = False
@@ -332,7 +331,7 @@ class Processor(AbstractProcessor):
                 value = eval(self.allMappings[MappingType.ContextEval][val][1])
                 data_values[val] = value
             except Exception as e:
-                self.logger.exception("Failed to evaluate expression from context: %s " % str(val))
+                self.logger.exception("Failed to evaluate expression from context: %s ", str(val))
 
         # Process Function Call values
         for val in self.allMappings[MappingType.FunctionCall]:
@@ -344,7 +343,7 @@ class Processor(AbstractProcessor):
                 else:
                     del data_values[val]
             except Exception as e:
-                self.logger.exception("Failed to compute value from function call: %s" % str(val))
+                self.logger.exception("Failed to compute value from function call: %s", str(val))
 
         # Many To One Fields, might be mandatory, so needs to be treated first and added to StdRow
         for f in self.allMappings[MappingType.Many2One]:
@@ -381,12 +380,12 @@ class Processor(AbstractProcessor):
                         try:
                             data_values[f] = self.odooenv[config[1]].create({config[2]: data_values[f]}).id
                         except:
-                            self.logger.error(DEFAULT_LOG_STRING + " failed to create a new record for " +
-                                              toString(data_values[f]) + "  for model " + toString(config[1]))
+                            self.logger.error(DEFAULT_LOG_STRING, filename, line_index, u" failed to create a new record for %s   for model  %s" % (
+                                toString(data_values[f]), toString(config[1])))
                             del data_values[f]
 
                     else:
-                        self.logger.warning(DEFAULT_LOG_STRING + " found %d values for %s  ,unable to reference %s -> %s" %
+                        self.logger.warning(DEFAULT_LOG_STRING, filename, line_index, u" found %d values for %s  ,unable to reference %s -> %s" %
                                             (len(vals), toString(data_values[f]), toString(config[1]), toString(vals)))
                         del data_values[f]
 
@@ -404,13 +403,15 @@ class Processor(AbstractProcessor):
                         TO_BE_DELETED = (re.match(config[1], data_values[f]) != None)
                         TO_BE_ARCHIVED = TO_BE_DELETED and config[2]
                         if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
-                            self.logger.error(DEFAULT_LOG_STRING + "This kind of records can not be archived")
+                            self.logger.error(DEFAULT_LOG_STRING, filename, line_index,
+                                              "This kind of records can not be archived")
                             TO_BE_ARCHIVED = False
                     else:
                         # archival config
                         TO_BE_ARCHIVED = (re.match(config[1], data_values[f]) != None)
                         if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
-                            self.logger.error(DEFAULT_LOG_STRING + "This kind of records can not be archived")
+                            self.logger.error(DEFAULT_LOG_STRING, filename, line_index,
+                                              "This kind of records can not be archived")
                             TO_BE_ARCHIVED = False
 
             # compute search criteria
@@ -430,13 +431,13 @@ class Processor(AbstractProcessor):
                     if k in data_values:
                         value = data_values[k]
                 else:
-                    self.logger.error(DEFAULT_LOG_STRING + "Wrong identifier column %s" % k)
+                    self.logger.error(DEFAULT_LOG_STRING, filename, line_index, u"Wrong identifier column %s" % k)
                     return 0
 
                 if value != None and value != str(''):
                     search_criteria.append((keyfield, '=', value))
                 else:
-                    self.logger.warning(DEFAULT_LOG_STRING +
+                    self.logger.warning(DEFAULT_LOG_STRING, filename, line_index,
                                         "GOUFI: Do not process line n.%d, as Id column (%s) is empty" % (line_index + 1, k))
                     return
 
@@ -453,7 +454,7 @@ class Processor(AbstractProcessor):
             if len(found) == 1:
                 currentObj = found[0]
             elif len(found) > 1:
-                self.logger.warning(DEFAULT_LOG_STRING + "FOUND TOO MANY RESULT FOR " + toString(self.target_model) +
+                self.logger.warning(DEFAULT_LOG_STRING, filename, line_index, u"FOUND TOO MANY RESULT FOR " + toString(self.target_model) +
                                     " with " + toString(search_criteria) + "=>   [" + toString(len(found)) + "]")
                 return
             else:
@@ -475,7 +476,7 @@ class Processor(AbstractProcessor):
                 except:
                     if TO_BE_ARCHIVED:
                         self.odooenv.cr.rollback()
-                        self.logger.warning(DEFAULT_LOG_STRING +
+                        self.logger.warning(DEFAULT_LOG_STRING, filename, line_index,
                                             "Archiving record as it can not be deleted (line n. %d)" % (line_index + 1,))
                         try:
                             currentObj.write({'active': False})
@@ -483,7 +484,7 @@ class Processor(AbstractProcessor):
                         except Exception as e:
                             self.odooenv.cr.rollback()
                             self.logger.warning(
-                                DEFAULT_LOG_STRING + "Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
+                                DEFAULT_LOG_STRING, filename, line_index, u"Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
                 currentObj = None
                 self.odooenv.cr.commit()
             return True
@@ -495,7 +496,7 @@ class Processor(AbstractProcessor):
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning(DEFAULT_LOG_STRING + "Not able to archive record (line n. %d) : %s" %
+                    self.logger.warning(DEFAULT_LOG_STRING, filename, line_index, u"Not able to archive record (line n. %d) : %s" %
                                         (line_index + 1, toString(e),))
         elif CAN_BE_ARCHIVED:
             if not currentObj == None:
@@ -505,7 +506,7 @@ class Processor(AbstractProcessor):
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning(DEFAULT_LOG_STRING + "Not able to activate record (line n. %d) : %s" %
+                    self.logger.warning(DEFAULT_LOG_STRING, filename, line_index, u"Not able to activate record (line n. %d) : %s" %
                                         (line_index + 1, toString(e),))
 
         # Create Object if it does not yet exist, else, write updates
@@ -515,7 +516,8 @@ class Processor(AbstractProcessor):
             # check mandatory fields
             for f in self.mandatoryFields:
                 if f not in data_values:
-                    self.logger.error(DEFAULT_LOG_STRING + "missing value for mandatory column: " + str(f))
+                    self.logger.error(DEFAULT_LOG_STRING, filename, line_index,
+                                      u"missing value for mandatory column: %s" % toString(f))
                     return False
             actual_values = self.map_values(data_values)
             if currentObj == None:
@@ -526,13 +528,13 @@ class Processor(AbstractProcessor):
             self.odooenv.cr.commit()
         except ValueError as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING + " wrong values where creating/updating object: %s -> %s [%s] " % (
+            self.logger.exception(DEFAULT_LOG_STRING, filename, line_index, u" wrong values where creating/updating object: %s -> %s [%s] " % (
                 str(self.target_model), toString(actual_values), toString(currentObj)))
-            self.logger.error("                    MSG: %s" % format(toString(e)))
+            self.logger.error(u"                    MSG: %s", toString(e))
             currentObj = None
         except Exception as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING + " Generic Error raised Exception")
+            self.logger.exception(DEFAULT_LOG_STRING, filename, line_index, u" Generic Error raised Exception")
             currentObj = None
 
         # One2Many Fields,
@@ -553,8 +555,8 @@ class Processor(AbstractProcessor):
                                     if len(vals) == 1:
                                         currentObj.write({config[2]: [(4, vals[0].id, False)]})
                                     else:
-                                        self.logger.warning(DEFAULT_LOG_STRING + "found " + toString(len(vals)) +
-                                                            " values for " + toString(m) + "  unable to reference")
+                                        self.logger.warning(
+                                            DEFAULT_LOG_STRING, filename, line_index, u"found %d  values for %s =>   unable to reference" % (len(vals), toString(m)))
 
                                 # Creates records in  One2Many
                                 elif config[0] == 1:
@@ -563,13 +565,13 @@ class Processor(AbstractProcessor):
             self.odooenv.cr.commit()
         except ValueError as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING + " Wrong values where updating object: " +
+            self.logger.exception(DEFAULT_LOG_STRING, filename, line_index, u" Wrong values where updating object: " +
                                   self.target_model.name + " -> " + toString(data_values))
-            self.logger.error("                    MSG: {0}".format(toString(e)))
+            self.logger.error("                    MSG: %s", toString(e))
             currentObj = None
         except Exception as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING + " Generic Error raised Exception")
+            self.logger.exception(DEFAULT_LOG_STRING, filename, line_index, u" Generic Error raised Exception")
             currentObj = None
 
         # Finally commit
@@ -589,7 +591,7 @@ class CSVProcessor(Processor):
         if (ext in CSV_AUTHORIZED_EXTS):
             super(CSVProcessor, self).process_file(import_file, force)
         else:
-            self.logger.error("Cannot process file: Wrong extension -> %s" % ext)
+            self.logger.error("Cannot process file: Wrong extension -> %s", ext)
 
     #-------------------------------------------------------------------------------------
     def process_data(self, import_file):
@@ -613,7 +615,7 @@ class CSVProcessor(Processor):
             self.logger.warning("No target model set on configuration, attempt to find it from file name")
 
             bname = path.basename(import_file.filename)
-            (modelname, ext) = bname.split('.')
+            modelname = bname.split('.')[0]
 
             modelname = modelname.replace('_', '.')
             if re.match(r'[0-9]+\.', modelname):
@@ -729,7 +731,7 @@ class XLProcessor(Processor):
                         elif ('import_processed' in self.target_model.fields_get_keys()):
                             # hook for objects needing to be set as processed through import
                             self.odooenv.cr.execute(
-                                'update ' + toString(self.target_model._table) + ' set import_processed = False')
+                                'update %s set import_processed = False' % toString(self.target_model._table))
                             self.odooenv.cr.commit()
                 else:
                     if self.target_model == None:
@@ -764,7 +766,7 @@ class XLProcessor(Processor):
         if (ext in XL_AUTHORIZED_EXTS):
             super(XLProcessor, self).process_file(import_file, force)
         else:
-            self.logger.error("Cannot process file: Wrong extension -> %s" % ext)
+            self.logger.error("Cannot process file: Wrong extension -> %s", ext)
 
     #-------------------------------------------------------------------------------------
     def process_data(self, import_file):
