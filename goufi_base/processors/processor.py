@@ -11,6 +11,7 @@ from datetime import datetime
 from os import path, remove
 import base64
 import logging
+import re
 
 from odoo.exceptions import ValidationError
 
@@ -34,26 +35,39 @@ class AbstractProcessor(object):
     Initialize logger specific of the current instance of processor
     """
 
+    # TODO => document the API
+
     #-------------------------------------------------------------------------------------
     def __init__(self, parent_config):
         """
         Constructor
         parent_config should be an instance of ImportConfiguration
         """
+
         # default logging
         procLogDefaultLogger.setLevel(logging.INFO)
         self.logger = procLogDefaultLogger
         self.logger_fh = None
 
         # error reporting mechanisms
-
         self.errorCount = 0
+
+        # default target model
+        self.target_model = None
+
+        # set language in context
+        lang = parent_config.context_language
+        if lang == False:
+            lang = parent_config._get_default_language()
 
         # setup links with odoo environment
         self.odooenv = None
         if isinstance(parent_config, ImportConfiguration):
             self.parent_config = parent_config
-            self.odooenv = self.parent_config.env
+            if lang:
+                self.odooenv = self.parent_config.env(context={'lang': lang.code})
+            else:
+                self.odooenv = self.parent_config.env
         else:
             self.parent_config = None
             self.logger.error("GOUFI: error- invalid configuration")
@@ -95,6 +109,35 @@ class AbstractProcessor(object):
                 remove(filename)
             except OSError:
                 pass
+
+    #-------------------------------------------------------------------------------------
+    def search_target_model_from_filename(self, import_file):
+
+        if self.target_model == None:
+            try:
+                self.target_model = self.odooenv[self.parent_config.target_object.model]
+            except:
+                self.target_model = None
+
+        if self.target_model == None:
+
+            self.logger.warning("No target model set on configuration, attempt to find it from file name")
+
+            bname = path.basename(import_file.filename)
+            modelname = bname.split('.')[0]
+
+            modelname = modelname.replace('_', '.')
+            if re.match(r'[0-9]+\.', modelname):
+                modelname = re.sub(r'[0-9]+\.', '', modelname)
+
+            try:
+                self.target_model = self.odooenv[modelname]
+            except:
+                self.target_model = None
+                self.logger.exception("Not able to guess target model from filename: " + toString(import_file.filename))
+                self.end_processing(import_file, success=False, status='failure',
+                                    any_message=u"Model Not found: %s" % modelname)
+                return
 
     #-------------------------------------------------------------------------------------
     def start_processing(self, import_file):
@@ -192,3 +235,44 @@ class AbstractProcessor(object):
         else:
             self.logger.error("GOUFI: cannot import : no import_file provided !")
             logging.exception("GOUFI: cannot import : no import_file provided !")
+
+#-------------------------------------------------------------------------------------
+# MAIN CLASS
+
+
+class LineIteratorProcessor(AbstractProcessor):
+    """
+    A processor that must provide a generator to iterate on each line of the  file
+    """
+
+    #-------------------------------------------------------------------------------------
+    # Process line values
+    def process_values(self, filename, line_index, data_values):
+
+        raise ValidationError("GOUFI: un-implemented generator method")
+
+    #-------------------------------------------------------------------------------------
+    # line generator
+    def get_lines(self, import_file):
+
+        raise ValidationError("GOUFI: un-implemented process_data method")
+
+    #-------------------------------------------------------------------------------------
+    def process_data(self, import_file):
+        """
+        Method that actually process data
+        Should return True on success and False on failure
+        """
+
+        idx = 0
+        for row in self.get_lines(import_file):
+            idx += 1
+            try:
+                self.process_values(import_file.filename, idx, row)
+            except Exception as e:
+                self.logger.exception(u"Error when processing line N°" + str(idx))
+                self.errorCount += 1
+                self.odooenv.cr.rollback()
+                return False
+
+        return self.errorCount == 0

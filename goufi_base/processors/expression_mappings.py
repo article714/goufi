@@ -10,22 +10,15 @@ Created on 23 deb. 2018
 from enum import IntEnum, unique
 from openpyxl.cell.read_only import EmptyCell
 from openpyxl.reader.excel import load_workbook
-from os import path
 import re
 import unicodecsv
 import xlrd
 
-from odoo import _
-
 from odoo.addons.goufi_base.utils.converters import toString
 
-from .processor import AbstractProcessor
-
-
-#-------------------------------------------------------------------------------------
-# CONSTANTS
-XL_AUTHORIZED_EXTS = ('xlsx', 'xls')
-CSV_AUTHORIZED_EXTS = ('csv')
+from .csv_support_mixins import CSVImporterMixin
+from .processor import AbstractProcessor, LineIteratorProcessor
+from .xl_support_mixins import XLImporterMixin
 
 
 @unique
@@ -124,7 +117,7 @@ class Processor(AbstractProcessor):
         self.target_model = None
         self.target_fields = None
 
-        self.m2o_create_if_no_target_instance = False
+        self.m2o_create_if_no_target_instance = ()
         for param in parent_config.processor_parameters:
             if param.name == u'm2o_create_if_no_target_instance':
                 self.m2o_create_if_no_target_instance = param.value.split(',')
@@ -516,8 +509,9 @@ class Processor(AbstractProcessor):
             # check mandatory fields
             for f in self.mandatoryFields:
                 if f not in data_values:
+                    self.errorCount += 1
                     self.logger.error(DEFAULT_LOG_STRING, filename, line_index,
-                                      u"missing value for mandatory column: %s" % toString(f))
+                                      u"missing value for mandatory column: %s" % f)
                     return False
             actual_values = self.map_values(data_values)
             if currentObj == None:
@@ -580,18 +574,31 @@ class Processor(AbstractProcessor):
 
 #-------------------------------------------------------------------------------------
 # Process CSV Only
-class CSVProcessor(Processor):
+class CSVProcessor(Processor, LineIteratorProcessor, CSVImporterMixin):
     """
     Processes csv files
     """
 
+    def __init__(self, parent_config):
+        Processor.__init__(self, parent_config)
+        CSVImporterMixin.__init__(self, parent_config)
+        LineIteratorProcessor.__init__(self, parent_config)
     #-------------------------------------------------------------------------------------
-    def process_file(self, import_file, force=False):
-        ext = import_file.filename.split('.')[-1]
-        if (ext in CSV_AUTHORIZED_EXTS):
-            super(CSVProcessor, self).process_file(import_file, force)
-        else:
-            self.logger.error("Cannot process file: Wrong extension -> %s", ext)
+    # line generator
+
+    def get_lines(self, import_file):
+
+        # try with , as a delimiter
+        with open(import_file.filename, 'rt') as csvfile:
+            csv_reader = unicodecsv.DictReader(csvfile, quotechar=str(self.csv_string_separator),
+                                               delimiter=str(self.csv_separator))
+
+            if (len(csv_reader.fieldnames) > 1):
+                if self.prepare_mappings() > 0:
+                    for row in csv_reader:
+                        yield row
+
+            csvfile.close()
 
     #-------------------------------------------------------------------------------------
     def process_data(self, import_file):
@@ -600,80 +607,28 @@ class CSVProcessor(Processor):
         """
         self.logger.info("PROCESSING CSV FILE :" + import_file.filename)
 
-        processed = False
-
         # Search for target model
+        self.search_target_model_from_filename(import_file)
 
         if self.target_model == None:
-            try:
-                self.target_model = self.odooenv[self.parent_config.target_object.model]
-            except:
-                self.target_model = None
+            self.logger.exception("Not able to guess target model: " + toString(import_file.filename))
+            return False
 
-        if self.target_model == None:
-
-            self.logger.warning("No target model set on configuration, attempt to find it from file name")
-
-            bname = path.basename(import_file.filename)
-            modelname = bname.split('.')[0]
-
-            modelname = modelname.replace('_', '.')
-            if re.match(r'[0-9]+\.', modelname):
-                modelname = re.sub(r'[0-9]+\.', '', modelname)
-
-            try:
-                self.target_model = self.odooenv[modelname]
-            except:
-                self.target_model = None
-                self.logger.exception("Not able to guess target model from filename: " + toString(import_file.filename))
-                import_file.processing_result = _(u"Model Not found")
-                import_file.processing_status = 'failure'
-                self.odooenv.cr.commit()
-                return
-
-        # try with , as a delimiter
-        with open(import_file.filename, 'rt') as csvfile:
-            csv_reader = unicodecsv.DictReader(csvfile, delimiter=',', quotechar='\"')
-            if (len(csv_reader.fieldnames) > 1):
-                if self.prepare_mappings() > 0:
-                    processed = True
-                    idx = 0
-                    for row in csv_reader:
-                        idx += 1
-                        self.process_values(import_file.filename, idx, row)
-
-            csvfile.close()
-
-        # try with ; as a delimiter
-        if not processed:
-            with open(import_file.filename, 'rb') as csvfile:
-                csv_reader = unicodecsv.DictReader(csvfile, delimiter=';', quotechar='\"')
-
-                if self.prepare_mappings() > 0:
-
-                    idx = 0
-                    for row in csv_reader:
-                        idx += 1
-                        try:
-                            self.process_values(import_file.filename, idx, row)
-
-                        except Exception as e:
-                            self.logger.exception(u"Error when processing line N°" + str(idx))
-                            import_file.processing_status = 'failure'
-                            import_file.processing_result = str(e) + " -- " + e.message
-                            self.odooenv.cr.commit()
-
-                csvfile.close()
-
-        self.logger.info("Textual mapping IMPORT; process DATA: " + toString(import_file.filename))
-
+        return LineIteratorProcessor.process_data(self, import_file)
 
 #-------------------------------------------------------------------------------------
 # Process XL* Only
-class XLProcessor(Processor):
+
+
+class XLProcessor(Processor, XLImporterMixin):
     """
     Processes xls and xlsx files
     """
+    #----------------------------------------------------------
+
+    def __init__(self, parent_config):
+        Processor.__init__(self, parent_config)
+        XLImporterMixin.__init__(self, parent_config)
 
     #-------------------------------------------------------------------------------------
     def process_xls(self, import_file):
@@ -759,35 +714,3 @@ class XLProcessor(Processor):
                 self.logger.error("Did not process tab " + shname + " correctly")
                 result = False
         return result
-
-    #-------------------------------------------------------------------------------------
-    def process_file(self, import_file, force=False):
-        ext = import_file.filename.split('.')[-1]
-        if (ext in XL_AUTHORIZED_EXTS):
-            super(XLProcessor, self).process_file(import_file, force)
-        else:
-            self.logger.error("Cannot process file: Wrong extension -> %s", ext)
-
-    #-------------------------------------------------------------------------------------
-    def process_data(self, import_file):
-        """
-        Method that actually process data
-        """
-
-        self.logger.info("Textual mapping IMPORT; process DATA: " + toString(import_file.filename))
-        try:
-
-            if import_file.filename.endswith('.xls'):
-                result = self.process_xls(import_file)
-            elif import_file.filename.endswith('.xlsx'):
-                result = self.process_xlsx(import_file)
-
-            return result
-
-        except Exception as e:
-            self.logger.exception("Processing Failed: " + str(e))
-            self.odooenv.cr.rollback()
-            import_file.processing_status = 'failure'
-            import_file.processing_result = str(e)
-            self.odooenv.cr.commit()
-            return False

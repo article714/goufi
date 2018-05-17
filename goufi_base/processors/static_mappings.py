@@ -11,12 +11,9 @@ Created on 3 mai 2018
 from openpyxl.cell.read_only import EmptyCell
 from openpyxl.reader.excel import load_workbook
 from os import path
-import os
 import re
 import unicodecsv
 import xlrd
-
-from odoo import _
 
 from odoo.addons.goufi_base.utils.converters import toString
 
@@ -120,6 +117,15 @@ class Processor(AbstractProcessor):
 
         self.header_line_idx = 0
         self.target_model = None
+
+        # parameters
+        self.csv_separator = ","
+        self.csv_string_separator = "\""
+        for param in parent_config.processor_parameters:
+            if param.name == u'csv_separator':
+                self.csv_separator = param.value
+            if param.name == u'csv_string_separator':
+                self.csv_string_separator = param.value
 
     #-------------------------------------------------------------------------------------
     # recherche les noms de champs a mettre en relation
@@ -380,7 +386,7 @@ class Processor(AbstractProcessor):
             self.logger.warning("No target model set on configuration, attempt to find it from file name")
 
             bname = path.basename(filename)
-            (modelname, ext) = bname.split('.')
+            modelname = bname.split('.')[0]
 
             modelname = modelname.replace('_', '.')
             if re.match(r'[0-9]+\.', modelname):
@@ -458,7 +464,7 @@ class Processor(AbstractProcessor):
             try:
                 self.target_model = self.odooenv[shname]
             except:
-                self.logger.exception(u"Model Not Found: %s" % shname)
+                self.logger.exception(u"Model Not Found: %s", shname)
                 return False
 
             sh = wb.get_sheet_by_name(shname)
@@ -497,8 +503,8 @@ class Processor(AbstractProcessor):
         if (ext in AUTHORIZED_EXTS):
             super(Processor, self).process_file(import_file, force)
         else:
-            self.logger.error("Cannot process file: Wrong extension -> %s" % ext)
-            self.end_processing(import_file, False)
+            self.logger.error("Cannot process file: Wrong extension -> %s", ext)
+            self.end_processing(import_file, success=False, status='failure', any_message="Wrong file exension")
 
     #-------------------------------------------------------------------------------------
     def process_data(self, import_file):
