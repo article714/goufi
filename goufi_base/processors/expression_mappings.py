@@ -362,6 +362,15 @@ class Processor(AbstractProcessor):
                     else:
                         cond = [(config[2], '=', data_values[f])]
 
+                    # search in active and archived records if model contains an 'active' property
+
+                    search_model = self.odooenv[config[1]]
+                    if 'active' in search_model.fields_get_keys():
+                        cond.append('|')
+                        cond.append(('active', '=', True))
+                        cond.append(('active', '=', False))
+
+                    # do search for a record
                     vals = self.odooenv[config[1]].search(cond, limit=1)
 
                     if len(vals) == 1:
