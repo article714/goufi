@@ -94,7 +94,7 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
             self.logger.error("Unrecognized Book type....")
 
     #-------------------------------------------------------------------------------------
-    # Process line values
+    # Process header for tab
     def process_tab_header(self, tab=None, headerrow=None):
 
         if isinstance(self.book, Book):

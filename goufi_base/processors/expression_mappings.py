@@ -120,7 +120,6 @@ class ExpressionProcessorMixin(object):
         self.delOrArchMarkers = {}
         self.col2fields = {}
         self.allMappings = []
-        self.column_groups = {}
 
         self.header_line_idx = self.parent_config.default_header_line_index
         self.target_model = None
@@ -178,7 +177,6 @@ class ExpressionProcessorMixin(object):
         self.idFields = {}
         self.delOrArchMarkers = {}
         self.col2fields = {}
-        self.column_groups = {}
         self.allMappings = range(len(MappingType))
         numbOfFields = 0
 
@@ -483,6 +481,16 @@ class ExpressionProcessorMixin(object):
                     self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"Not able to activate record (line n. %d) : %s" %
                                         (line_index + 1, toString(e),))
 
+        # Pre Write Hooks
+        try:
+            if currentObj != None:
+                if "_pre_write_record_hook" in self.hooks:
+                    self.hooks['_pre_write_record_hook'](self, data_values)
+        except Exception as e:
+            self.odooenv.cr.rollback()
+            self.logger.exception(DEFAULT_LOG_STRING, line_index + 1,
+                                  u" Error raised during _pre_write_record_hook processing")
+
         # Create Object if it does not yet exist, else, write updates
         actual_values = None
         try:
@@ -511,11 +519,6 @@ class ExpressionProcessorMixin(object):
             self.odooenv.cr.rollback()
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Generic Error raised Exception")
             currentObj = None
-
-        # Post Write Hooks
-        if currentObj != None:
-            if "_post_write_record_hook" in self.hooks:
-                self.hooks['_post_write_record_hook'](self, currentObj, data_values)
 
         # One2Many Fields,
 
@@ -553,6 +556,16 @@ class ExpressionProcessorMixin(object):
             self.odooenv.cr.rollback()
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Generic Error raised Exception")
             currentObj = None
+
+        # Post Write Hooks
+        try:
+            if currentObj != None:
+                if "_post_write_record_hook" in self.hooks:
+                    self.hooks['_post_write_record_hook'](self, currentObj, data_values)
+        except Exception as e:
+            self.odooenv.cr.rollback()
+            self.logger.exception(DEFAULT_LOG_STRING, line_index + 1,
+                                  u" Error raised during _post_write_record_hook processing")
 
         # Finally commit
         self.odooenv.cr.commit()

@@ -13,11 +13,10 @@ import base64
 import logging
 import re
 
-from odoo.exceptions import ValidationError
-
 from odoo.addons.goufi_base.models.import_configuration import ImportConfiguration
 from odoo.addons.goufi_base.models.import_file import ImportFile
 from odoo.addons.goufi_base.utils.converters import toString
+from odoo.exceptions import ValidationError
 
 
 #-------------------------------------------------------------------------------------
@@ -320,6 +319,22 @@ class LineIteratorProcessor(AbstractProcessor):
                 self.odooenv.cr.execute(
                     'update %s set import_processed = False' % toString(self.target_model._table))
                 self.odooenv.cr.commit()
+
+            # Pre-process Rows Hook
+            try:
+                if "_pre_process_rows_hook" in self.hooks:
+                    result = self.hooks['_pre_process_rows_hook'](self, import_file,)
+                    if not result:
+                        self.logger.error(u"Failure during processing of _pre_process_rows_hook")
+                        self.errorCount += 1
+                        return False
+            except Exception as e:
+                self.odooenv.cr.rollback()
+                self.logger.exception(u" Error raised during _pre_process_rows_hook processing")
+                self.errorCount += 1
+                return False
+
+            # process Rows
             for row in self.get_rows(import_file):
                 idx += 1
                 try:
@@ -333,7 +348,7 @@ class LineIteratorProcessor(AbstractProcessor):
             self.logger.error("Could not prepare mapping configuration for file: %s", import_file.filename)
             self.errorCount += 1
 
-        return nb_mappings
+        return self.errorCount == 0
 
 #-------------------------------------------------------------------------------------
 # MultiSheetLineIterator CLASS
@@ -454,6 +469,22 @@ class MultiSheetLineIterator(AbstractProcessor):
                         self.odooenv.cr.execute(
                             'update %s set import_processed = False' % toString(self.target_model._table))
                         self.odooenv.cr.commit()
+
+                    # Pre-process Rows Hook
+                    try:
+                        if '_pre_process_rows_hook' in self.hooks:
+                            result = self.hooks['_pre_process_rows_hook'](self, import_file,)
+                            if not result:
+                                self.logger.error(u"Failure during processing of _pre_process_rows_hook")
+                                self.errorCount += 1
+                                return False
+                    except Exception as e:
+                        self.odooenv.cr.rollback()
+                        self.logger.exception(u" Error raised during _pre_process_rows_hook processing")
+                        self.errorCount += 1
+                        return False
+
+                    # Process Rows
                     for row in self.get_rows(tab):
                         try:
                             if idx == self.header_line_idx:

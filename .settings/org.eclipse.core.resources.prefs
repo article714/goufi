@@ -9,7 +9,6 @@ encoding//goufi_base/models/import_file.py=utf-8
 encoding//goufi_base/models/import_processor.py=utf-8
 encoding//goufi_base/models/import_tab_mapping.py=utf-8
 encoding//goufi_base/processors/__init__.py=utf-8
-encoding//goufi_base/processors/colgroup_mappings.py=utf-8
 encoding//goufi_base/processors/do_nothing.py=utf-8
 encoding//goufi_base/processors/expression_mappings.py=utf-8
 encoding//goufi_base/processors/odoo_csv_import.py=utf-8
