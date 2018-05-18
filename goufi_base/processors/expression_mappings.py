@@ -353,12 +353,12 @@ class ExpressionProcessorMixin(object):
                         try:
                             data_values[f] = self.odooenv[config[1]].create({config[2]: data_values[f]}).id
                         except:
-                            self.logger.error(DEFAULT_LOG_STRING, line_index, u" failed to create a new record for %s   for model  %s" % (
+                            self.logger.error(DEFAULT_LOG_STRING, line_index + 1, u" failed to create a new record for %s   for model  %s" % (
                                 toString(data_values[f]), toString(config[1])))
                             del data_values[f]
 
                     else:
-                        self.logger.warning(DEFAULT_LOG_STRING, line_index, u" found %d values for %s  ,unable to reference %s -> %s" %
+                        self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u" found %d values for %s  ,unable to reference %s -> %s" %
                                             (len(vals), toString(data_values[f]), toString(config[1]), toString(vals)))
                         del data_values[f]
 
@@ -376,14 +376,14 @@ class ExpressionProcessorMixin(object):
                         TO_BE_DELETED = (re.match(config[1], data_values[f]) != None)
                         TO_BE_ARCHIVED = TO_BE_DELETED and config[2]
                         if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
-                            self.logger.error(DEFAULT_LOG_STRING, line_index,
+                            self.logger.error(DEFAULT_LOG_STRING, line_index + 1,
                                               "This kind of records can not be archived")
                             TO_BE_ARCHIVED = False
                     else:
                         # archival config
                         TO_BE_ARCHIVED = (re.match(config[1], data_values[f]) != None)
                         if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
-                            self.logger.error(DEFAULT_LOG_STRING, line_index,
+                            self.logger.error(DEFAULT_LOG_STRING, line_index + 1,
                                               "This kind of records can not be archived")
                             TO_BE_ARCHIVED = False
 
@@ -404,14 +404,15 @@ class ExpressionProcessorMixin(object):
                     if k in data_values:
                         value = data_values[k]
                 else:
-                    self.logger.error(DEFAULT_LOG_STRING, line_index, u"Wrong identifier column %s" % k)
+                    self.logger.error(DEFAULT_LOG_STRING, line_index + 1, u"Wrong identifier column %s" % k)
                     return 0
 
                 if value != None and value != str(''):
                     search_criteria.append((keyfield, '=', value))
                 else:
-                    self.logger.warning(DEFAULT_LOG_STRING, line_index,
+                    self.logger.warning(DEFAULT_LOG_STRING, line_index + 1,
                                         "GOUFI: Do not process line n.%d, as Id column (%s) is empty" % (line_index + 1, k))
+                    self.errorCount += 1
                     return
 
             # ajout d'une clause pour rechercher tous les enregistrements
@@ -427,7 +428,7 @@ class ExpressionProcessorMixin(object):
             if len(found) == 1:
                 currentObj = found[0]
             elif len(found) > 1:
-                self.logger.warning(DEFAULT_LOG_STRING, line_index, u"FOUND TOO MANY RESULT FOR " + toString(self.target_model) +
+                self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"FOUND TOO MANY RESULT FOR " + toString(self.target_model) +
                                     " with " + toString(search_criteria) + "=>   [" + toString(len(found)) + "]")
                 return
             else:
@@ -449,7 +450,7 @@ class ExpressionProcessorMixin(object):
                 except:
                     if TO_BE_ARCHIVED:
                         self.odooenv.cr.rollback()
-                        self.logger.warning(DEFAULT_LOG_STRING, line_index,
+                        self.logger.warning(DEFAULT_LOG_STRING, line_index + 1,
                                             "Archiving record as it can not be deleted (line n. %d)" % (line_index + 1,))
                         try:
                             currentObj.write({'active': False})
@@ -457,7 +458,7 @@ class ExpressionProcessorMixin(object):
                         except Exception as e:
                             self.odooenv.cr.rollback()
                             self.logger.warning(
-                                DEFAULT_LOG_STRING, line_index, u"Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
+                                DEFAULT_LOG_STRING, line_index + 1, u"Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
                 currentObj = None
                 self.odooenv.cr.commit()
             return True
@@ -469,7 +470,7 @@ class ExpressionProcessorMixin(object):
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning(DEFAULT_LOG_STRING, line_index, u"Not able to archive record (line n. %d) : %s" %
+                    self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"Not able to archive record (line n. %d) : %s" %
                                         (line_index + 1, toString(e),))
         elif CAN_BE_ARCHIVED:
             if not currentObj == None:
@@ -479,7 +480,7 @@ class ExpressionProcessorMixin(object):
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning(DEFAULT_LOG_STRING, line_index, u"Not able to activate record (line n. %d) : %s" %
+                    self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"Not able to activate record (line n. %d) : %s" %
                                         (line_index + 1, toString(e),))
 
         # Create Object if it does not yet exist, else, write updates
@@ -490,7 +491,7 @@ class ExpressionProcessorMixin(object):
             for f in self.mandatoryFields:
                 if f not in data_values:
                     self.errorCount += 1
-                    self.logger.error(DEFAULT_LOG_STRING, line_index,
+                    self.logger.error(DEFAULT_LOG_STRING, line_index + 1,
                                       u"missing value for mandatory column: %s" % f)
                     return False
             actual_values = self.map_values(data_values)
@@ -502,13 +503,13 @@ class ExpressionProcessorMixin(object):
             self.odooenv.cr.commit()
         except ValueError as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING, line_index, u" wrong values where creating/updating object: %s -> %s [%s] " % (
+            self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" wrong values where creating/updating object: %s -> %s [%s] " % (
                 str(self.target_model), toString(actual_values), toString(currentObj)))
             self.logger.error(u"                    MSG: %s", toString(e))
             currentObj = None
         except Exception as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING, line_index, u" Generic Error raised Exception")
+            self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Generic Error raised Exception")
             currentObj = None
 
         # One2Many Fields,
@@ -530,7 +531,7 @@ class ExpressionProcessorMixin(object):
                                         currentObj.write({config[2]: [(4, vals[0].id, False)]})
                                     else:
                                         self.logger.warning(
-                                            DEFAULT_LOG_STRING, line_index, u"found %d  values for %s =>   unable to reference" % (len(vals), toString(m)))
+                                            DEFAULT_LOG_STRING, line_index + 1, u"found %d  values for %s =>   unable to reference" % (len(vals), toString(m)))
 
                                 # Creates records in  One2Many
                                 elif config[0] == 1:
@@ -539,13 +540,13 @@ class ExpressionProcessorMixin(object):
             self.odooenv.cr.commit()
         except ValueError as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING, line_index, u" Wrong values where updating object: " +
+            self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Wrong values where updating object: " +
                                   self.target_model.name + " -> " + toString(data_values))
             self.logger.error("                    MSG: %s", toString(e))
             currentObj = None
         except Exception as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING, line_index, u" Generic Error raised Exception")
+            self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Generic Error raised Exception")
             currentObj = None
 
         # Finally commit

@@ -11,7 +11,7 @@ Created on 17 may 2018
 a set of classes to be used in mixins for processor that provide support for importing XLS* files
 """
 
-from openpyxl.cell.read_only import EMPTY_CELL
+from openpyxl.cell.read_only import EmptyCell
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 from xlrd import open_workbook
@@ -85,8 +85,10 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
             for index in range(tab[1].nrows):
                 yield (index, tab[1].row(index))
         elif isinstance(self.book, Workbook):
+            index = 0
             for row in tab[1]:
                 yield (index, row)
+                index += 1
         else:
             self.logger.error("Unrecognized Book type....")
 
@@ -100,7 +102,7 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
         elif isinstance(self.book, Workbook):
             header = []
             for c in headerrow[1]:
-                header.append(c.value())
+                header.append(c.value)
             return header
         else:
             self.logger.error("Unrecognized Book type....")
@@ -121,10 +123,10 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
             values = {}
             for c in row[1]:
                 colname = None
-                if c == EMPTY_CELL and not c.column == None:
+                if not isinstance(c, EmptyCell) and not c.column == None:
                     colname = tabheader[c.column - 1]
                 if colname != None:
-                    values[colname] = c.value()
+                    values[colname] = c.value
             return values
         else:
             self.logger.error("Unrecognized Book type....")
@@ -143,8 +145,8 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
         """
         Method that actually process data
         """
-
-        with self.get_book(import_file) as xl_reader:
-            self.book = xl_reader
-            super(XLImporterBaseProcessor, self).process_data(import_file)
-            self.book = None
+        self.book = self.get_book(import_file)
+        super(XLImporterBaseProcessor, self).process_data(import_file)
+        if isinstance(self.book, Book):
+            self.book.release_resources()
+        self.book = None

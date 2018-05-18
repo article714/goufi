@@ -185,6 +185,7 @@ class AbstractProcessor(object):
         Method that closes-up the processing
         """
         self.logger.info("End processing of aFile " + toString(import_file.filename))
+
         if not success:
             self.odooenv.cr.rollback()
             import_file.processing_status = 'failure'
@@ -203,10 +204,12 @@ class AbstractProcessor(object):
         # uploads log aFile
         # TODO: deal with big log files
         if self.logger_fh:
+            self.logger_fh.close()
             file_base64 = ''
             with open(self.logger_fh.baseFilename, "rb") as aFile:
                 file_base64 = base64.b64encode(aFile.read())
             import_file.processing_logs = file_base64
+            self.close_and_reset_logger()
 
         import_file.date_stop_processing = datetime.now()
         self.odooenv.cr.commit()
@@ -431,20 +434,25 @@ class MultiSheetLineIterator(AbstractProcessor):
                             'update %s set import_processed = False' % toString(self.target_model._table))
                         self.odooenv.cr.commit()
                     for row in self.get_rows(tab):
-                        idx += 1
                         try:
                             if idx == self.header_line_idx:
                                 # process header for tab
-                                header = self.process_tab_header(row)
+                                header = self.process_tab_header(tab, row)
                             elif idx > self.header_line_idx:
                                 # process data for tab
-                                values = self.get_row_values_as_dict(row, header)
+                                if header != None and len(header) > 0:
+                                    values = self.get_row_values_as_dict(tab, row, header)
+                                else:
+                                    self.logger.error(u"Header line is empty")
+                                    self.errorCount += 1
+                                    break
                                 try:
                                     self.process_values(idx, values)
                                 except Exception as e:
-                                    self.logger.exception(u"Error when processing line N°%d in %s", idx, tab[0])
+                                    self.logger.exception(u"Error when processing line N°%d in %s", idx + 1, tab[0])
+                            idx += 1
                         except Exception as e:
-                            self.logger.exception(u"Error when processing line N° %d of tab %s", idx, tab[0])
+                            self.logger.exception(u"Error when processing line N° %d of tab %s", idx + 1, tab[0])
                             self.errorCount += 1
                             self.odooenv.cr.rollback()
                             return False
