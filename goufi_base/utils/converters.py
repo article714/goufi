@@ -13,6 +13,7 @@ Utility functions to convert data
 from datetime import date, timedelta, datetime
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT
 
+from odoo.tools.misc import ustr
 #-------------------------------------------------------------------------------------
 # CONSTANTS
 XLS_DATE_REF = date(1900, 1, 1)
@@ -30,7 +31,7 @@ def toString(value):
         avalue = str(value)
     else:
         try:
-            avalue = unicode("" + str(value))
+            avalue = ustr("" + str(value))
         except UnicodeDecodeError:
             avalue = unicode(value.decode('iso-8859-1'))
     return avalue
@@ -101,4 +102,3 @@ def toInt(s):
             return int(float(s))
         except ValueError:
             return -1
-

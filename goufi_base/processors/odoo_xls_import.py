@@ -18,7 +18,7 @@ from odoo.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMA
 from odoo.addons.goufi_base.utils.converters import toString
 
 from .processor import AbstractProcessor
-from .xl_support_mixins import XLImporterMixin
+from .xl_support_mixins import XLImporterBaseProcessor
 
 
 try:
@@ -39,7 +39,7 @@ _reHeader = re.compile(r'[0-9]+\_')
 # MAIN CLASS
 
 
-class OdooXLSProcessor(XLImporterMixin, AbstractProcessor):
+class OdooXLSProcessor(XLImporterBaseProcessor):
     """
     A processor that import csv files that are Odoo compatible (same as in modules source code
 
@@ -50,8 +50,7 @@ class OdooXLSProcessor(XLImporterMixin, AbstractProcessor):
 
     #----------------------------------------------------------
     def __init__(self, parent_config):
-        AbstractProcessor.__init__(self, parent_config)
-        XLImporterMixin.__init__(self, parent_config)
+        XLImporterBaseProcessor.__init__(self, parent_config)
     #-------------------------------------------------------------------------------------
 
     def process_data(self, import_file):
@@ -65,6 +64,7 @@ class OdooXLSProcessor(XLImporterMixin, AbstractProcessor):
         self.search_target_model_from_filename(import_file)
 
         if self.target_model == None:
+            self.errorCount += 1
             self.logger.exception("Not able to guess target model: " + toString(import_file.filename))
             return False
 

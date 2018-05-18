@@ -11,21 +11,16 @@ Created on 17 may 2018
 a set of classes to be used in mixins for processor that provide support for importing CSV files
 """
 
-
-from .processor import AbstractProcessor
-
-
 #-------------------------------------------------------------------------------------
 # CONSTANTS
 AUTHORIZED_EXTS = ('csv')
 
 
-class CSVImporterMixin(AbstractProcessor):
+class CSVImporterMixin(object):
 
     def __init__(self, parent_config):
 
         # TODO: document parameters
-        super(CSVImporterMixin, self).__init__(parent_config)
         self.csv_separator = ","
         self.csv_string_separator = "\""
         for param in parent_config.processor_parameters:

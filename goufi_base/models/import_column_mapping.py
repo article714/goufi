@@ -236,8 +236,8 @@ Function must return the value to be assigned to mapping or None"""),
                     if len(found) == 1:
                         values['parent_configuration'] = found[0].parent_configuration.id
         except Exception as e:
-            logging.exception("Not able to check values when creating column mapping %s : %s" %
-                              (type(e), unicode(e.message or e.name)))
+            logging.exception(u"Not able to check values when creating column mapping %s : %s",
+                              str(type(e)), unicode(e))
         return super(ColumnMapping, self).create(values)
 
     def write(self, values):

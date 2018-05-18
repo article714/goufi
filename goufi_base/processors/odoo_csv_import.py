@@ -54,6 +54,7 @@ class OdooCSVProcessor(CSVImporterMixin, AbstractProcessor):
 
         if self.target_model == None:
             self.logger.exception("Not able to guess target model: " + toString(import_file.filename))
+            self.errorCount += 1
             return False
 
         try:

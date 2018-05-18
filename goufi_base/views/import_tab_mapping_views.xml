@@ -28,9 +28,10 @@
 				<sheet>
 					<group name="Tab Mapping" string="Tab Mapping">
 						<field name="name"/>
-						<field name="needs_col_mappings"/>
+						<field name="default_header_line_index"/>
 						<field name="ignore_tab"/>
 						<field name="target_object"/>
+						<field name="needs_col_mappings"/>
 						<field name="parent_configuration" invisible='1' attrs="{'readonly':True}"/>
 					</group>
 					<group name="Columns" string="Columns" attrs="{'invisible':[('needs_col_mappings','=',False)]}" >

@@ -8,7 +8,7 @@ Created on 3 mai 2018
 '''
 
 
-from openpyxl.cell.read_only import EmptyCell
+from openpyxl.cell.read_only import EMPTY_CELL
 from openpyxl.reader.excel import load_workbook
 from os import path
 import re
@@ -23,6 +23,7 @@ from .processor import AbstractProcessor
 #-------------------------------------------------------------------------------------
 # CONSTANTS
 AUTHORIZED_EXTS = ('xlsx', 'xls', 'csv')
+DEFAULT_LOG_STRING = u" [ line %d ] -> %s"
 
 #-------------------------------------------------------------------------------------
 # MAIN CLASS
@@ -185,12 +186,12 @@ class Processor(AbstractProcessor):
                         self.m2oFields[hname][3] = _fieldname
                         self.m2oFields[hname].append(eval(cond))
                 else:
-                    self.logger.debug(toString(v) + "  -> field not found, IGNORED")
+                    self.logger.debug(" %s -> field not found, IGNORED", toString(v))
             else:
                 if hname in target_fields:
                     self.stdFields.append(hname)
                 else:
-                    self.logger.debug(toString(hname) + "  -> field not found, IGNORED")
+                    self.logger.debug(" %s -> field not found, IGNORED", toString(hname))
 
         return len(self.stdFields) + len(self.idFields) + len(self.m2oFields) + len(self.o2mFields)
     #-------------------------------------------------------------------------------------
@@ -204,9 +205,7 @@ class Processor(AbstractProcessor):
                 del(row[f])
         return row
 
-    def process_values(self, filename, line_index, data_values):
-
-        DEFAULT_LOG_STRING = "<" + toString(filename) + "> [ line " + toString(line_index) + "] -> "
+    def process_values(self, line_index, data_values):
 
         currentObj = None
         TO_BE_ARCHIVED = False
@@ -249,8 +248,8 @@ class Processor(AbstractProcessor):
             if len(found) == 1:
                 currentObj = found[0]
             elif len(found) > 1:
-                self.logger.warning(DEFAULT_LOG_STRING + "FOUND TOO MANY RESULT FOR " + toString(self.target_model) +
-                                    " with " + toString(search_criteria) + "=>   [" + toString(len(found)) + "]")
+                self.logger.warning(DEFAULT_LOG_STRING, line_index, "FOUND TOO MANY RESULT FOR %s with %s =>   [ %d ]" % (toString(
+                    self.target_model), toString(search_criteria), len(found)))
                 return
             else:
                 currentObj = None
@@ -288,8 +287,8 @@ class Processor(AbstractProcessor):
                         if len(vals) == 1:
                             stdRow[field[1]] = vals[0].id
                         else:
-                            self.logger.warning(DEFAULT_LOG_STRING + " found " + toString(len(vals)) + " values for " + toString(
-                                data_values[f]) + "  unable to reference " + toString(field[3]) + " " + toString(vals))
+                            self.logger.warning(DEFAULT_LOG_STRING, line_index, " found  %d  values for %s unable to reference %s - %s " % (
+                                                len(vals), toString(data_values[f]), toString(field[3]), toString(vals)))
 
             # Create Object if it does not yet exist, else, write updates
             try:
@@ -301,8 +300,8 @@ class Processor(AbstractProcessor):
                 self.odooenv.cr.commit()
             except ValueError as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " wrong values where creating/updating object: " +
-                                  self.target_model + " -> " + toString(stdRow) + "[" + toString(currentObj) + "]")
+                self.logger.error(DEFAULT_LOG_STRING, line_index, " wrong values where creating/updating object: %s  -> %s [ %s ]" % (
+                                  self.target_model, toString(stdRow), toString(currentObj)))
                 self.logger.error("                    MSG: {0}".format(toString(e)))
                 currentObj = None
             except Exception as e:
@@ -330,7 +329,7 @@ class Processor(AbstractProcessor):
                                             currentObj.write({field[1]: [(4, vals[0].id, False)]})
                                         else:
                                             self.logger.warning(
-                                                DEFAULT_LOG_STRING + "found " + toString(len(vals)) + " values for " + toString(m) + "  unable to reference")
+                                                DEFAULT_LOG_STRING, line_index, "found %d  values for %s,  unable to reference" % (len(vals), toString(m)))
 
                                     # Creates records in  One2Many
                                     elif field[0] == 1:
@@ -339,9 +338,9 @@ class Processor(AbstractProcessor):
                 self.odooenv.cr.commit()
             except ValueError as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " Wrong values where updating object: " +
-                                  self.target_model + " -> " + toString(stdRow))
-                self.logger.error("                    MSG: {0}".format(toString(e)))
+                self.logger.error(DEFAULT_LOG_STRING, line_index, " Wrong values where updating object: %s -> %s " % (
+                                  str(self.target_model), toString(stdRow)))
+                self.logger.error("                    MSG: %s", toString(e))
                 currentObj = None
             except Exception as e:
                 self.odooenv.cr.rollback()
@@ -361,12 +360,13 @@ class Processor(AbstractProcessor):
                 self.odooenv.cr.commit()
             except ValueError as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " error where creating/updating object: %s --> %s [%s]" % (
+                self.logger.error(DEFAULT_LOG_STRING, line_index, " error where creating/updating object: %s --> %s [%s]" % (
                     str(self.target_model), toString(data_values), toString(currentObj)))
                 self.logger.error("                    MSG: {0}".format(toString(e)))
             except Exception as e:
                 self.odooenv.cr.rollback()
-                self.logger.error(DEFAULT_LOG_STRING + " Generic Error : " + toString(type(e)) + "--- " + toString(e))
+                self.logger.error(DEFAULT_LOG_STRING, line_index, " Generic Error : %s --- %s" %
+                                  (toString(type(e)), toString(e)))
                 currentObj = None
 
         # *****
@@ -396,7 +396,7 @@ class Processor(AbstractProcessor):
                 self.target_model = self.odooenv[modelname]
             except:
                 self.target_model = None
-                self.logger.exception("Not able to guess target model from filename: " + toString(filename))
+                self.logger.exception("Not able to guess target model from filename: %s", filename)
                 return False
 
         # try with , as a delimiter
@@ -408,7 +408,7 @@ class Processor(AbstractProcessor):
                     idx = 0
                     for row in csv_reader:
                         idx += 1
-                        self.process_values(filename, idx, row)
+                        self.process_values(idx, row)
 
             csvfile.close()
 
@@ -422,7 +422,7 @@ class Processor(AbstractProcessor):
                     idx = 0
                     for row in csv_reader:
                         idx += 1
-                        self.process_values(filename, idx, row)
+                        self.process_values(idx, row)
 
                 csvfile.close()
 
@@ -436,7 +436,7 @@ class Processor(AbstractProcessor):
             try:
                 self.target_model = self.odooenv[sh.name]
             except:
-                self.logger.exception(u"Model Not Found: %s" % sh.name)
+                self.logger.exception(u"Model Not Found: %s", sh.name)
                 return False
 
             # la ligne se sont les intitutlés
@@ -452,7 +452,7 @@ class Processor(AbstractProcessor):
                         for idx in range(0, hsize):
                             values[p_ligne[idx]] = row_vals[idx]
 
-                        self.process_values(filename, rownum, values)
+                        self.process_values(rownum, values)
 
     #-------------------------------------------------------------------------------------
     def process_xlsx(self, filename):
@@ -489,11 +489,11 @@ class Processor(AbstractProcessor):
                     values = {}
                     for c in r:
                         colname = None
-                        if not isinstance(c, EmptyCell) and not c.column == None:
+                        if not c == EMPTY_CELL and not c.column == None:
                             colname = firstrow[c.column - 1].value
                         if colname != None:
                             values[colname] = c.value
-                    self.process_values(filename, idx, values)
+                    self.process_values(idx, values)
 
                 idx += 1
 

@@ -39,6 +39,9 @@ class AbstractProcessor(object):
     """
 
     # TODO => document the API
+    # TODO => document hooks
+    # self.hooks['_prepare_mapping_hook']  => prepare_mapping_hook(self,
+    # importtab=None, tabtuple=None, colmappings=None):
 
     #-------------------------------------------------------------------------------------
     def __init__(self, parent_config):
@@ -52,11 +55,17 @@ class AbstractProcessor(object):
         self.logger = procLogDefaultLogger
         self.logger_fh = None
 
-        # error reporting mechanisms
+        # error reporting mechanism
         self.errorCount = 0
+
+        # hooks
+        self.hooks = {}
 
         # default target model
         self.target_model = None
+
+        # current header index
+        self.header_line_idx = parent_config.default_header_line_index
 
         # set language in context
         lang = parent_config.context_language
@@ -141,8 +150,6 @@ class AbstractProcessor(object):
                     self.target_model = self.odooenv[modelname]
                 except:
                     self.target_model = None
-                    self.logger.exception("Not able to guess target model from filename: " +
-                                          toString(import_file.filename))
                     self.end_processing(import_file, success=False, status='failure',
                                         any_message=u"Model Not found: %s" % modelname)
 
@@ -180,7 +187,13 @@ class AbstractProcessor(object):
         self.logger.info("End processing of aFile " + toString(import_file.filename))
         if not success:
             self.odooenv.cr.rollback()
-        import_file.processing_status = status
+            import_file.processing_status = 'failure'
+        elif self.errorCount > 0:
+            import_file.processing_status = 'error'
+            if any_message == 'Done':
+                any_message = 'Ended with %d Errors' % self.errorCount
+        else:
+            import_file.processing_status = status
         import_file.processing_result = any_message
 
         # unset the processing marker
@@ -223,7 +236,7 @@ class AbstractProcessor(object):
                             self.odooenv.cr.rollback()
                             self.logger.exception("GOUFI: error while processing data (file %s) -> %s " %
                                                   (toString(import_file.filename), str(e)))
-                            self.end_processing(import_file, success=result, status='failure',
+                            self.end_processing(import_file, success=False, status='failure',
                                                 any_message="Error: Generic Exception (%s)" % str(e))
                             self.odooenv.cr.commit()
 
@@ -244,7 +257,7 @@ class AbstractProcessor(object):
             logging.exception("GOUFI: cannot import : no import_file provided !")
 
 #-------------------------------------------------------------------------------------
-# MAIN CLASS
+# LineIterator CLASS
 
 
 class LineIteratorProcessor(AbstractProcessor):
@@ -254,15 +267,29 @@ class LineIteratorProcessor(AbstractProcessor):
 
     #-------------------------------------------------------------------------------------
     # Process line values
-    def process_values(self, filename, line_index, data_values):
+    def process_values(self, line_index=-1, data_values=()):
 
         raise ValidationError("GOUFI: un-implemented generator method")
 
     #-------------------------------------------------------------------------------------
     # line generator
-    def get_lines(self, import_file):
+    def get_rows(self, import_file=None):
 
         raise ValidationError("GOUFI: un-implemented process_data method")
+
+    #-------------------------------------------------------------------------------------
+    # line generator
+    def prepare_mappings(self, import_file=None):
+        if import_file and import_file.import_config:
+            if "_prepare_mapping_hook" in self.hooks:
+                result = self.hooks['_prepare_mapping_hook'](
+                    self, colmappings=import_file.import_config.column_mappings)
+            else:
+                self.logger.info("Default method does nothing: %s", import_file.filename)
+                result = -1
+        else:
+            result = -1
+        return result
 
     #-------------------------------------------------------------------------------------
     def process_data(self, import_file):
@@ -272,14 +299,161 @@ class LineIteratorProcessor(AbstractProcessor):
         """
 
         idx = 0
-        for row in self.get_lines(import_file):
-            idx += 1
+        nb_mappings = self.prepare_mappings(import_file)
+        if nb_mappings > 0:
+            # TODO: document this
+            if ('import_processed' in self.target_model.fields_get_keys()):
+                            # hook for objects needing to be set as processed through import
+                self.odooenv.cr.execute(
+                    'update %s set import_processed = False' % toString(self.target_model._table))
+                self.odooenv.cr.commit()
+            for row in self.get_rows(import_file):
+                idx += 1
+                try:
+                    self.process_values(idx, row)
+                except Exception as e:
+                    self.logger.exception(u"Error when processing line N° %d", idx)
+                    self.errorCount += 1
+                    self.odooenv.cr.rollback()
+                    return -1
+        elif nb_mappings < 0:
+            self.logger.error("Could not prepare mapping configuration for file: %s", import_file.filename)
+            self.errorCount += 1
+
+        return nb_mappings
+
+#-------------------------------------------------------------------------------------
+# MultiSheetLineIterator CLASS
+
+
+class MultiSheetLineIterator(AbstractProcessor):
+    """
+    A processor that must provide a generator to iterate on each line of the  file
+    """
+
+    #-------------------------------------------------------------------------------------
+    # tab generator
+    # must return a tuple (tabname, Object)
+    def get_tabs(self, import_file=None):
+
+        raise ValidationError("GOUFI: un-implemented process_data method")
+
+    #-------------------------------------------------------------------------------------
+    # line generator
+    # must return a tuble(index, Object)
+    def get_rows(self, tab=None):
+
+        raise ValidationError("GOUFI: un-implemented process_data method")
+
+    #-------------------------------------------------------------------------------------
+    # Process tab header, in order to provide a list of columns to process
+    # must return a list of column titles in header
+    def process_tab_header(self, tab=None,  headerrow=None):
+
+        raise ValidationError("GOUFI: un-implemented generator method")
+
+    #-------------------------------------------------------------------------------------
+    # Provides a dictionary of values in a row
+    def get_row_values_as_dict(self, tab=None, row=None, tabheader=None):
+
+        raise ValidationError("GOUFI: un-implemented generator method")
+
+    #-------------------------------------------------------------------------------------
+    # Process line values
+    def process_values(self, line_index=-1, data_values=()):
+
+        raise ValidationError("GOUFI: un-implemented generator method")
+
+    #-------------------------------------------------------------------------------------
+    # prepare mappins configuration for tab processing,
+    # must return an integer > 0 if successful and something to process
+    #                         0 if nothing to do or ignore
+    #                         -1 if failure
+    def prepare_mappings_for_tab(self, import_file=None, tab=None):
+
+        if import_file and tab:
+            tab_name = tab[0]
+            tabmap_model = self.odooenv['goufi.tab_mapping']
+            # Look for target Model in parent config
+            parent_config = import_file.import_config
+            if parent_config:
+                if tab_name != None:
+                    found = tabmap_model.search(
+                        [('parent_configuration', '=', parent_config.id), ('name', '=', tab_name)], limit=1)
+                    if len(found) == 1:
+                        current_tab = found[0]
+                        try:
+                            # Explicitly ignore
+                            if found[0].ignore_tab:
+                                self.logger.info("Tab ignored by configuration: " + toString(tab_name))
+                                return 0
+                            self.target_model = self.odooenv[current_tab.target_object.model]
+                            self.header_line_idx = current_tab.default_header_line_index
+                            if "_prepare_mapping_hook" in self.hooks:
+                                result = self.hooks['_prepare_mapping_hook'](self, importtab=current_tab, tabtuple=tab)
+                            else:
+                                result = len(current_tab.column_mappings)
+
+                        except:
+                            self.logger.exception("Target model not found for " + toString(tab_name))
+                            return -1
+                    else:
+                        self.logger.error("Tab configuration not found: " + toString(tab_name))
+                        return -1
+                else:
+                    self.logger.error("No tab name given")
+                    return -1
+            else:
+                self.logger.error("No configuration found for tab %s", tab_name)
+                return -1
+        else:
+            self.logger.error("No import_file or no Tab %s, %s", str(import_file), str(tab))
+            return -1
+
+        return result
+
+    #-------------------------------------------------------------------------------------
+    def process_data(self, import_file):
+        """
+        Method that actually process data
+        Should return True on success and False on failure
+        """
+        for tab in self.get_tabs(import_file):
             try:
-                self.process_values(import_file.filename, idx, row)
+                nb_mappings = self.prepare_mappings_for_tab(import_file, tab)
+                if nb_mappings > 0:
+                    idx = 0
+                    header = None
+                    # TODO Document this
+                    if ('import_processed' in self.target_model.fields_get_keys()):
+                            # hook for objects needing to be set as processed through import
+                        self.odooenv.cr.execute(
+                            'update %s set import_processed = False' % toString(self.target_model._table))
+                        self.odooenv.cr.commit()
+                    for row in self.get_rows(tab):
+                        idx += 1
+                        try:
+                            if idx == self.header_line_idx:
+                                # process header for tab
+                                header = self.process_tab_header(row)
+                            elif idx > self.header_line_idx:
+                                # process data for tab
+                                values = self.get_row_values_as_dict(row, header)
+                                try:
+                                    self.process_values(idx, values)
+                                except Exception as e:
+                                    self.logger.exception(u"Error when processing line N°%d in %s", idx, tab[0])
+                        except Exception as e:
+                            self.logger.exception(u"Error when processing line N° %d of tab %s", idx, tab[0])
+                            self.errorCount += 1
+                            self.odooenv.cr.rollback()
+                            return False
+                elif nb_mappings < 0:
+                    self.logger.error("Could not prepare mapping configuration for Tab: %s", tab[0])
+                    self.errorCount += 1
             except Exception as e:
-                self.logger.exception(u"Error when processing line N°" + str(idx))
+                self.logger.exception(u"Error when processing a Tab:  %s", tab[0])
                 self.errorCount += 1
                 self.odooenv.cr.rollback()
-                return False
 
         return self.errorCount == 0
