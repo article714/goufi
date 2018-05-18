@@ -512,6 +512,11 @@ class ExpressionProcessorMixin(object):
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Generic Error raised Exception")
             currentObj = None
 
+        # Post Write Hooks
+        if currentObj != None:
+            if "_post_write_record_hook" in self.hooks:
+                self.hooks['_post_write_record_hook'](self, currentObj, data_values)
+
         # One2Many Fields,
 
         try:
