@@ -17,8 +17,7 @@ from odoo.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMA
 
 from odoo.addons.goufi_base.utils.converters import toString
 
-from .processor import AbstractProcessor
-from .xl_support_mixins import XLImporterBaseProcessor
+from .xl_base_processor import XLImporterBaseProcessor
 
 
 try:
@@ -60,11 +59,13 @@ class OdooXLSProcessor(XLImporterBaseProcessor):
 
         self.logger.info("Odoo xls data import: " + toString(import_file.filename))
 
-        # Search for target model
-        self.search_target_model_from_filename(import_file)
-
+        if self.parent_config:
+            if self.parent_config.target_object:
+                self.target_model = self.parent_config.target_object.model
         if self.target_model == None:
-            self.errorCount += 1
+            # Search for target model
+            self.search_target_model_from_filename(import_file)
+        if self.target_model == None:
             self.logger.exception("Not able to guess target model: " + toString(import_file.filename))
             return False
 

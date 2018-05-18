@@ -9,7 +9,6 @@ Created on 3 mai 2018
 
 
 import re
-import unicodecsv
 
 from odoo.tools.misc import ustr
 
@@ -49,48 +48,52 @@ class OdooCSVProcessor(CSVImporterMixin, AbstractProcessor):
 
         self.logger.info("Odoo csv data import: " + toString(import_file.filename))
 
-        # Search for target model
-        self.search_target_model_from_filename(import_file)
-
+        if self.parent_config:
+            if self.parent_config.target_object:
+                self.target_model = self.parent_config.target_object.model
+        if self.target_model == None:
+            # Search for target model
+            self.search_target_model_from_filename(import_file)
         if self.target_model == None:
             self.logger.exception("Not able to guess target model: " + toString(import_file.filename))
-            self.errorCount += 1
             return False
 
         try:
-            with open(import_file.filename, 'rb') as csvfile:
-                reader = unicodecsv.reader(csvfile, quotechar=str(
-                    self.csv_string_separator), delimiter=str(self.csv_separator))
-                fields = reader.next()
 
-                if not ('id' in fields):
-                    self.logger.error("Import specification does not contain 'id', Cannot continue.")
-                    return False
+            reader = self._open_csv(import_file, asDict=False)
+            if reader == None:
+                self.logger.error("Cannot load CSV reader")
+                self.end_processing(import_file, False, 'failure', "Cannot load CSV reader")
+                return False
 
-                datas = []
-                for line in reader:
-                    if not (line and any(line)):
-                        continue
-                    try:
-                        datas.append(map(ustr, line))
-                    except Exception:
-                        self.logger.error("Cannot import the line: %s", line)
+            fields = reader.next()
 
-                result = self.target_model.load(fields, datas)
-                if any(msg['type'] == 'error' for msg in result['messages']):
-                    # Report failed import and abort module install
-                    warning_msg = "\n".join(msg['message'] for msg in result['messages'])
-                    self.logger.error('Processing of file %s failed: %s', import_file.filename,  warning_msg)
-                    import_file.processing_status = 'failure'
-                    import_file.processing_result = warning_msg
-                    return False
+            if not ('id' in fields):
+                self.logger.error("Import specification does not contain 'id', Cannot continue.")
+                return False
+
+            datas = []
+            for line in reader:
+                if not (line and any(line)):
+                    continue
+                try:
+                    datas.append(map(ustr, line))
+                except Exception:
+                    self.logger.error("Cannot import the line: %s", line)
+
+            result = self.target_model.load(fields, datas)
+            if any(msg['type'] == 'error' for msg in result['messages']):
+                # Report failed import and abort module install
+                warning_msg = "\n".join(msg['message'] for msg in result['messages'])
+                self.logger.error('Processing of file %s failed: %s', import_file.filename,  warning_msg)
+                self.end_processing(import_file, False, 'failure', warning_msg)
+                return False
 
             return True
 
         except Exception as e:
             self.logger.exception("Processing Failed: " + str(e))
-            self.odooenv.cr.rollback()
-            import_file.processing_status = 'failure'
-            import_file.processing_result = str(e)
-            self.odooenv.cr.commit()
+            self.end_processing(import_file, False, 'failure',  str(e))
             return False
+        finally:
+            self._close_csv()

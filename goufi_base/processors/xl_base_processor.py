@@ -17,6 +17,7 @@ from openpyxl.workbook import Workbook
 from xlrd import open_workbook
 from xlrd.book import Book
 
+
 from odoo.addons.goufi_base.utils.converters import toString
 
 from .processor import MultiSheetLineIterator
@@ -43,8 +44,8 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
     def _open_xlsx(self, import_file):
         # returns Workbook
         return load_workbook(import_file.filename, read_only=True, keep_vba=False, guess_types=False, data_only=True)
-    #-------------------------------------------------------------------------------------
 
+    #-------------------------------------------------------------------------------------
     def get_book(self, import_file):
         """
         Method that actually process data
@@ -67,7 +68,7 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
             return False
 
     #-------------------------------------------------------------------------------------
-    # sheet generator
+    # tab generator
     def get_tabs(self, import_file=None):
         if isinstance(self.book, Book):
             for shname in self.book.sheet_names():
@@ -110,6 +111,22 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
 
     #-------------------------------------------------------------------------------------
     # Provides a dictionary of values in a row
+    def get_row_values(self, tab=None, row=None):
+
+        if isinstance(self.book, Book):
+            row_vals = tab[1].row_values(row[0])
+            return row_vals
+        elif isinstance(self.book, Workbook):
+            values = []
+            for c in row[1]:
+                values.append(c.value)
+            return values
+        else:
+            self.logger.error("Unrecognized Book type....")
+            return None
+
+    #-------------------------------------------------------------------------------------
+    # Provides a dictionary of values in a row
     def get_row_values_as_dict(self, tab=None, row=None, tabheader=None):
 
         if isinstance(self.book, Book):
@@ -146,7 +163,9 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
         Method that actually process data
         """
         self.book = self.get_book(import_file)
-        super(XLImporterBaseProcessor, self).process_data(import_file)
+
+        if self.book != None:
+            super(XLImporterBaseProcessor, self).process_data(import_file)
         if isinstance(self.book, Book):
             self.book.release_resources()
         self.book = None

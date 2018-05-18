@@ -7,17 +7,13 @@ Created on 3 mai 2018
 @license: AGPL v3
 '''
 
-
-from openpyxl.cell.read_only import EMPTY_CELL
-from openpyxl.reader.excel import load_workbook
-from os import path
 import re
-import unicodecsv
-import xlrd
 
 from odoo.addons.goufi_base.utils.converters import toString
 
-from .processor import AbstractProcessor
+from .csv_support_mixins import CSVImporterMixin
+from .processor import MultiSheetLineIterator
+from .xl_base_processor import XLImporterBaseProcessor
 
 
 #-------------------------------------------------------------------------------------
@@ -25,11 +21,14 @@ from .processor import AbstractProcessor
 AUTHORIZED_EXTS = ('xlsx', 'xls', 'csv')
 DEFAULT_LOG_STRING = u" [ line %d ] -> %s"
 
+FILE_TYPE_CSV = 0
+FILE_TYPE_XL = 1
+
 #-------------------------------------------------------------------------------------
 # MAIN CLASS
 
 
-class Processor(AbstractProcessor):
+class Processor(CSVImporterMixin, XLImporterBaseProcessor):
 
     '''
         TODO => traiter le pb des modèles avec un _ dans le nom
@@ -106,7 +105,7 @@ class Processor(AbstractProcessor):
 
     def __init__(self, parent_config):
 
-        super(Processor, self).__init__(parent_config)
+        XLImporterBaseProcessor.__init__(self, parent_config)
 
         # variables use during processing
         # My own fields
@@ -116,8 +115,7 @@ class Processor(AbstractProcessor):
         self.stdFields = []
         self.idFields = []
 
-        self.header_line_idx = 0
-        self.target_model = None
+        self.fileType = FILE_TYPE_CSV
 
         # parameters
         self.csv_separator = ","
@@ -131,7 +129,7 @@ class Processor(AbstractProcessor):
     #-------------------------------------------------------------------------------------
     # recherche les noms de champs a mettre en relation
 
-    def process_header(self, colname_list):
+    def process_tab_header(self, tab=None,  headerrow=None):
 
         self.o2mFields = {}
         self.m2oFields = {}
@@ -141,13 +139,20 @@ class Processor(AbstractProcessor):
         self.logger.info("NEW SHEET:  Import data for model " + toString(self.target_model))
 
         target_fields = None
+
         if self.target_model == None:
             self.logger.error("FAILED => NO TARGET MODEL FOUND")
-            raise Exception('FAILED', "FAILED => NO TARGET MODEL FOUND")
+            return None
         else:
             target_fields = self.target_model.fields_get_keys()
 
-        for val in colname_list:
+        header = None
+        if self.fileType == FILE_TYPE_CSV:
+            header = CSVImporterMixin.get_row_values(self, tab, row=headerrow)
+        else:
+            header = self.get_row_values(tab, row=headerrow, tabheader=None)
+
+        for val in header:
 
             hname = toString(val)
 
@@ -193,9 +198,13 @@ class Processor(AbstractProcessor):
                 else:
                     self.logger.debug(" %s -> field not found, IGNORED", toString(hname))
 
-        return len(self.stdFields) + len(self.idFields) + len(self.m2oFields) + len(self.o2mFields)
+        if len(self.stdFields) + len(self.idFields) + len(self.m2oFields) + len(self.o2mFields) > 0:
+            return header
+        else:
+            return None
+
     #-------------------------------------------------------------------------------------
-    # process a linee of data
+    # process a row of data
 
     def map_values(self, row):
         for f in row:
@@ -375,155 +384,43 @@ class Processor(AbstractProcessor):
         self.odooenv.cr.commit()
 
     #-------------------------------------------------------------------------------------
-
-    def process_csv(self, filename):
-        self.logger.info("PROCESSING CSV FILE :" + filename)
-
-        processed = False
-
-        if self.target_model == None:
-
-            self.logger.warning("No target model set on configuration, attempt to find it from file name")
-
-            bname = path.basename(filename)
-            modelname = bname.split('.')[0]
-
-            modelname = modelname.replace('_', '.')
-            if re.match(r'[0-9]+\.', modelname):
-                modelname = re.sub(r'[0-9]+\.', '', modelname)
-
-            try:
-                self.target_model = self.odooenv[modelname]
-            except:
-                self.target_model = None
-                self.logger.exception("Not able to guess target model from filename: %s", filename)
-                return False
-
-        # try with , as a delimiter
-        with open(filename, 'rb') as csvfile:
-            csv_reader = unicodecsv.DictReader(csvfile, delimiter=',', quotechar='\"')
-            if (len(csv_reader.fieldnames) > 1):
-                if self.process_header(csv_reader.fieldnames) > 0:
-                    processed = True
-                    idx = 0
-                    for row in csv_reader:
-                        idx += 1
-                        self.process_values(idx, row)
-
-            csvfile.close()
-
-        # try with ; as a delimiter
-        if not processed:
-            with open(filename, 'rb') as csvfile:
-                csv_reader = unicodecsv.DictReader(csvfile, delimiter=';', quotechar='\"')
-
-                if self.process_header(csv_reader.fieldnames) > 0:
-
-                    idx = 0
-                    for row in csv_reader:
-                        idx += 1
-                        self.process_values(idx, row)
-
-                csvfile.close()
+    def get_book(self, import_file):
+        if self.fileType == FILE_TYPE_CSV:
+            return CSVImporterMixin._open_csv(self, import_file, asDict=True)
+        else:
+            return XLImporterBaseProcessor.get_book(self, import_file)
 
     #-------------------------------------------------------------------------------------
-    def process_xls(self, filename):
-        self.logger.info("PROCESSING XLS FILE :" + filename)
-
-        wb = xlrd.open_workbook(filename)
-        for sh in wb.sheets():
-
-            try:
-                self.target_model = self.odooenv[sh.name]
-            except:
-                self.logger.exception(u"Model Not Found: %s", sh.name)
-                return False
-
-            # la ligne se sont les intitutlés
-            p_ligne = sh.row_values(self.header_line_idx)
-            hsize = len(p_ligne)
-
-            if self.process_header(p_ligne) > 0:
-
-                for rownum in range(1, sh.nrows):
-                    if rownum > self.header_line_idx:
-                        values = {}
-                        row_vals = sh.row_values(rownum)
-                        for idx in range(0, hsize):
-                            values[p_ligne[idx]] = row_vals[idx]
-
-                        self.process_values(rownum, values)
+    def get_tabs(self, import_file=None):
+        if self.fileType == FILE_TYPE_CSV:
+            yield ('csv file', self.book)
+        else:
+            for tab in XLImporterBaseProcessor.get_tabs(self, import_file):
+                yield tab
 
     #-------------------------------------------------------------------------------------
-    def process_xlsx(self, filename):
-        self.logger.info("PROCESSING XLSX FILE :" + filename)
-
-        wb = load_workbook(filename, read_only=True, keep_vba=False, guess_types=False, data_only=True)
-        for shname in wb.sheetnames:
-
-            try:
-                self.target_model = self.odooenv[shname]
-            except:
-                self.logger.exception(u"Model Not Found: %s", shname)
-                return False
-
-            sh = wb.get_sheet_by_name(shname)
-            firstrow = None
-            header_values = []
-            idx = 0
-            nb_fields = 0
-
-            for r in sh:
-                # skip until idx = self.header_line_idx
-                if firstrow == None:
-                    if idx == self.header_line_idx:
-                        firstrow = r
-                        for c in firstrow:
-                            header_values.append(c.value)
-                        nb_fields = self.process_header(header_values)
-                        if nb_fields == 0:
-                            # do not continue if not able to process headers
-                            return
-
-                elif r != firstrow:
-                    values = {}
-                    for c in r:
-                        colname = None
-                        if not c == EMPTY_CELL and not c.column == None:
-                            colname = firstrow[c.column - 1].value
-                        if colname != None:
-                            values[colname] = c.value
-                    self.process_values(idx, values)
-
-                idx += 1
+    def get_rows(self, tab=None):
+        if self.fileType == FILE_TYPE_CSV:
+            #firstline in header
+            yield tab[1].fieldnames
+            for row in tab[1]:
+                yield row
+        else:
+            for row in XLImporterBaseProcessor.get_rows(self, tab):
+                yield row
 
     #-------------------------------------------------------------------------------------
     def process_file(self, import_file, force=False):
         ext = import_file.filename.split('.')[-1]
         if (ext in AUTHORIZED_EXTS):
-            super(Processor, self).process_file(import_file, force)
+            if ext == 'csv':
+                self.fileType = FILE_TYPE_CSV
+            else:
+                self.fileType = FILE_TYPE_XL
+
+            MultiSheetLineIterator.process_file(self, import_file, force)
         else:
             self.logger.error("Cannot process file: Wrong extension -> %s", ext)
             self.end_processing(import_file, success=False, status='failure', any_message="Wrong file exension")
 
     #-------------------------------------------------------------------------------------
-    def process_data(self, import_file):
-        """
-        Method that actually process data
-        """
-        self.logger.info("PROCESSING CSV FILE :" + import_file.filename)
-
-        try:
-            if import_file.filename.endswith('.csv'):
-                self.process_csv(import_file.filename)
-
-            elif import_file.filename.endswith('.xls'):
-                self.process_xls(import_file.filename)
-
-            elif import_file.filename.endswith('.xlsx'):
-                self.process_xlsx(import_file.filename)
-        except:
-            self.logger.exception("Failed to import File")
-            return False
-
-        return True

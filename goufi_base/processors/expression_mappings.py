@@ -15,7 +15,7 @@ from odoo.addons.goufi_base.utils.converters import toString
 
 from .csv_support_mixins import CSVImporterMixin
 from .processor import LineIteratorProcessor
-from .xl_support_mixins import XLImporterBaseProcessor
+from .xl_base_processor import XLImporterBaseProcessor
 
 
 #---------------------------------------------------------
@@ -576,6 +576,9 @@ class CSVProcessor(ExpressionProcessorMixin, CSVImporterMixin, LineIteratorProce
     def get_rows(self, import_file):
 
         # try with , as a delimiter
+
+        reader = self._open_csv(import_file)
+
         with open(import_file.filename, 'rt') as csvfile:
             csv_reader = unicodecsv.DictReader(csvfile, quotechar=str(self.csv_string_separator),
                                                delimiter=str(self.csv_separator))
@@ -586,22 +589,6 @@ class CSVProcessor(ExpressionProcessorMixin, CSVImporterMixin, LineIteratorProce
                         yield row
 
             csvfile.close()
-
-    #-------------------------------------------------------------------------------------
-    def process_data(self, import_file):
-        """
-        Method that actually process data
-        """
-        self.logger.info("PROCESSING CSV FILE :" + import_file.filename)
-
-        # Search for target model
-        self.search_target_model_from_filename(import_file)
-
-        if self.target_model == None:
-            self.logger.exception("Not able to guess target model: " + toString(import_file.filename))
-            return False
-
-        return LineIteratorProcessor.process_data(self, import_file)
 
 #-------------------------------------------------------------------------------------
 # Process XL* Only

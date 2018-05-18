@@ -237,8 +237,8 @@ class AbstractProcessor(object):
 
                         except Exception as e:
                             self.odooenv.cr.rollback()
-                            self.logger.exception("GOUFI: error while processing data (file %s) -> %s " %
-                                                  (toString(import_file.filename), str(e)))
+                            self.logger.exception("GOUFI: error while processing data (file %s) -> %s ",
+                                                  toString(import_file.filename), str(e))
                             self.end_processing(import_file, success=False, status='failure',
                                                 any_message="Error: Generic Exception (%s)" % str(e))
                             self.odooenv.cr.commit()
@@ -250,8 +250,8 @@ class AbstractProcessor(object):
 
             except Exception as e:
                 self.odooenv.cr.rollback()
-                self.logger.exception("GOUFI: error while import file %s -> %s " %
-                                      (toString(import_file.filename), str(e)))
+                self.logger.exception("GOUFI: error while import file %s -> %s ",
+                                      toString(import_file.filename), str(e))
                 self.end_processing(import_file, success=False, status='failure',
                                     any_message="Error: Generic Exception (%s)" % str(e))
                 self.odooenv.cr.commit()
@@ -300,6 +300,16 @@ class LineIteratorProcessor(AbstractProcessor):
         Method that actually process data
         Should return True on success and False on failure
         """
+
+        if self.parent_config:
+            if self.parent_config.target_object:
+                self.target_model = self.parent_config.target_object.model
+        if self.target_model == None:
+            # Search for target model
+            self.search_target_model_from_filename(import_file)
+        if self.target_model == None:
+            self.logger.exception("Not able to guess target model: " + toString(import_file.filename))
+            return False
 
         idx = 0
         nb_mappings = self.prepare_mappings(import_file)
@@ -368,7 +378,7 @@ class MultiSheetLineIterator(AbstractProcessor):
         raise ValidationError("GOUFI: un-implemented generator method")
 
     #-------------------------------------------------------------------------------------
-    # prepare mappins configuration for tab processing,
+    # prepare mappings configuration for tab processing,
     # must return an integer > 0 if successful and something to process
     #                         0 if nothing to do or ignore
     #                         -1 if failure
@@ -380,6 +390,9 @@ class MultiSheetLineIterator(AbstractProcessor):
             # Look for target Model in parent config
             parent_config = import_file.import_config
             if parent_config:
+                if not parent_config.tab_support:
+                    # OK: no tab support
+                    return 1
                 if tab_name != None:
                     found = tabmap_model.search(
                         [('parent_configuration', '=', parent_config.id), ('name', '=', tab_name)], limit=1)
@@ -421,6 +434,14 @@ class MultiSheetLineIterator(AbstractProcessor):
         Method that actually process data
         Should return True on success and False on failure
         """
+
+        if self.parent_config:
+            if self.parent_config.target_object:
+                self.target_model = self.parent_config.target_object.model
+        if self.target_model == None:
+            # Search for target model
+            self.search_target_model_from_filename(import_file)
+
         for tab in self.get_tabs(import_file):
             try:
                 nb_mappings = self.prepare_mappings_for_tab(import_file, tab)
