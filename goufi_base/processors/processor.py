@@ -13,10 +13,11 @@ import base64
 import logging
 import re
 
+from odoo.exceptions import ValidationError
+
 from odoo.addons.goufi_base.models.import_configuration import ImportConfiguration
 from odoo.addons.goufi_base.models.import_file import ImportFile
 from odoo.addons.goufi_base.utils.converters import toString
-from odoo.exceptions import ValidationError
 
 
 #-------------------------------------------------------------------------------------
@@ -39,8 +40,7 @@ class AbstractProcessor(object):
 
     # TODO => document the API
     # TODO => document hooks
-    # self.hooks['_prepare_mapping_hook']  => prepare_mapping_hook(self,
-    # importtab=None, tabtuple=None, colmappings=None):
+    # self.hooks['_prepare_mapping_hook']  => prepare_mapping_hook(self,tab_name="Unknown",, colmappings=None):
 
     #-------------------------------------------------------------------------------------
     def __init__(self, parent_config):
@@ -421,7 +421,8 @@ class MultiSheetLineIterator(AbstractProcessor):
                             self.target_model = self.odooenv[current_tab.target_object.model]
                             self.header_line_idx = current_tab.default_header_line_index
                             if "_prepare_mapping_hook" in self.hooks:
-                                result = self.hooks['_prepare_mapping_hook'](self, importtab=current_tab, tabtuple=tab)
+                                result = self.hooks['_prepare_mapping_hook'](
+                                    self, tab_name=current_tab.name, colmappings=current_tab.column_mappings)
                             else:
                                 result = len(current_tab.column_mappings)
 

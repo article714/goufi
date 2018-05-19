@@ -160,16 +160,9 @@ class ExpressionProcessorMixin(object):
 
     #-------------------------------------------------------------------------------------
     # Process mappings configuration hook for each tab
-    def prepare_mapping_hook(self, importtab=None, tabtuple=None, colmappings=None):
+    def prepare_mapping_hook(self, tab_name="Unknown", colmappings=None):
 
-        col_mappings = None
-        if importtab != None:
-            tab_name = importtab.name
-            col_mappings = importtab.column_mappings
-        elif colmappings != None:
-            tab_name = "Unknown"
-            col_mappings = colmappings
-        else:
+        if colmappings == None:
             self.logger.error("Not able to process mappings")
             return -1
 
@@ -197,14 +190,14 @@ class ExpressionProcessorMixin(object):
 
         #***********************************
         # process column mappings
-        if col_mappings == None:
+        if colmappings == None:
             self.logger.warning("NO Column mappings provided => fail")
             return -1
 
         for val in MappingType:
             self.allMappings[val] = {}
 
-        for val in col_mappings:
+        for val in colmappings:
 
             mappingType = None
 
