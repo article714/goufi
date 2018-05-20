@@ -13,10 +13,11 @@ import base64
 import logging
 import re
 
+from odoo.exceptions import ValidationError
+
 from odoo.addons.goufi_base.models.import_configuration import ImportConfiguration
 from odoo.addons.goufi_base.models.import_file import ImportFile
 from odoo.addons.goufi_base.utils.converters import toString
-from odoo.exceptions import ValidationError
 
 
 #-------------------------------------------------------------------------------------
@@ -300,8 +301,7 @@ class LineIteratorProcessor(AbstractProcessor):
     def prepare_mappings(self, import_file=None):
         if import_file and import_file.import_config:
             if "_prepare_mapping_hook" in self.hooks:
-                result = self.hooks['_prepare_mapping_hook'](
-                    self, colmappings=import_file.import_config.column_mappings)
+                result = self.run_hooks('_prepare_mapping_hook', colmappings=import_file.import_config.column_mappings)
             else:
                 self.logger.info("Default method does nothing: %s", import_file.filename)
                 result = -1
