@@ -89,7 +89,7 @@ class AbstractProcessor(object):
                 self.hooks[hook_name] = []
             if func not in self.hooks[hook_name]:
                 # prevent double insertion of the same hook
-                self.hooks[hook_name].append()
+                self.hooks[hook_name].append(func)
 
     #-------------------------------------------------------------------------------------
     def run_hooks(self, hook_name, *args, **kwargs):
