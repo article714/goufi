@@ -339,7 +339,7 @@ class LineIteratorProcessor(AbstractProcessor):
             # Pre-process Rows Hook
             try:
                 if "_pre_process_rows_hook" in self.hooks:
-                    result = self.run_hooks('_pre_process_rows_hook' import_file)
+                    result = self.run_hooks('_pre_process_rows_hook', import_file)
                     if not result:
                         self.logger.error(u"Failure during processing of _pre_process_rows_hook")
                         self.errorCount += 1
