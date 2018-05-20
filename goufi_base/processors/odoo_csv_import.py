@@ -10,9 +10,8 @@ Created on 3 mai 2018
 
 import re
 
-from odoo.tools.misc import ustr
-
 from odoo.addons.goufi_base.utils.converters import toString
+from odoo.tools.misc import ustr
 
 from .csv_support_mixins import CSVImporterMixin
 from .processor import AbstractProcessor
@@ -50,7 +49,7 @@ class OdooCSVProcessor(CSVImporterMixin, AbstractProcessor):
 
         if self.parent_config:
             if self.parent_config.target_object:
-                self.target_model = self.parent_config.target_object.model
+                self.target_model = self.odooenv[self.parent_config.target_object.model]
         if self.target_model == None:
             # Search for target model
             self.search_target_model_from_filename(import_file)

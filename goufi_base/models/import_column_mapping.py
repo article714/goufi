@@ -7,8 +7,6 @@ Created on 23 february 2017
 @license: AGPL v3
 '''
 
-import logging
-
 from odoo import models, fields, _, api
 
 

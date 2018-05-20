@@ -318,7 +318,7 @@ class LineIteratorProcessor(AbstractProcessor):
 
         if self.parent_config:
             if self.parent_config.target_object:
-                self.target_model = self.parent_config.target_object.model
+                self.target_model = self.odooenv[self.parent_config.target_object.model]
         if self.target_model == None:
             # Search for target model
             self.search_target_model_from_filename(import_file)
@@ -469,7 +469,7 @@ class MultiSheetLineIterator(AbstractProcessor):
 
         if self.parent_config:
             if self.parent_config.target_object:
-                self.target_model = self.parent_config.target_object.model
+                self.target_model = self.odooenv[self.parent_config.target_object.model]
         if self.target_model == None:
             # Search for target model
             self.search_target_model_from_filename(import_file)
