@@ -13,11 +13,10 @@ import base64
 import logging
 import re
 
-from odoo.exceptions import ValidationError
-
 from odoo.addons.goufi_base.models.import_configuration import ImportConfiguration
 from odoo.addons.goufi_base.models.import_file import ImportFile
 from odoo.addons.goufi_base.utils.converters import toString
+from odoo.exceptions import ValidationError
 
 
 #-------------------------------------------------------------------------------------
@@ -40,7 +39,7 @@ class AbstractProcessor(object):
 
     # TODO => document the API
     # TODO => document hooks
-    # self.hooks['_prepare_mapping_hook']  => prepare_mapping_hook(self,tab_name="Unknown",, colmappings=None):
+    # self.hooks '_prepare_mapping_hook'=> prepare_mapping_hook(self,tab_name="Unknown",, colmappings=None):
 
     #-------------------------------------------------------------------------------------
     def __init__(self, parent_config):
@@ -82,6 +81,23 @@ class AbstractProcessor(object):
         else:
             self.parent_config = None
             self.logger.error("GOUFI: error- invalid configuration")
+
+    #-------------------------------------------------------------------------------------
+    def register_hook(self, hook_name="never_called", func=None):
+        if func != None and callable(func):
+            if hook_name not in self.hooks:
+                self.hooks[hook_name] = []
+            if func not in self.hooks[hook_name]:
+                # prevent double insertion of the same hook
+                self.hooks[hook_name].append()
+
+    #-------------------------------------------------------------------------------------
+    def run_hooks(self, hook_name, *args, **kwargs):
+        result = None
+        if hook_name in self.hooks:
+            for hook in self.hooks[hook_name]:
+                result = hook(self, *args, **kwargs)
+        return result
 
     #-------------------------------------------------------------------------------------
     def create_dedicated_filelogger(self, name_complement="hello"):
@@ -323,7 +339,7 @@ class LineIteratorProcessor(AbstractProcessor):
             # Pre-process Rows Hook
             try:
                 if "_pre_process_rows_hook" in self.hooks:
-                    result = self.hooks['_pre_process_rows_hook'](self, import_file,)
+                    result = self.run_hooks('_pre_process_rows_hook' import_file)
                     if not result:
                         self.logger.error(u"Failure during processing of _pre_process_rows_hook")
                         self.errorCount += 1
@@ -421,8 +437,8 @@ class MultiSheetLineIterator(AbstractProcessor):
                             self.target_model = self.odooenv[current_tab.target_object.model]
                             self.header_line_idx = current_tab.default_header_line_index
                             if "_prepare_mapping_hook" in self.hooks:
-                                result = self.hooks['_prepare_mapping_hook'](
-                                    self, tab_name=current_tab.name, colmappings=current_tab.column_mappings)
+                                result = self.run_hooks(
+                                    '_prepare_mapping_hook', tab_name=current_tab.name, colmappings=current_tab.column_mappings)
                             else:
                                 result = len(current_tab.column_mappings)
 
@@ -474,7 +490,7 @@ class MultiSheetLineIterator(AbstractProcessor):
                     # Pre-process Rows Hook
                     try:
                         if '_pre_process_rows_hook' in self.hooks:
-                            result = self.hooks['_pre_process_rows_hook'](self, import_file,)
+                            result = self.run_hooks('_pre_process_rows_hook', import_file)
                             if not result:
                                 self.logger.error(u"Failure during processing of _pre_process_rows_hook")
                                 self.errorCount += 1

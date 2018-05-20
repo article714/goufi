@@ -112,7 +112,7 @@ class ExpressionProcessorMixin(object):
         self.errorCount = 0
 
         # hooks
-        self.hooks['_prepare_mapping_hook'] = ExpressionProcessorMixin.prepare_mapping_hook
+        self.register_hook('_prepare_mapping_hook', ExpressionProcessorMixin.prepare_mapping_hook)
 
         # variables use during processing
         self.mandatoryFields = {}
@@ -477,8 +477,7 @@ class ExpressionProcessorMixin(object):
         # Pre Write Hooks
         try:
             if currentObj != None:
-                if "_pre_write_record_hook" in self.hooks:
-                    self.hooks['_pre_write_record_hook'](self, data_values)
+                self.run_hooks('_pre_write_record_hook', data_values)
         except Exception as e:
             self.odooenv.cr.rollback()
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1,
@@ -553,8 +552,7 @@ class ExpressionProcessorMixin(object):
         # Post Write Hooks
         try:
             if currentObj != None:
-                if "_post_write_record_hook" in self.hooks:
-                    self.hooks['_post_write_record_hook'](self, currentObj, data_values)
+                self.run_hooks('_post_write_record_hook',  currentObj, data_values)
         except Exception as e:
             self.odooenv.cr.rollback()
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1,
