@@ -438,8 +438,12 @@ class MultiSheetLineIterator(AbstractProcessor):
             parent_config = import_file.import_config
             if parent_config:
                 if not parent_config.tab_support:
-                    # OK: no tab support
-                    return 1
+                    result = 1
+                    if "_prepare_mapping_hook" in self.hooks:
+                        result = self.run_hooks('_prepare_mapping_hook', tab_name=current_tab.name,
+                                                colmappings=current_tab.column_mappings)
+                    # OK: no tab support => i.e. single tab sometime
+                    return result
                 if tab_name != None:
                     found = tabmap_model.search(
                         [('parent_configuration', '=', parent_config.id), ('name', '=', tab_name)], limit=1)
