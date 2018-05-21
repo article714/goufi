@@ -53,39 +53,45 @@ class AbstractProcessor(object):
         parent_config should be an instance of ImportConfiguration
         """
 
-        # default logging
-        procLogDefaultLogger.setLevel(logging.INFO)
-        self.logger = procLogDefaultLogger
-        self.logger_fh = None
+        # prevent multiple run of init in multi-inheritance mixins
+        if not hasattr(self, 'already_up'):
 
-        # error reporting mechanism
-        self.errorCount = 0
+            # default logging
+            procLogDefaultLogger.setLevel(logging.INFO)
+            self.logger = procLogDefaultLogger
+            self.logger_fh = None
 
-        # hooks
-        self.hooks = {}
+            # error reporting mechanism
+            self.errorCount = 0
 
-        # default target model
-        self.target_model = None
+            # hooks
+            self.hooks = {}
 
-        # current header index
-        self.header_line_idx = parent_config.default_header_line_index
+            # default target model
+            self.target_model = None
 
-        # set language in context
-        lang = parent_config.context_language
-        if lang == False:
-            lang = parent_config._get_default_language()
+            # current header index
+            self.header_line_idx = parent_config.default_header_line_index
 
-        # setup links with odoo environment
-        self.odooenv = None
-        if isinstance(parent_config, ImportConfiguration):
-            self.parent_config = parent_config
-            if lang:
-                self.odooenv = self.parent_config.env(context={'lang': lang.code})
+            # set language in context
+            lang = parent_config.context_language
+            if lang == False:
+                lang = parent_config._get_default_language()
+
+            # setup links with odoo environment
+            self.odooenv = None
+            if isinstance(parent_config, ImportConfiguration):
+                self.parent_config = parent_config
+                if lang:
+                    self.odooenv = self.parent_config.env(context={'lang': lang.code})
+                else:
+                    self.odooenv = self.parent_config.env
             else:
-                self.odooenv = self.parent_config.env
-        else:
-            self.parent_config = None
-            self.logger.error("GOUFI: error- invalid configuration")
+                self.parent_config = None
+                self.logger.error("GOUFI: error- invalid configuration")
+
+            # prevent re_run of __init__
+            self.already_up = True
 
     #-------------------------------------------------------------------------------------
     def register_hook(self, hook_name="never_called", func=None):
@@ -288,6 +294,9 @@ class LineIteratorProcessor(AbstractProcessor):
     A processor that must provide a generator to iterate on each line of the  file
     """
 
+    def __init__(self, parent_config):
+        AbstractProcessor.__init__(self, parent_config)
+
     #-------------------------------------------------------------------------------------
     # Process line values
     def process_values(self, line_index=-1, data_values=()):
@@ -378,6 +387,9 @@ class MultiSheetLineIterator(AbstractProcessor):
     """
     A processor that must provide a generator to iterate on each line of the  file
     """
+
+    def __init__(self, parent_config):
+        AbstractProcessor.__init__(self, parent_config)
 
     #-------------------------------------------------------------------------------------
     # tab generator
