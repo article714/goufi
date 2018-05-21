@@ -440,8 +440,8 @@ class MultiSheetLineIterator(AbstractProcessor):
                 if not parent_config.tab_support:
                     result = 1
                     if "_prepare_mapping_hook" in self.hooks:
-                        result = self.run_hooks('_prepare_mapping_hook', tab_name=current_tab.name,
-                                                colmappings=current_tab.column_mappings)
+                        result = self.run_hooks('_prepare_mapping_hook', tab_name='Unknown',
+                                                colmappings=self.parent_config.column_mappings)
                     # OK: no tab support => i.e. single tab sometime
                     return result
                 if tab_name != None:
