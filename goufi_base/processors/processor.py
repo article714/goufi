@@ -439,7 +439,6 @@ class MultiSheetLineIterator(AbstractProcessor):
                                 self.logger.info("Tab ignored by configuration: " + toString(tab_name))
                                 return 0
                             self.target_model = self.odooenv[current_tab.target_object.model]
-                            self.target_fields = self.target_model.fields_get_keys
                             self.header_line_idx = current_tab.default_header_line_index
                             if "_prepare_mapping_hook" in self.hooks:
                                 result = self.run_hooks(
@@ -523,6 +522,7 @@ class MultiSheetLineIterator(AbstractProcessor):
                                 try:
                                     self.process_values(idx, values)
                                 except Exception as e:
+                                    self.errorCount += 1
                                     self.logger.exception(u"Error when processing line N°%d in %s", idx + 1, tab[0])
                             idx += 1
                         except Exception as e:

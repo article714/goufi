@@ -124,7 +124,6 @@ class ExpressionProcessorMixin(object):
 
         self.header_line_idx = self.parent_config.default_header_line_index
         self.target_model = None
-        self.target_fields = None
 
         self.m2o_create_if_no_target_instance = ()
         for param in parent_config.processor_parameters:
@@ -183,11 +182,11 @@ class ExpressionProcessorMixin(object):
                              tab_name, str(type(self.target_model)), toString(self.target_model))
 
         # List of fields in target model
-        self.target_fields = None
+        target_fields = None
         if self.target_model == None:
             raise Exception('FAILED', u"FAILED => NO TARGET MODEL FOUND")
         else:
-            self.target_fields = self.target_model.fields_get_keys()
+            target_fields = self.target_model.fields_get_keys()
 
         #***********************************
         # process column mappings
@@ -202,7 +201,7 @@ class ExpressionProcessorMixin(object):
 
             mappingType = None
 
-            if val.target_field.name in self.target_fields:
+            if val.target_field.name in target_fields:
 
                 self.col2fields[val.name] = val.target_field.name
 
@@ -282,8 +281,15 @@ class ExpressionProcessorMixin(object):
         TO_BE_ARCHIVED = False
         TO_BE_DELETED = False
 
+        # List of fields in target model
+        target_fields = None
+        if self.target_model == None:
+            raise Exception('FAILED', u"FAILED => NO TARGET MODEL FOUND")
+        else:
+            target_fields = self.target_model.fields_get_keys()
+
         # Detects if record needs to be deleted or archived
-        CAN_BE_ARCHIVED = ('active' in self.target_fields)
+        CAN_BE_ARCHIVED = ('active' in target_fields)
 
         search_criteria = []
 
