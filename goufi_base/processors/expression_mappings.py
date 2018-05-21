@@ -136,27 +136,27 @@ class ExpressionProcessorMixin(object):
     # and change non json-compatible values
 
     def map_values(self, row):
-
-        for f in row.keys():
+        result = list(row)
+        for f in result.keys():
             if f in self.col2fields:
                 # replace non json-compatible values
-                val = row[f]
+                val = result[f]
                 if val == "False" or val == "True":
                     val = eval(val)
                 elif val == None:
-                    del(row[f])
+                    del(result[f])
                     continue
                 # replace actual col name by actual field name
                 col = self.col2fields[f]
                 if col != f:
-                    row[col] = val
-                    del(row[f])
+                    result[col] = val
+                    del(result[f])
                 else:
-                    row[f] = val
+                    result[f] = val
             else:
-                del(row[f])
+                del(result[f])
 
-        return row
+        return result
 
     #-------------------------------------------------------------------------------------
     # Process mappings configuration hook for each tab
@@ -552,7 +552,7 @@ class ExpressionProcessorMixin(object):
         # Post Write Hooks
         try:
             if currentObj != None:
-                self.run_hooks('_post_write_record_hook',  currentObj, data_values)
+                self.run_hooks('_post_write_record_hook',  currentObj, data_values, actual_values)
         except Exception as e:
             self.odooenv.cr.rollback()
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1,

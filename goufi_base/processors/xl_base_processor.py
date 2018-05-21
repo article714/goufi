@@ -103,7 +103,11 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
         elif isinstance(self.book, Workbook):
             header = []
             for c in headerrow[1]:
-                header.append(c.value)
+                if c.value != None:
+                    header.append(c.value)
+                else:
+                    # stop whenever an empty cell is found in header
+                    break
             return header
         else:
             self.logger.error("Unrecognized Book type....")

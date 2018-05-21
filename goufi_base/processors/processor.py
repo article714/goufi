@@ -13,11 +13,10 @@ import base64
 import logging
 import re
 
-from odoo.exceptions import ValidationError
-
 from odoo.addons.goufi_base.models.import_configuration import ImportConfiguration
 from odoo.addons.goufi_base.models.import_file import ImportFile
 from odoo.addons.goufi_base.utils.converters import toString
+from odoo.exceptions import ValidationError
 
 
 #-------------------------------------------------------------------------------------
@@ -26,6 +25,11 @@ procLogFmt = logging.Formatter('%(asctime)s -(%(filename)s,%(lineno)d) - [%(leve
 procLogDefaultLogger = logging.Logger("GoufiImportProcessor", logging.INFO)
 
 _reHeader = re.compile(r'[0-9]+[\_\.]')
+
+#-------------------------------------------------------------------------------------
+# list of hooks and consolidation functions
+
+# TODO TODO TODO
 
 #-------------------------------------------------------------------------------------
 # MAIN CLASS
@@ -435,6 +439,7 @@ class MultiSheetLineIterator(AbstractProcessor):
                                 self.logger.info("Tab ignored by configuration: " + toString(tab_name))
                                 return 0
                             self.target_model = self.odooenv[current_tab.target_object.model]
+                            self.target_fields = self.target_model.fields_get_keys
                             self.header_line_idx = current_tab.default_header_line_index
                             if "_prepare_mapping_hook" in self.hooks:
                                 result = self.run_hooks(
