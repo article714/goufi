@@ -7,6 +7,7 @@ Created on 23 deb. 2018
 @license: AGPL v3
 '''
 
+from copy import copy
 from enum import IntEnum, unique
 import re
 import unicodecsv
@@ -136,7 +137,7 @@ class ExpressionProcessorMixin(object):
     # and change non json-compatible values
 
     def map_values(self, row):
-        result = list(row)
+        result = copy(row)
         for f in result.keys():
             if f in self.col2fields:
                 # replace non json-compatible values
@@ -509,6 +510,7 @@ class ExpressionProcessorMixin(object):
             currentObj = None
         except Exception as e:
             self.odooenv.cr.rollback()
+            self.errorCount += 1
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Generic Error raised Exception")
             currentObj = None
 
