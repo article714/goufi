@@ -85,7 +85,7 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
         if isinstance(self.book, Book):
             for index in range(tab[1].nrows):
                 # Filter empty values
-                notempty = True
+                notempty = False
                 rv = tab[1].row_values(index)
                 for v in rv:
                     notempty = notempty or (v != None and v != '')
