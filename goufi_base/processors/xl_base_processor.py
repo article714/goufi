@@ -84,11 +84,23 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
     def get_rows(self, tab=None):
         if isinstance(self.book, Book):
             for index in range(tab[1].nrows):
-                yield (index, tab[1].row(index))
+                # Filter empty values
+                notempty = True
+                rv = tab[1].row_values(index)
+                for v in rv:
+                    notempty = notempty or v != None or v != ''
+                if notempty:
+                    yield (index, tab[1].row(index))
         elif isinstance(self.book, Workbook):
+            # Empty cells ou value None
             index = 0
             for row in tab[1]:
-                yield (index, row)
+                notempty = False
+                for c in row:
+                    v = c.value
+                    notempty = notempty or not isinstance(c, EmptyCell) or v != None or v != ''
+                if notempty:
+                    yield (index, row)
                 index += 1
         else:
             self.logger.error("Unrecognized Book type....")
