@@ -210,13 +210,13 @@ class ExpressionProcessorMixin(object):
                     if val.mapping_expression and len(val.mapping_expression) > 2:
                         self.allMappings[mappingType][val.name] = [val.target_field.name, val.mapping_expression]
                     else:
-                        self.logger.error("Wrong mapping expression: too short")
+                        self.logger.error("Wrong mapping expression: too short (%s)", val.name)
                 elif val.is_contextual_expression_mapping:
                     mappingType = MappingType.ContextEval
                     if val.mapping_expression and len(val.mapping_expression) > 2:
                         self.allMappings[mappingType][val.name] = [val.target_field.name, val.mapping_expression]
                     else:
-                        self.logger.error("Wrong mapping expression: too short")
+                        self.logger.error("Wrong mapping expression: too short (%s)", val.name)
                 elif val.is_function_call:
                     mappingType = MappingType.FunctionCall
                     if val.mapping_expression and len(val.mapping_expression) > 2 and hasattr(self, val.mapping_expression):
