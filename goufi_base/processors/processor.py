@@ -56,7 +56,6 @@ class AbstractProcessor(object):
         if not hasattr(self, 'already_up'):
 
             # default logging
-            procLogDefaultLogger.setLevel(logging.INFO)
             self.logger = None
             self.logger_fh = None
 
@@ -120,6 +119,7 @@ class AbstractProcessor(object):
             logging.warning("GOUFI: logger for current instance is not new")
         else:
             self.logger = logging.getLogger("GoufiIP.%s" % name_complement, logging.INFO)
+            self.logger.setLevel(logging.INFO)
 
         # fichier de log
         if self.parent_config.working_dir and path.exists(self.parent_config.working_dir) and path.isdir(self.parent_config.working_dir):
