@@ -123,12 +123,12 @@ class AbstractProcessor(object):
 
             logpath = self.parent_config.working_dir + path.sep
             filename_TS = datetime.now().strftime("%Y-%m-%d")
-            fh = logging.FileHandler(filename=logpath + "goufi" + name_complement +
-                                     '_' + filename_TS + '.log', mode='w')
+            fh = logging.FileHandler(filename="%sgoufi_%s_%s%s" % (
+                logpath, name_complement, filename_TS, '.log'), mode='w')
             fh.setFormatter(procLogFmt)
             fh.setLevel(level=logging.INFO)
-            self.logger_fh = fh
             self.logger.addHandler(fh)
+            self.logger_fh = fh
         else:
             self.logger.error("GOUFI: error- wrong working dir")
 
@@ -231,7 +231,7 @@ class AbstractProcessor(object):
         # uploads log aFile
         # TODO: deal with big log files
         if self.logger_fh:
-            self.logger_fh.close()
+            self.logger_fh.flush()
             file_base64 = ''
             with open(self.logger_fh.baseFilename, "rb") as aFile:
                 file_base64 = base64.b64encode(aFile.read())
