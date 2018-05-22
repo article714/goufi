@@ -13,10 +13,11 @@ import base64
 import logging
 import re
 
+from odoo.exceptions import ValidationError
+
 from odoo.addons.goufi_base.models.import_configuration import ImportConfiguration
 from odoo.addons.goufi_base.models.import_file import ImportFile
 from odoo.addons.goufi_base.utils.converters import toString
-from odoo.exceptions import ValidationError
 
 
 #-------------------------------------------------------------------------------------
@@ -176,8 +177,8 @@ class AbstractProcessor(object):
                     self.target_model = self.odooenv[modelname]
                 except:
                     self.target_model = None
-                    self.end_processing(import_file, success=False, status='failure',
-                                        any_message=u"Model Not found: %s" % modelname)
+                    self.errorCount += 1
+                    self.logger.error("Model Not found: %s", modelname)
 
     #-------------------------------------------------------------------------------------
     def start_processing(self, import_file):
@@ -255,11 +256,15 @@ class AbstractProcessor(object):
                             result = self.process_data(import_file)
                             result = (result == None) or (result == True)
                             # reports result
-                            if self.errorCount == 0:
-                                self.end_processing(import_file, success=result, status='ended')
+                            if result:
+                                if self.errorCount == 0:
+                                    self.end_processing(import_file, success=result, status='ended')
+                                else:
+                                    self.end_processing(import_file, success=result, status='error',
+                                                        any_message="%d error(s) raised during data processing" % self.errorCount)
                             else:
-                                self.end_processing(import_file, success=result, status='error',
-                                                    any_message="%d errors raised during data processing" % self.errorCount)
+                                self.end_processing(import_file, success=result, status='failure',
+                                                    any_message="Import Failed and %d error(s) raised during data processing" % self.errorCount)
 
                         except Exception as e:
                             self.odooenv.cr.rollback()
@@ -273,6 +278,7 @@ class AbstractProcessor(object):
                         self.logger.error("Issue when initiliazing processing")
                         self.end_processing(import_file, success=False, status='error',
                                             any_message="Failed when initializing processing")
+                        self.odooenv.cr.commit()
 
             except Exception as e:
                 self.odooenv.cr.rollback()
@@ -396,14 +402,14 @@ class MultiSheetLineIterator(AbstractProcessor):
     # must return a tuple (tabname, Object)
     def get_tabs(self, import_file=None):
 
-        raise ValidationError("GOUFI: un-implemented process_data method")
+        raise ValidationError("GOUFI: un-implemented get_tabs method")
 
     #-------------------------------------------------------------------------------------
     # line generator
     # must return a tuble(index, Object)
     def get_rows(self, tab=None):
 
-        raise ValidationError("GOUFI: un-implemented process_data method")
+        raise ValidationError("GOUFI: un-implemented get_rows method")
 
     #-------------------------------------------------------------------------------------
     # Process tab header, in order to provide a list of columns to process
