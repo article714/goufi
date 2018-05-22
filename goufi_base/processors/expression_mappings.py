@@ -178,6 +178,7 @@ class ExpressionProcessorMixin(object):
             self.logger.error("MODEL NOT FOUND ")
             return -1
         else:
+            self.logger.info("#-----------------------------------------------------------------------------")
             self.logger.info("NEW SHEET [%s]:  Import data for model %s -- %s",
                              tab_name, str(type(self.target_model)), toString(self.target_model))
 
