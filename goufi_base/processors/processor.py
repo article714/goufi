@@ -118,7 +118,7 @@ class AbstractProcessor(object):
         if self.logger != None:
             logging.warning("GOUFI: logger for current instance is not new")
         else:
-            self.logger = logging.getLogger("GoufiIP.%s" % name_complement, logging.INFO)
+            self.logger = logging.getLogger("GoufiIP.%s" % name_complement)
             self.logger.setLevel(logging.INFO)
 
         # fichier de log
