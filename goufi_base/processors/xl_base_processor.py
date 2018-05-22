@@ -98,7 +98,7 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
                 notempty = False
                 for c in row:
                     v = c.value
-                    notempty = notempty or not isinstance(c, EmptyCell) or (v != None and v != '')
+                    notempty = notempty or (not isinstance(c, EmptyCell) and v != None and v != '')
                 if notempty:
                     yield (index, row)
                 index += 1
