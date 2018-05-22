@@ -13,10 +13,11 @@ import base64
 import logging
 import re
 
+from odoo.exceptions import ValidationError
+
 from odoo.addons.goufi_base.models.import_configuration import ImportConfiguration
 from odoo.addons.goufi_base.models.import_file import ImportFile
 from odoo.addons.goufi_base.utils.converters import toString
-from odoo.exceptions import ValidationError
 
 
 #-------------------------------------------------------------------------------------
@@ -119,8 +120,6 @@ class AbstractProcessor(object):
             logging.warning("GOUFI: logger for current instance is not new")
         else:
             self.logger = logging.getLogger("GoufiIP.%s" % name_complement)
-            self.logger.setLevel(logging.INFO)
-
         # fichier de log
         if self.parent_config.working_dir and path.exists(self.parent_config.working_dir) and path.isdir(self.parent_config.working_dir):
 
@@ -129,9 +128,9 @@ class AbstractProcessor(object):
             fh = logging.FileHandler(filename="%sgoufi_%s_%s%s" % (
                 logpath, name_complement, filename_TS, '.log'), mode='w')
             fh.setFormatter(procLogFmt)
-            fh.setLevel(level=logging.INFO)
             self.logger.addHandler(fh)
             self.logger_fh = fh
+            self.logger.info("Started the new file handler: %s", str(fh))
         else:
             self.logger.error("GOUFI: error- wrong working dir")
 
@@ -140,7 +139,8 @@ class AbstractProcessor(object):
         """
         close existing logger and reset self.logger to default one
         """
-        if self.logger_fh:
+        if self.logger_fh != None:
+            self.logger.warning("Will flush and close log file %s", str(self.logger))
             self.logger_fh.flush()
             # deletes log file
             filename = self.logger_fh.baseFilename
