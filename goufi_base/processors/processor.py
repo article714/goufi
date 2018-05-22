@@ -13,17 +13,15 @@ import base64
 import logging
 import re
 
-from odoo.exceptions import ValidationError
-
 from odoo.addons.goufi_base.models.import_configuration import ImportConfiguration
 from odoo.addons.goufi_base.models.import_file import ImportFile
 from odoo.addons.goufi_base.utils.converters import toString
+from odoo.exceptions import ValidationError
 
 
 #-------------------------------------------------------------------------------------
 # STATIC GLOBAL Properties
 procLogFmt = logging.Formatter('%(asctime)s -(%(filename)s,%(lineno)d) - [%(levelname)s] - %(message)s')
-procLogDefaultLogger = logging.Logger("GoufiImportProcessor", logging.INFO)
 
 _reHeader = re.compile(r'[0-9]+[\_\.]')
 
@@ -59,7 +57,7 @@ class AbstractProcessor(object):
 
             # default logging
             procLogDefaultLogger.setLevel(logging.INFO)
-            self.logger = procLogDefaultLogger
+            self.logger = None
             self.logger_fh = None
 
             # error reporting mechanism
@@ -118,6 +116,11 @@ class AbstractProcessor(object):
 
         """
 
+        if self.logger != None:
+            logging.warning("GOUFI: logger for current instance is not new")
+        else:
+            self.logger = logging.getLogger("GoufiIP.%s" % name_complement, logging.INFO)
+
         # fichier de log
         if self.parent_config.working_dir and path.exists(self.parent_config.working_dir) and path.isdir(self.parent_config.working_dir):
 
@@ -148,8 +151,10 @@ class AbstractProcessor(object):
                 remove(filename)
             except OSError:
                 pass
-
+        if self.logger != None:
+            self.logger = None
     #-------------------------------------------------------------------------------------
+
     def search_target_model_from_filename(self, import_file):
 
         if self.target_model == None:
@@ -279,6 +284,7 @@ class AbstractProcessor(object):
                         self.end_processing(import_file, success=False, status='error',
                                             any_message="Failed when initializing processing")
                         self.odooenv.cr.commit()
+                    self.close_and_reset_logger()
 
             except Exception as e:
                 self.odooenv.cr.rollback()
