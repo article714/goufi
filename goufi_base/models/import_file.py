@@ -143,6 +143,8 @@ class ImportFile(models.Model):
     def reset_processing_status(self):
         for aFile in self:
             aFile.processing_status = 'pending'
+            aFile.processing_logs = False
+            aFile.processing_result = False
             aFile.date_start_processing = False
             aFile.date_stop_processing = False
 
@@ -191,6 +193,10 @@ class ImportFile(models.Model):
             # TODO: one day provide a way to re-use processor instances?
             if mod and cls:
                 try:
+                    self.processing_logs = False
+                    self.processing_result = False
+                    self.date_start_processing = False
+                    self.date_stop_processing = False
                     proc_inst = cls(self.import_config)
                     proc_inst.process_file(self, force)
                 except Exception as e:

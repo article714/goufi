@@ -194,7 +194,7 @@ class AbstractProcessor(object):
         import_file.date_start_processing = datetime.now()
         import_file.date_stop_processing = False
         import_file.processing_logs = False
-        import_file.processing_result = ''
+        import_file.processing_result = False
         self.odooenv.cr.commit()
         return True
 
