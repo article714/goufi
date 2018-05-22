@@ -216,7 +216,8 @@ class AbstractProcessor(object):
         """
         Method that closes-up the processing
         """
-        self.logger.info("End processing of aFile " + toString(import_file.filename))
+        if self.logger:
+            self.logger.info("End processing of aFile " + toString(import_file.filename))
 
         if not success:
             self.odooenv.cr.rollback()
@@ -288,8 +289,12 @@ class AbstractProcessor(object):
 
             except Exception as e:
                 self.odooenv.cr.rollback()
-                self.logger.exception("GOUFI: error while import file %s -> %s ",
-                                      toString(import_file.filename), str(e))
+                if self.logger:
+                    self.logger.exception("GOUFI: error while import file %s -> %s ",
+                                          toString(import_file.filename), str(e))
+                else:
+                    logging.error('GOUFI: no logger set for processor: %s - (%s)',
+                                  str(self), toString(import_file.filename))
                 self.end_processing(import_file, success=False, status='failure',
                                     any_message="Error: Generic Exception (%s)" % str(e))
                 self.odooenv.cr.commit()
