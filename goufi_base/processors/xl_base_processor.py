@@ -88,7 +88,7 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
                 notempty = True
                 rv = tab[1].row_values(index)
                 for v in rv:
-                    notempty = notempty or v != None or v != ''
+                    notempty = notempty or (v != None and v != '')
                 if notempty:
                     yield (index, tab[1].row(index))
         elif isinstance(self.book, Workbook):
@@ -98,7 +98,7 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
                 notempty = False
                 for c in row:
                     v = c.value
-                    notempty = notempty or not isinstance(c, EmptyCell) or v != None or v != ''
+                    notempty = notempty or not isinstance(c, EmptyCell) or (v != None and v != '')
                 if notempty:
                     yield (index, row)
                 index += 1
