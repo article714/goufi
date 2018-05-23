@@ -121,18 +121,24 @@ class AbstractProcessor(object):
         else:
             self.logger = logging.getLogger("GoufiIP.%s" % name_complement)
         # fichier de log
-        if self.parent_config.working_dir and path.exists(self.parent_config.working_dir) and path.isdir(self.parent_config.working_dir):
+        if self.parent_config.working_dir:
 
-            logpath = self.parent_config.working_dir + path.sep
-            filename_TS = datetime.now().strftime("%Y-%m-%d")
-            fh = logging.FileHandler(filename="%sgoufi_%s_%s%s" % (
-                logpath, name_complement, filename_TS, '.log'), mode='w')
-            fh.setFormatter(procLogFmt)
-            self.logger.addHandler(fh)
-            self.logger_fh = fh
-            self.logger.info("Started the new file handler: %s", str(fh))
-        else:
-            self.logger.error("GOUFI: error- wrong working dir")
+            work_dir = self.parent_config.working_dir
+            if '~' in work_dir:
+                work_dir = path.expanduser(work_dir)
+
+            if path.exists(self.parent_config.working_dir) and path.isdir(self.parent_config.working_dir):
+
+                logpath = self.parent_config.working_dir + path.sep
+                filename_TS = datetime.now().strftime("%Y-%m-%d")
+                fh = logging.FileHandler(filename="%sgoufi_%s_%s%s" % (
+                    logpath, name_complement, filename_TS, '.log'), mode='w')
+                fh.setFormatter(procLogFmt)
+                self.logger.addHandler(fh)
+                self.logger_fh = fh
+                self.logger.info("Started the new file handler: %s", str(fh))
+            else:
+                self.logger.error("GOUFI: error- wrong working dir")
 
     #-------------------------------------------------------------------------------------
     def close_and_reset_logger(self):
