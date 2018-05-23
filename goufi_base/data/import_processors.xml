@@ -26,6 +26,7 @@
 		<field name="name">Processor with static in-file Mappings (mapping config in header line)</field>
 		<field name="needs_mappings">False</field>
 		<field name="tab_support">False</field>
+		<field name="has_parameters">True</field>
 		<field name="col_group_support">False</field>
 		<field name="processor_module">odoo.addons.goufi_base.processors.static_mappings</field>
 		<field name="processor_class">Processor</field>
