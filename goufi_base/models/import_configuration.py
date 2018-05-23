@@ -9,7 +9,6 @@ Created on 23 february 2018
 
 from calendar import timegm
 from datetime import datetime
-import importlib
 import logging
 import os
 import re
@@ -231,45 +230,6 @@ class ImportConfiguration(models.Model):
 
                     if iFile != None:
                         self.env.cr.commit()
-
-    #-------------------------------
-    # Process All files for that configuration
-    def process_all_files(self):
-        """
-        Process all files that are attached to current configuration
-        if they have been updated or are in status new or pending
-        """
-
-        for config in self:
-            file_model = self.env['goufi.import_file']
-            proc_inst = None
-
-            if config.processor:
-                # Resolve processor class
-                try:
-                    mod = importlib.import_module(self.processor.processor_module)
-                    if mod:
-                        cls = getattr(mod, self.processor.processor_class)
-                    if cls == None:
-                        logging.error("GOUFI: Cannot process file, no processor class found " + self.name)
-                        return None
-                except Exception as e:
-                    logging.error("GOUFI: Cannot process file, error when evaluating processor module" +
-                                  self.name + "(" + str(e) + "-" + str(e.message) + ")")
-
-                # Process File
-                # instantiate processor
-                if mod and cls:
-                    proc_inst = cls(self)
-
-            if file_model != None and proc_inst != None:
-                records = file_model.search([('import_config', '=', config.id)], limit=None)
-                for rec in records:
-                    try:
-                        proc_inst.process_file(rec)
-                    except Exception as e:
-                        logging.error("GOUFI: Error when processing file " + rec.filename +
-                                      "(" + str(e) + "-" + str(e.message) + ")")
 
     #-------------------------------
     # automation of file detection

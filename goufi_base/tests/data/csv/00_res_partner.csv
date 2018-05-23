@@ -1,0 +1,4 @@
+"nom";"parent";"email";"company_type";"type";"est une compagnie";"notify_email";"employee";"supplier";"customer";"lang";"tz";"contact_type"
+"Terriers et Fils";;"terriers@oualou.fr";"company";"contact";"True";"none";"True";"False";"False";"fr_FR";"Europe/Paris";"standalone"
+"Viviane Lapin";"Terriers et Fils";"viviane@oualou.fr";"person";"contact";"False";"none";"True";"False";"False";"fr_FR";"Europe/Paris";"standalone"
+"Victor Lapin";"Terriers et Fils";"victor@oualou.fr";"person";"contact";"False";"none";"True";"False";"False";"fr_FR";"Europe/Paris";"standalone"

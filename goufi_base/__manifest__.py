@@ -5,7 +5,7 @@
 
 {
     'name': u'Goufi: Generic, user-friendly, data import application',
-    'version': u'11.0.5.0.0',
+    'version': u'11.0.6.0.0',
     'category': u'Applications',
     'author': u'Article714',
     'license': u'AGPL-3',

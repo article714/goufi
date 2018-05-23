@@ -36,6 +36,13 @@ class ColumnMapping(models.Model):
     _rec_name = "name"
     _order = "sequence"
 
+    # unique column name per configuration and tab
+
+    _sql_constraints = [
+        ('unique_column_name', 'UNIQUE(name,parent_configuration,parent_tab)', _(
+            u"Name of the column must be unique per configuration/tab \n")),
+    ]
+
     # Column mapping
     # name of the column
     name = fields.Char(string=_(u'Column name'),
@@ -229,9 +236,9 @@ Function must return the value to be assigned to mapping or None"""),
                     if len(found) == 1:
                         values['parent_configuration'] = found[0].parent_configuration.id
         except Exception as e:
-
             logging.exception("Not able to check values when creating column mapping %s : %s" %
-                              (type(e), unicode(e.message or e.name)))
+                              (str(type(e)), unicode(e)))
+
         return super(ColumnMapping, self).create(values)
 
     def write(self, values):

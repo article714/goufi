@@ -50,7 +50,9 @@ class ImportFile(models.Model):
     import_config = fields.Many2one(string=_(u'Related import configuration'), comodel_name='goufi.import_configuration',
                                     track_visibility='onchange', required=True)
 
-    to_process = fields.Boolean(string=_(u"File is to be processed"), default=True, track_visibility='onchange')
+    configuration_is_active = fields.Boolean(related='import_config.active')
+
+    to_process = fields.Boolean(string=_(u"File has to be processed"), default=True, track_visibility='onchange')
 
     needs_to_be_processed = fields.Boolean(string=_(u"File needs to be processed"),
                                            compute='_file_needs_processing', store=True)
@@ -68,6 +70,7 @@ class ImportFile(models.Model):
     processing_status = fields.Selection([('new', 'new'),
                                           (u'running', u'running'),
                                           (u'ended', u'ended'),
+                                          (u'error', u'ended with errors'),
                                           (u'pending', u'pending'),
                                           (u'failure', u'failure')],
                                          string=_(u"Processing status"), default='new', track_visibility='onchange')
@@ -78,42 +81,45 @@ class ImportFile(models.Model):
 
     #-------------------------------
     # file processing
-    @api.depends('active', 'to_process', 'processing_status', 'date_start_processing', 'date_stop_processing', 'process_when_updated', 'date_updated', 'date_addition')
+    @api.depends('active', 'import_config', 'configuration_is_active', 'to_process', 'processing_status', 'date_start_processing', 'date_stop_processing', 'process_when_updated', 'date_updated', 'date_addition')
     def _file_needs_processing(self):
         for record in self:
             result = False
-            # File has been updated and to be processed when update
-            if record.process_when_updated:
-                upd_time = timegm(datetime.strptime(record.date_updated, DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
-                if record.date_stop_processing:
-                    lastproc_time = timegm(datetime.strptime(record.date_stop_processing,
-                                                             DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
-                else:
-                    lastproc_time = 0
+            if record.active and record.configuration_is_active:
+                # File has been updated and to be processed when update
+                if record.process_when_updated:
+                    upd_time = timegm(datetime.strptime(record.date_updated,
+                                                        DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
+                    if record.date_stop_processing:
+                        lastproc_time = timegm(datetime.strptime(record.date_stop_processing,
+                                                                 DEFAULT_SERVER_DATETIME_FORMAT).timetuple())
+                    else:
+                        lastproc_time = 0
 
-                result = (lastproc_time > 0) and (upd_time > lastproc_time) and (record.processing_status != 'running')
+                    result = (lastproc_time > 0) and (upd_time > lastproc_time) and (
+                        record.processing_status != 'running')
 
-            # File is New or process is waiting for processing
-            result = result or (record.processing_status == 'pending') or (record.processing_status == 'new')
+                # File is New or process is waiting for processing
+                result = result or (record.processing_status == 'pending') or (record.processing_status == 'new')
 
-            # file is to be processed not already being processed
-            result = result and (record.to_process) and (record.processing_status != 'running')
+                # file is to be processed not already being processed
+                result = result and (record.to_process) and (record.processing_status != 'running')
 
-            # File is active and config also
-            if len(record.import_config) > 0:
-                result = result and (record.active) and (record.import_config.active)
-            else:
-                result = False
-
-            # Partner Needed?
-            needs_partner_val = self.env['ir.config_parameter'].get_param('goufi.config_needs_partner')
-            config_needs_partner = True if needs_partner_val == 'True' else False
-            if config_needs_partner:
+                # File is active and config also
                 if len(record.import_config) > 0:
-                    result = result and ((len(record.partner_id) > 0) or (
-                        len(record.import_config.default_partner_id) > 0))
+                    result = result and (record.active) and (record.import_config.active)
                 else:
-                    result = result and (len(record.partner_id) > 0)
+                    result = False
+
+                # Partner Needed?
+                needs_partner_val = self.env['ir.config_parameter'].get_param('goufi.config_needs_partner')
+                config_needs_partner = True if needs_partner_val == 'True' else False
+                if config_needs_partner:
+                    if len(record.import_config) > 0:
+                        result = result and ((len(record.partner_id) > 0) or (
+                            len(record.import_config.default_partner_id) > 0))
+                    else:
+                        result = result and (len(record.partner_id) > 0)
 
             record.needs_to_be_processed = result
 
@@ -137,6 +143,8 @@ class ImportFile(models.Model):
     def reset_processing_status(self):
         for aFile in self:
             aFile.processing_status = 'pending'
+            aFile.processing_logs = False
+            aFile.processing_result = False
             aFile.date_start_processing = False
             aFile.date_stop_processing = False
 
@@ -153,7 +161,7 @@ class ImportFile(models.Model):
                 if lang:
                     aFile.with_context({'lang': lang.code})._process_a_file(force=False)
                 else:
-                    aFile.with_context({'lang': lang.code})._process_a_file(force=False)
+                    aFile._process_a_file(force=False)
 
     def _process_a_file(self, force=False):
         """
@@ -163,6 +171,10 @@ class ImportFile(models.Model):
         if self.import_config:
             cls = None
             mod = None
+
+            # language set in context
+
+            lang = self.import_config.context_language
 
             # Resolve processor class
             try:
@@ -180,11 +192,15 @@ class ImportFile(models.Model):
             # Process File
             # TODO: one day provide a way to re-use processor instances?
             if mod and cls:
-                proc_inst = cls(self.import_config)
                 try:
+                    self.processing_logs = False
+                    self.processing_result = False
+                    self.date_start_processing = False
+                    self.date_stop_processing = False
+                    proc_inst = cls(self.import_config)
                     proc_inst.process_file(self, force)
                 except Exception as e:
-                    logging.exception("Not Able to Process import File %s" % self.filename)
+                    logging.exception("Not Able to Process import File %s", self.filename)
 
     #-------------------------------
     # automation of file processing

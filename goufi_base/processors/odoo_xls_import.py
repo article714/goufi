@@ -9,17 +9,15 @@ Mainly inspired by odoo => addons.base_import
 @license: AGPL v3
 '''
 
-
 import datetime
-from os import path
 import re
 
 from odoo import _
-from odoo.addons.goufi_base.utils.converters import toString
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT
-from odoo.tools.misc import ustr
 
-from .processor import AbstractProcessor
+from odoo.addons.goufi_base.utils.converters import toString
+
+from .xl_base_processor import XLImporterBaseProcessor
 
 
 try:
@@ -40,7 +38,7 @@ _reHeader = re.compile(r'[0-9]+\_')
 # MAIN CLASS
 
 
-class OdooXLSProcessor(AbstractProcessor):
+class OdooXLSProcessor(XLImporterBaseProcessor):
     """
     A processor that import csv files that are Odoo compatible (same as in modules source code
 
@@ -49,27 +47,11 @@ class OdooXLSProcessor(AbstractProcessor):
 
     """
 
+    #----------------------------------------------------------
     def __init__(self, parent_config):
-
-        super(OdooXLSProcessor, self).__init__(parent_config)
-        self.target_model = None
-
-
-       
-
-
+        XLImporterBaseProcessor.__init__(self, parent_config)
     #-------------------------------------------------------------------------------------
-    def process_file(self, import_file, force=False):
-        ext = import_file.filename.split('.')[-1]
-        if (ext == 'xls'):
-            super(OdooXLSProcessor, self).process_file(import_file, force)
-        else:
-            self.logger.error("Cannot process file: Wrong extension -> %s" % ext)
-            self.end_processing(import_file, False)
 
-                    
-                    
-    #-------------------------------------------------------------------------------------
     def process_data(self, import_file):
         """
         Method that actually process data
@@ -77,38 +59,29 @@ class OdooXLSProcessor(AbstractProcessor):
 
         self.logger.info("Odoo xls data import: " + toString(import_file.filename))
 
+        if self.parent_config:
+            if self.parent_config.target_object:
+                self.target_model = self.odooenv[self.parent_config.target_object.model]
         if self.target_model == None:
-
-            self.logger.warning("No target model set on configuration, attempt to find it from file name")
-
-            bname = path.basename(import_file.filename)
-            modelname = '.'.join(bname.split('.')[:-1])
-
-            if _reHeader.match(modelname):
-                modelname = re.sub(r'[0-9]+\_', '', modelname)
-
-            try:
-                self.target_model = self.odooenv[modelname]
-            except:
-                self.target_model = None
-                self.logger.exception("Not able to guess target model from filename: " + toString(import_file.filename))
-                return False
-            
-            self.logger.warning("Found target model from file name: %s" % str(self.target_model))
+            # Search for target model
+            self.search_target_model_from_filename(import_file)
+        if self.target_model == None:
+            self.logger.exception("Not able to guess target model: " + toString(import_file.filename))
+            return False
 
         try:
             datas = []
             fields = None
             with xlrd.open_workbook(import_file.filename) as book:
                 sh = book.sheet_by_index(0)
-                
+
                 # header
                 fields = sh.row_values(0)
-                        
+
                 if not ('id' in fields):
                     self.logger.error("Import specification does not contain 'id', Cannot continue.")
                     return False
-    
+
                 # datas
                 for rownum in range(1, sh.nrows):
                     row = sh.row(rownum)
@@ -135,7 +108,7 @@ class OdooXLSProcessor(AbstractProcessor):
                             values.append(u'True' if cell.value else u'False')
                         elif cell.ctype is xlrd.XL_CELL_ERROR:
                             raise ValueError(
-                                _("Error cell found while reading XLS/XLSX file: %s") % 
+                                _("Error cell found while reading XLS/XLSX file: %s") %
                                 xlrd.error_text_from_code.get(
                                     cell.value, "unknown error code %s" % cell.value)
                             )
@@ -148,7 +121,7 @@ class OdooXLSProcessor(AbstractProcessor):
             if any(msg['type'] == 'error' for msg in result['messages']):
                 # Report failed import and abort module install
                 warning_msg = "\n".join(msg['message'] for msg in result['messages'])
-                self.logger.error('Processing of file %s failed: %s' % (import_file.filename, warning_msg))
+                self.logger.error('Processing of file %s failed: %s', import_file.filename, warning_msg)
                 import_file.processing_status = 'failure'
                 import_file.processing_result = warning_msg
                 return False
