@@ -91,9 +91,9 @@ class OdooXLSProcessor(XLImporterBaseProcessor):
                         if cell.ctype is xlrd.XL_CELL_NUMBER:
                             is_float = cell.value % 1 != 0.0
                             values.append(
-                                unicode(cell.value)
+                                str(cell.value)
                                 if is_float
-                                else unicode(int(cell.value))
+                                else str(int(cell.value))
                             )
                         elif cell.ctype is xlrd.XL_CELL_DATE:
                             is_datetime = cell.value % 1 != 0.0
