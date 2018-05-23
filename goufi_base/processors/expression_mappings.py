@@ -597,18 +597,13 @@ class CSVProcessor(ExpressionProcessorMixin, CSVImporterMixin, LineIteratorProce
 
         # try with , as a delimiter
 
-        reader = self._open_csv(import_file)
+        reader = self._open_csv(import_file, asDict=True)
 
-        with open(import_file.filename, 'rt') as csvfile:
-            csv_reader = unicodecsv.DictReader(csvfile, quotechar=str(self.csv_string_separator),
-                                               delimiter=str(self.csv_separator))
+        #firstline in header
+        yield reader.fieldnames
+        for row in reader:
+            yield row
 
-            if (len(csv_reader.fieldnames) > 1):
-                if self.prepare_mappings() > 0:
-                    for row in csv_reader:
-                        yield row
-
-            csvfile.close()
 
 #-------------------------------------------------------------------------------------
 # Process XL* Only
