@@ -11,8 +11,8 @@ Created on 17 may 2018
 a set of classes to be used in mixins for processor that provide support for importing CSV files
 """
 
+import csv
 import logging
-import unicodecsv
 
 
 #-------------------------------------------------------------------------------------
@@ -41,10 +41,10 @@ class CSVImporterMixin(object):
         try:
             self.csv_file = open(import_file.filename, 'rb')
             if asDict:
-                reader = unicodecsv.DictReader(self.csv_file, quotechar=str(
+                reader = csv.DictReader(self.csv_file, quotechar=str(
                     self.csv_string_separator), delimiter=str(self.csv_separator))
             else:
-                reader = unicodecsv.reader(self.csv_file, quotechar=str(
+                reader = csv.reader(self.csv_file, quotechar=str(
                     self.csv_string_separator), delimiter=str(self.csv_separator))
             return reader
         except:

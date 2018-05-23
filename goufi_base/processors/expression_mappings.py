@@ -10,7 +10,6 @@ Created on 23 deb. 2018
 from copy import copy
 from enum import IntEnum, unique
 import re
-import unicodecsv
 
 from odoo.addons.goufi_base.utils.converters import toString
 
