@@ -142,7 +142,8 @@ class ExpressionProcessorMixin(object):
 
     def map_values(self, row):
         result = copy(row)
-        for f in result.keys():
+        keys = copy(row.keys)
+        for f in keys:
             if f in self.col2fields:
                 # replace non json-compatible values
                 val = result[f]
