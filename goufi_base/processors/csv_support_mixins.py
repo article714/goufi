@@ -75,19 +75,15 @@ class CSVImporterMixin(object):
                 resultDict[tabheader[idx]] = row[idx]
             return resultDict
 
-    #-------------------------------------------------------------------------------------
+ #-------------------------------------------------------------------------------------
     # Provides a dictionary of values in a row
     def get_row_values(self, tab=None, row=None):
-        logging.warning("POUET PUE get_row_values %s", str(type(row)))
         if isinstance(row, dict):
             values = []
-            logging.warning("POUET PUE get_row_values dict")
             for k in row:
-                logging.warning("POUET PUE get_row_values dict %s %s", k, str(row))
                 values.append(row[k])
             return values
         else:
-            logging.warning("POUET PUE get_row_values PAS dict")
             return row
 
     #-------------------------------------------------------------------------------------

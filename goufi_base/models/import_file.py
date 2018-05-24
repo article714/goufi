@@ -200,7 +200,7 @@ class ImportFile(models.Model):
                     proc_inst = cls(self.import_config)
                     proc_inst.process_file(self, force)
                 except Exception as e:
-                    logging.exception("Not Able to Process import File %s" % self.filename)
+                    logging.exception("Not Able to Process import File %s", self.filename)
 
     #-------------------------------
     # automation of file processing

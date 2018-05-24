@@ -10,7 +10,6 @@ Created on 23 deb. 2018
 from copy import copy
 from enum import IntEnum, unique
 import re
-import unicodecsv
 
 from odoo.addons.goufi_base.utils.converters import toString
 
@@ -120,12 +119,18 @@ class ExpressionProcessorMixin(object):
         self.idFields = {}
         self.delOrArchMarkers = {}
         self.col2fields = {}
-        self.allMappings = []
+        self.allMappings = {}
 
         self.header_line_idx = self.parent_config.default_header_line_index
         self.target_model = None
 
         self.m2o_create_if_no_target_instance = ()
+        for param in parent_config.processor_parameters:
+            if param.name == u'm2o_create_if_no_target_instance':
+                self.m2o_create_if_no_target_instance = param.value.split(',')
+        self.target_model = None
+
+        self.m2o_create_if_no_target_instance = False
         for param in parent_config.processor_parameters:
             if param.name == u'm2o_create_if_no_target_instance':
                 self.m2o_create_if_no_target_instance = param.value.split(',')
@@ -137,7 +142,8 @@ class ExpressionProcessorMixin(object):
 
     def map_values(self, row):
         result = copy(row)
-        for f in result.keys():
+        keys = [str(x) for x in row.keys()]
+        for f in keys:
             if f in self.col2fields:
                 # replace non json-compatible values
                 val = result[f]
@@ -170,7 +176,8 @@ class ExpressionProcessorMixin(object):
         self.idFields = {}
         self.delOrArchMarkers = {}
         self.col2fields = {}
-        self.allMappings = range(len(MappingType))
+        self.column_groups = {}
+        self.allMappings = {}
         numbOfFields = 0
 
         # We should have a model now
@@ -203,7 +210,6 @@ class ExpressionProcessorMixin(object):
             mappingType = None
 
             if val.target_field.name in target_fields:
-
                 self.col2fields[val.name] = val.target_field.name
 
                 if val.is_constant_expression:
@@ -236,8 +242,8 @@ class ExpressionProcessorMixin(object):
                             vals[2] = _fieldname
                             try:
                                 vals.append(eval(cond))
-                            except Exception as a:
-                                self.logger.exception("Could not parse given conditions " + str(cond))
+                            except:
+                                self.logger.exception("Could not parse given conditions %s", str(cond))
                         self.allMappings[mappingType][val.name] = vals
                     elif re.match(r'\+.*', val.mapping_expression):
                         mappingType = MappingType.One2Many
@@ -253,8 +259,8 @@ class ExpressionProcessorMixin(object):
                             vals[2] = _fieldname
                             try:
                                 vals.append(eval(cond))
-                            except Exception as a:
-                                self.logger.exception("Could not parse given conditions " + str(cond))
+                            except:
+                                self.logger.exception("Could not parse given conditions %s", str(cond))
                         self.allMappings[mappingType][val.name] = vals
                 else:
                     mappingType = MappingType.Standard
@@ -315,7 +321,7 @@ class ExpressionProcessorMixin(object):
                         data_values[val] = value
                     else:
                         del data_values[val]
-            except Exception as e:
+            except:
                 self.logger.exception("Failed to compute value from function call: %s", str(val))
 
         # Many To One Fields, might be mandatory, so needs to be treated first and added to StdRow
@@ -410,6 +416,7 @@ class ExpressionProcessorMixin(object):
                 if value != None and value != str(''):
                     search_criteria.append((keyfield, '=', value))
                 else:
+
                     self.logger.warning(DEFAULT_LOG_STRING, line_index + 1,
                                         "GOUFI: Do not process line n.%d, as Id column (%s) is empty" % (line_index + 1, k))
                     self.errorCount += 1
@@ -487,7 +494,7 @@ class ExpressionProcessorMixin(object):
         try:
             if currentObj != None:
                 self.run_hooks('_pre_write_record_hook', data_values)
-        except Exception as e:
+        except:
             self.odooenv.cr.rollback()
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1,
                                   u" Error raised during _pre_write_record_hook processing")
@@ -516,7 +523,7 @@ class ExpressionProcessorMixin(object):
                 str(self.target_model), toString(actual_values), toString(currentObj)))
             self.logger.error(u"                    MSG: %s", toString(e))
             currentObj = None
-        except Exception as e:
+        except:
             self.odooenv.cr.rollback()
             self.errorCount += 1
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Generic Error raised Exception")
@@ -554,7 +561,7 @@ class ExpressionProcessorMixin(object):
                                   self.target_model.name + " -> " + toString(data_values))
             self.logger.error("                    MSG: %s", toString(e))
             currentObj = None
-        except Exception as e:
+        except:
             self.odooenv.cr.rollback()
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Generic Error raised Exception")
             currentObj = None
@@ -563,7 +570,7 @@ class ExpressionProcessorMixin(object):
         try:
             if currentObj != None:
                 self.run_hooks('_post_write_record_hook',  currentObj, data_values, actual_values)
-        except Exception as e:
+        except:
             self.odooenv.cr.rollback()
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1,
                                   u" Error raised during _post_write_record_hook processing")
@@ -587,22 +594,12 @@ class CSVProcessor(ExpressionProcessorMixin, CSVImporterMixin, LineIteratorProce
     #-------------------------------------------------------------------------------------
     # line generator
 
-    def get_rows(self, import_file):
+    def get_rows(self, import_file=None):
 
-        # try with , as a delimiter
+        reader = self._open_csv(import_file, asDict=True)
 
-        reader = self._open_csv(import_file)
-
-        with open(import_file.filename, 'rt') as csvfile:
-            csv_reader = unicodecsv.DictReader(csvfile, quotechar=str(self.csv_string_separator),
-                                               delimiter=str(self.csv_separator))
-
-            if (len(csv_reader.fieldnames) > 1):
-                if self.prepare_mappings() > 0:
-                    for row in csv_reader:
-                        yield row
-
-            csvfile.close()
+        for row in reader:
+            yield row
 
 #-------------------------------------------------------------------------------------
 # Process XL* Only
