@@ -398,16 +398,19 @@ class Processor(CSVImporterMixin, XLImporterBaseProcessor):
             for tab in XLImporterBaseProcessor.get_tabs(self, import_file):
                 yield tab
 
-    #-------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------
     def get_rows(self, tab=None):
         if self.fileType == FILE_TYPE_CSV:
             #firstline in header
-            yield tab[1].fieldnames
+            idx = 0
+            yield (0, tab[1].fieldnames)
             for row in tab[1]:
-                yield row
+                idx += 1
+                yield (idx, row)
         else:
             for row in XLImporterBaseProcessor.get_rows(self, tab):
-                yield row
+                yield (0, row)
+                idx += 1
 
     #-------------------------------------------------------------------------------------
     def process_file(self, import_file, force=False):

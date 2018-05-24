@@ -72,15 +72,15 @@ class CSVImporterMixin(object):
         else:
             resultDict = {}
             for idx in range(len(tabheader)):
-                resultDict[tabheader[idx]] = row[idx]
+                resultDict[tabheader[idx]] = row[1][idx]
             return resultDict
 
  #-------------------------------------------------------------------------------------
     # Provides a dictionary of values in a row
     def get_row_values(self, tab=None, row=None):
-        if isinstance(row, dict):
+        if isinstance(row[1], dict):
             values = []
-            for k in row:
+            for k in row[1]:
                 values.append(row[k])
             return values
         else:
