@@ -595,12 +595,12 @@ class CSVProcessor(ExpressionProcessorMixin, CSVImporterMixin, LineIteratorProce
 
     def get_rows(self, import_file):
 
-        # try with , as a delimiter
-
         reader = self._open_csv(import_file, asDict=True)
-
+        first = True
         #firstline in header
-        yield reader.fieldnames
+        if first:
+            first = True
+            yield reader.fieldnames
         for row in reader:
             yield row
 
