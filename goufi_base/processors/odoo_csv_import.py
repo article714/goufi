@@ -66,20 +66,24 @@ class OdooCSVProcessor(CSVImporterMixin, AbstractProcessor):
                 self.end_processing(import_file, False, 'failure', "Cannot load CSV reader")
                 return False
 
-            fields = reader.next()
-
-            if not ('id' in fields):
-                self.logger.error("Import specification does not contain 'id', Cannot continue.")
-                return False
-
+            first = True
             datas = []
+            fields = ()
             for line in reader:
-                if not (line and any(line)):
-                    continue
-                try:
-                    datas.append(map(ustr, line))
-                except Exception:
-                    self.logger.error("Cannot import the line: %s", line)
+                if first:
+                    fields = line
+                    first = False
+                else:
+                    if not ('id' in fields):
+                        self.logger.error("Import specification does not contain 'id', Cannot continue.")
+                        return False
+
+                    if not (line and any(line)):
+                        continue
+                    try:
+                        datas.append(map(ustr, line))
+                    except:
+                        self.logger.error("Cannot import the line: %s", line)
 
             result = self.target_model.load(fields, datas)
             if any(msg['type'] == 'error' for msg in result['messages']):
