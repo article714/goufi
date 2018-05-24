@@ -81,7 +81,7 @@ class OdooCSVProcessor(CSVImporterMixin, AbstractProcessor):
                     if not (line and any(line)):
                         continue
                     try:
-                        datas.append(map(ustr, line))
+                        datas.append([ustr(v) for v in line])
                     except:
                         self.logger.error("Cannot import the line: %s", line)
 
