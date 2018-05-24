@@ -308,12 +308,13 @@ class ExpressionProcessorMixin(object):
         # Process Function Call values
         for val in self.allMappings[MappingType.FunctionCall]:
             try:
-                function = self.allMappings[MappingType.FunctionCall][val][1]
-                value = function(data_values[val])
-                if value != None:
-                    data_values[val] = value
-                else:
-                    del data_values[val]
+                if val in data_values:
+                    function = self.allMappings[MappingType.FunctionCall][val][1]
+                    value = function(data_values[val])
+                    if value != None:
+                        data_values[val] = value
+                    else:
+                        del data_values[val]
             except Exception as e:
                 self.logger.exception("Failed to compute value from function call: %s", str(val))
 
