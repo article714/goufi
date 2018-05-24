@@ -142,7 +142,7 @@ class ExpressionProcessorMixin(object):
 
     def map_values(self, row):
         result = copy(row)
-        keys = [str(x) for x in row.keys()]
+        keys = [x for x in row.keys()]
         for f in keys:
             if f in self.col2fields:
                 # replace non json-compatible values
@@ -314,12 +314,13 @@ class ExpressionProcessorMixin(object):
         # Process Function Call values
         for val in self.allMappings[MappingType.FunctionCall]:
             try:
-                function = self.allMappings[MappingType.FunctionCall][val][1]
-                value = function(data_values[val])
-                if value != None:
-                    data_values[val] = value
-                else:
-                    del data_values[val]
+                if val in data_values:
+                    function = self.allMappings[MappingType.FunctionCall][val][1]
+                    value = function(data_values[val])
+                    if value != None:
+                        data_values[val] = value
+                    else:
+                        del data_values[val]
             except:
                 self.logger.exception("Failed to compute value from function call: %s", str(val))
 
@@ -493,7 +494,7 @@ class ExpressionProcessorMixin(object):
         try:
             if currentObj != None:
                 self.run_hooks('_pre_write_record_hook', data_values)
-        except Exception as e:
+        except:
             self.odooenv.cr.rollback()
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1,
                                   u" Error raised during _pre_write_record_hook processing")
@@ -522,7 +523,7 @@ class ExpressionProcessorMixin(object):
                 str(self.target_model), toString(actual_values), toString(currentObj)))
             self.logger.error(u"                    MSG: %s", toString(e))
             currentObj = None
-        except Exception as e:
+        except:
             self.odooenv.cr.rollback()
             self.errorCount += 1
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Generic Error raised Exception")
@@ -560,7 +561,7 @@ class ExpressionProcessorMixin(object):
                                   self.target_model.name + " -> " + toString(data_values))
             self.logger.error("                    MSG: %s", toString(e))
             currentObj = None
-        except Exception as e:
+        except:
             self.odooenv.cr.rollback()
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Generic Error raised Exception")
             currentObj = None
@@ -569,7 +570,7 @@ class ExpressionProcessorMixin(object):
         try:
             if currentObj != None:
                 self.run_hooks('_post_write_record_hook',  currentObj, data_values, actual_values)
-        except Exception as e:
+        except:
             self.odooenv.cr.rollback()
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1,
                                   u" Error raised during _post_write_record_hook processing")
@@ -593,12 +594,13 @@ class CSVProcessor(ExpressionProcessorMixin, CSVImporterMixin, LineIteratorProce
    #-------------------------------------------------------------------------------------
     # line generator
 
-    def get_rows(self, import_file):
+    def get_rows(self, import_file=None):
 
         reader = self._open_csv(import_file, asDict=True)
-
+        idx = 0
         for row in reader:
-            yield row
+            yield (idx, row)
+            idx += 1
 
 #-------------------------------------------------------------------------------------
 # Process XL* Only
