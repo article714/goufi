@@ -119,7 +119,7 @@ class ExpressionProcessorMixin(object):
         self.idFields = {}
         self.delOrArchMarkers = {}
         self.col2fields = {}
-        self.allMappings = []
+        self.allMappings = {}
 
         self.header_line_idx = self.parent_config.default_header_line_index
         self.target_model = None
@@ -176,7 +176,7 @@ class ExpressionProcessorMixin(object):
         self.delOrArchMarkers = {}
         self.col2fields = {}
         self.column_groups = {}
-        self.allMappings = range(len(MappingType))
+        self.allMappings = {}
         numbOfFields = 0
 
         # We should have a model now
