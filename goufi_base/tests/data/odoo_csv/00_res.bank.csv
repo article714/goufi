@@ -1,3 +1,3 @@
-id;name;street;street2;city;zip;bic;phone;fax;country:id
-bnk_ca22;CREDIT AGRICOLE DES COTES D'ARMOR;La croix Tual;;SAINT BRIEUC;22098;AGRIFRPP822;296013155;;base.fr
-bnk_ccoop35;CREDIT COOPERATIF;3 Rue de l'Alma;CS86407;RENNES;35064;CCOPFRPPXXX;299303626;299303626;base.fr
+id;name;street;street2;city;zip;bic;phone;country:id
+bnk_ca22;CREDIT AGRICOLE DES COTES D'ARMOR;La croix Tual;;SAINT BRIEUC;22098;AGRIFRPP822;296013155;base.fr
+bnk_ccoop35;CREDIT COOPERATIF;3 Rue de l'Alma;CS86407;RENNES;35064;CCOPFRPPXXX;299303626;base.fr
