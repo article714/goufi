@@ -130,12 +130,6 @@ class ExpressionProcessorMixin(object):
                 self.m2o_create_if_no_target_instance = param.value.split(',')
         self.target_model = None
 
-        self.m2o_create_if_no_target_instance = False
-        for param in parent_config.processor_parameters:
-            if param.name == u'm2o_create_if_no_target_instance':
-                self.m2o_create_if_no_target_instance = param.value.split(',')
-        self.target_model = None
-
     #-------------------------------------------------------------------------------------
     # maps a line of data from column/mapping name to field name
     # and change non json-compatible values
