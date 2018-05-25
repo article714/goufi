@@ -66,8 +66,8 @@ class CSVImporterMixin(object):
     # Provides a dictionary of values in a row
     def get_row_values_as_dict(self, tab=None, row=None, tabheader=None):
 
-        if isinstance(row, dict):
-            return row
+        if isinstance(row[1], dict):
+            return row[1]
         else:
             resultDict = {}
             for idx in range(len(tabheader)):

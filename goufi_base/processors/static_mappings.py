@@ -150,7 +150,7 @@ class Processor(CSVImporterMixin, XLImporterBaseProcessor):
         if self.fileType == FILE_TYPE_CSV:
             header = CSVImporterMixin.get_row_values(self, tab, row=headerrow)
         else:
-            header = self.get_row_values(tab, row=headerrow, tabheader=None)
+            header = XLImporterBaseProcessor.get_row_values(self, tab, row=headerrow)
 
         for val in header:
 

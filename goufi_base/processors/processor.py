@@ -120,6 +120,12 @@ class AbstractProcessor(object):
             logging.warning("GOUFI: logger for current instance is not new")
         else:
             self.logger = logging.getLogger("GoufiIP.%s" % name_complement)
+        # reset handlers
+        for h in list(self.logger.handlers):
+            self.logger.removeHandler(h)
+        self.logger.propagate = 0
+        self.logger.setLevel(logging.INFO)
+
         # fichier de log
         if self.parent_config.working_dir:
 
@@ -136,6 +142,7 @@ class AbstractProcessor(object):
                 fh = logging.FileHandler(filename="%sgoufi_%s_%s%s" % (
                     logpath, name_complement, filename_TS, '.log'), mode='w')
                 fh.setFormatter(procLogFmt)
+                fh.setLevel(logging.INFO)
                 self.logger.addHandler(fh)
                 self.logger_fh = fh
                 self.logger.info("Started the new file handler: %s", str(fh))
@@ -391,11 +398,10 @@ class LineIteratorProcessor(AbstractProcessor):
 
             # process Rows
             for row in self.get_rows(import_file):
-                idx += 1
                 try:
-                    self.process_values(idx, row)
+                    self.process_values(row[0], row[1])
                 except Exception as e:
-                    self.logger.exception(u"Error when processing line N° %d", idx)
+                    self.logger.exception(u"Error when processing line N° %d", row[0])
                     self.errorCount += 1
                     self.odooenv.cr.rollback()
                     return -1
@@ -556,7 +562,7 @@ class MultiSheetLineIterator(AbstractProcessor):
                             elif idx > self.header_line_idx:
                                 # process data for tab
                                 if header != None and len(header) > 0:
-                                    values = self.get_row_values_as_dict(tab, row, header)
+                                    values = self.get_row_values_as_dict(tab=tab, row=row, tabheader=header)
                                 else:
                                     self.logger.error(u"Header line is empty")
                                     self.errorCount += 1
