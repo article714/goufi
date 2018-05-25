@@ -36,9 +36,9 @@ class CSVImporterMixin(object):
         self.target_model = None
 
     #-------------------------------------------------------------------------------------
-    def _open_csv(self, import_file, asDict=True):
+    def _open_csv(self, import_file, asDict=True, textencoding='utf-8'):
         try:
-            self.csv_file = open(import_file.filename, 'rt', encoding='utf-8')
+            self.csv_file = open(import_file.filename, 'rt', encoding=textencoding)
             if asDict:
                 reader = csv.DictReader(self.csv_file, quotechar=str(
                     self.csv_string_separator), delimiter=str(self.csv_separator))
