@@ -224,14 +224,6 @@ class Processor(CSVImporterMixin, XLImporterBaseProcessor):
 
         if len(self.idFields) > 0:
 
-            # traitement des enregistrements à "archiver" ou "supprimer"
-            allvals = u"".join(data_values.values())
-
-            if u'supprimer de la base odoo' in allvals:
-                TO_BE_ARCHIVED = True
-            else:
-                TO_BE_ARCHIVED = False
-
             # calcul des critères de recherche
             search_criteria = []
 
