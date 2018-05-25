@@ -585,15 +585,14 @@ class CSVProcessor(ExpressionProcessorMixin, CSVImporterMixin, LineIteratorProce
         ExpressionProcessorMixin.__init__(self, parent_config)
         CSVImporterMixin.__init__(self, parent_config)
 
-    #-------------------------------------------------------------------------------------
-    # line generator
-
     def get_rows(self, import_file=None):
 
         reader = self._open_csv(import_file, asDict=True)
-
+        idx = 0
         for row in reader:
-            yield row
+            yield (idx, row)
+            idx += 1
+
 
 #-------------------------------------------------------------------------------------
 # Process XL* Only
