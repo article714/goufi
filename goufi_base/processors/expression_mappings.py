@@ -410,7 +410,6 @@ class ExpressionProcessorMixin(object):
                 if value != None and value != str(''):
                     search_criteria.append((keyfield, '=', value))
                 else:
-
                     self.logger.warning(DEFAULT_LOG_STRING, line_index + 1,
                                         "GOUFI: Do not process line n.%d, as Id column (%s) is empty" % (line_index + 1, k))
                     self.errorCount += 1
