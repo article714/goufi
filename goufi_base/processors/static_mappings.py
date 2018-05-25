@@ -405,6 +405,18 @@ class Processor(CSVImporterMixin, XLImporterBaseProcessor):
                 idx += 1
 
     #-------------------------------------------------------------------------------------
+    # Provides a dictionary of values in a row
+    def get_row_values_as_dict(self, tab=None, row=None, tabheader=None):
+
+        values = None
+        if self.fileType == FILE_TYPE_CSV:
+            values = CSVImporterMixin.get_row_values_as_dict(self, tab, row, tabheader)
+        else:
+            values = XLImporterBaseProcessor.get_row_values_as_dict(self, tab, row, tabheader)
+
+        return values
+
+    #-------------------------------------------------------------------------------------
     def process_file(self, import_file, force=False):
         ext = import_file.filename.split('.')[-1]
         if (ext in AUTHORIZED_EXTS):
