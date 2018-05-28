@@ -393,8 +393,12 @@ class ExpressionProcessorMixin(object):
                 mapType = self.idFields[k]
                 value = None
                 keyfield = None
-                if mapType == MappingType.Standard or mapType == MappingType.FunctionCall:
+                if mapType == MappingType.Standard:
                     keyfield = self.allMappings[mapType][k]
+                    if k in data_values:
+                        value = data_values[k]
+                elif mapType == MappingType.FunctionCall:
+                    keyfield = self.allMappings[mapType][k][0]
                     if k in data_values:
                         value = data_values[k]
                 elif mapType in (MappingType.Constant, MappingType.ContextEval):
