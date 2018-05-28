@@ -158,10 +158,8 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
                 colname = None
                 if not isinstance(c, EmptyCell) and not c.column == None:
                     if c.column <= len(tabheader):
-                        colname = tabheader[c.column - 1]
-                    else:
-                        self.logger.warning(
-                            "Identified additional columns that won't be processed: %d in %s", c.column, str(row[1]))
+                        if tabheader[c.column - 1] != '':
+                            colname = tabheader[c.column - 1]
                 if colname != None:
                     values[colname] = c.value
             return values
