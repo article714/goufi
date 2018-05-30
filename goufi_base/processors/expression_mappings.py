@@ -297,6 +297,10 @@ class ExpressionProcessorMixin(object):
         if self.target_model == None:
             return False
 
+        # Process Constant values
+        for val in self.allMappings[MappingType.Constant]:
+            data_values[val] = self.allMappings[MappingType.Constant][val.name][1]
+
         # Process contextual values
         for val in self.allMappings[MappingType.ContextEval]:
             try:
