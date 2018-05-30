@@ -375,13 +375,6 @@ class LineIteratorProcessor(AbstractProcessor):
         idx = 0
         nb_mappings = self.prepare_mappings(import_file)
         if nb_mappings > 0:
-            # TODO: document this
-            if ('import_processed' in self.target_model.fields_get_keys()):
-                            # hook for objects needing to be set as processed through import
-                self.odooenv.cr.execute(
-                    'update %s set import_processed = False' % toString(self.target_model._table))
-                self.odooenv.cr.commit()
-
             # Pre-process Rows Hook
             try:
                 if "_pre_process_rows_hook" in self.hooks:
@@ -532,12 +525,6 @@ class MultiSheetLineIterator(AbstractProcessor):
                 if nb_mappings > 0:
                     idx = 0
                     header = None
-                    # TODO Document this
-                    if ('import_processed' in self.target_model.fields_get_keys()):
-                            # hook for objects needing to be set as processed through import
-                        self.odooenv.cr.execute(
-                            'update %s set import_processed = False' % toString(self.target_model._table))
-                        self.odooenv.cr.commit()
 
                     # Pre-process Rows Hook
                     try:
