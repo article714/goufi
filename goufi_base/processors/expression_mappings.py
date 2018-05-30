@@ -208,7 +208,7 @@ class ExpressionProcessorMixin(object):
 
                 if val.is_constant_expression:
                     mappingType = MappingType.Constant
-                    if val.mapping_expression and len(val.mapping_expression) > 2:
+                    if val.mapping_expression and len(val.mapping_expression) > 0:
                         self.allMappings[mappingType][val.name] = [val.target_field.name, val.mapping_expression]
                     else:
                         self.logger.error("Wrong mapping expression: too short (%s)", val.name)
