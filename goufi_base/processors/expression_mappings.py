@@ -299,7 +299,7 @@ class ExpressionProcessorMixin(object):
 
         # Process Constant values
         for val in self.allMappings[MappingType.Constant]:
-            data_values[val] = self.allMappings[MappingType.Constant][val.name][1]
+            data_values[val] = self.allMappings[MappingType.Constant][val][1]
 
         # Process contextual values
         for val in self.allMappings[MappingType.ContextEval]:
