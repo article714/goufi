@@ -438,14 +438,6 @@ class ExpressionProcessorMixin(object):
             else:
                 currentObj = None
 
-        # hook for objects needing to be marked as processed
-        # by import
-        # TODO: document and check this
-        if currentObj != None and ('import_processed' in self.target_model.fields_get_keys()):
-            currentObj.write({'import_processed': True})
-            currentObj.import_processed = True
-            self.odooenv.cr.commit()
-
         # processing archives or deletion and returns
         if TO_BE_DELETED:
             if not currentObj == None:
@@ -489,8 +481,7 @@ class ExpressionProcessorMixin(object):
 
         # Pre Write Hooks
         try:
-            if currentObj != None:
-                self.run_hooks('_pre_write_record_hook', data_values)
+            self.run_hooks('_pre_write_record_hook', data_values)
         except:
             self.odooenv.cr.rollback()
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1,
