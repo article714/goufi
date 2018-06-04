@@ -405,8 +405,11 @@ class ExpressionProcessorMixin(object):
                     keyfield = self.allMappings[mapType][k][0]
                     if k in data_values:
                         value = data_values[k]
-                elif mapType in (MappingType.Constant, MappingType.ContextEval):
+                elif mapType == MappingType.Constant:
                     (keyfield, value) = self.allMappings[mapType][k]
+                elif mapType == MappingType.ContextEval:
+                    keyfield = self.allMappings[mapType][k]
+                    value = data_values[k]
                 elif mapType == MappingType.Many2One:
                     keyfield = self.col2fields[k]
                     if k in data_values:
