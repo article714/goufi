@@ -323,7 +323,7 @@ class ExpressionProcessorMixin(object):
                     else:
                         del data_values[val]
             except:
-                self.logger.exception("Failed to compute value from function call: %s", str(val))
+                self.logger.exception("Failed to compute value from function call: %s", toString(val))
 
         # Many To One Fields, might be mandatory, so needs to be treated first and added to StdRow
         for f in self.allMappings[MappingType.Many2One]:
