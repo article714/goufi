@@ -8,10 +8,11 @@ Created on 23 deb. 2018
 '''
 
 from copy import copy
+from datetime import datetime, date
 from enum import IntEnum, unique
 import re
 
-from odoo.addons.goufi_base.utils.converters import toString
+from odoo.addons.goufi_base.utils.converters import toString, dateToOdooString
 
 from .csv_support_mixins import CSVImporterMixin
 from .processor import LineIteratorProcessor
@@ -143,6 +144,8 @@ class ExpressionProcessorMixin(object):
                 val = result[f]
                 if val == "False" or val == "True":
                     val = eval(val)
+                elif (isinstance(val, datetime) or isinstance(val, date)):
+                    val = dateToOdooString(val)
                 elif val == None:
                     del(result[f])
                     continue
