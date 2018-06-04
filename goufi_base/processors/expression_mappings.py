@@ -331,7 +331,7 @@ class ExpressionProcessorMixin(object):
             if f in data_values:
                 config = self.allMappings[MappingType.Many2One][f]
                 # reference Many2One,
-                if data_values[f] and len(data_values[f]) > 0:
+                if data_values[f] and len(toString(data_values[f])) > 0:
                     cond = []
                     if len(config) > 3:
                         cond = []
