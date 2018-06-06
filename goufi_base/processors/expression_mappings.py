@@ -8,10 +8,11 @@ Created on 23 deb. 2018
 '''
 
 from copy import copy
+from datetime import datetime, date
 from enum import IntEnum, unique
 import re
 
-from odoo.addons.goufi_base.utils.converters import toString
+from odoo.addons.goufi_base.utils.converters import toString, dateToOdooString
 
 from .csv_support_mixins import CSVImporterMixin
 from .processor import LineIteratorProcessor
@@ -143,6 +144,8 @@ class ExpressionProcessorMixin(object):
                 val = result[f]
                 if val == "False" or val == "True":
                     val = eval(val)
+                elif (isinstance(val, datetime) or isinstance(val, date)):
+                    val = dateToOdooString(val)
                 elif val == None:
                     del(result[f])
                     continue
@@ -208,7 +211,7 @@ class ExpressionProcessorMixin(object):
 
                 if val.is_constant_expression:
                     mappingType = MappingType.Constant
-                    if val.mapping_expression and len(val.mapping_expression) > 2:
+                    if val.mapping_expression and len(val.mapping_expression) > 0:
                         self.allMappings[mappingType][val.name] = [val.target_field.name, val.mapping_expression]
                     else:
                         self.logger.error("Wrong mapping expression: too short (%s)", val.name)
@@ -297,6 +300,10 @@ class ExpressionProcessorMixin(object):
         if self.target_model == None:
             return False
 
+        # Process Constant values
+        for val in self.allMappings[MappingType.Constant]:
+            data_values[val] = self.allMappings[MappingType.Constant][val][1]
+
         # Process contextual values
         for val in self.allMappings[MappingType.ContextEval]:
             try:
@@ -316,7 +323,7 @@ class ExpressionProcessorMixin(object):
                     else:
                         del data_values[val]
             except:
-                self.logger.exception("Failed to compute value from function call: %s", str(val))
+                self.logger.exception("Failed to compute value from function call: %s", toString(val))
 
         # Many To One Fields, might be mandatory, so needs to be treated first and added to StdRow
         for f in self.allMappings[MappingType.Many2One]:
@@ -324,7 +331,7 @@ class ExpressionProcessorMixin(object):
             if f in data_values:
                 config = self.allMappings[MappingType.Many2One][f]
                 # reference Many2One,
-                if data_values[f] and len(data_values[f]) > 0:
+                if data_values[f] and len(toString(data_values[f])) > 0:
                     cond = []
                     if len(config) > 3:
                         cond = []
@@ -397,8 +404,15 @@ class ExpressionProcessorMixin(object):
                     keyfield = self.allMappings[mapType][k]
                     if k in data_values:
                         value = data_values[k]
-                elif mapType in (MappingType.Constant, MappingType.ContextEval):
+                elif mapType == MappingType.FunctionCall:
+                    keyfield = self.allMappings[mapType][k][0]
+                    if k in data_values:
+                        value = data_values[k]
+                elif mapType == MappingType.Constant:
                     (keyfield, value) = self.allMappings[mapType][k]
+                elif mapType == MappingType.ContextEval:
+                    keyfield = self.allMappings[mapType][k][0]
+                    value = data_values[k]
                 elif mapType == MappingType.Many2One:
                     keyfield = self.col2fields[k]
                     if k in data_values:
@@ -433,14 +447,6 @@ class ExpressionProcessorMixin(object):
                 return
             else:
                 currentObj = None
-
-        # hook for objects needing to be marked as processed
-        # by import
-        # TODO: document and check this
-        if currentObj != None and ('import_processed' in self.target_model.fields_get_keys()):
-            currentObj.write({'import_processed': True})
-            currentObj.import_processed = True
-            self.odooenv.cr.commit()
 
         # processing archives or deletion and returns
         if TO_BE_DELETED:
@@ -485,8 +491,7 @@ class ExpressionProcessorMixin(object):
 
         # Pre Write Hooks
         try:
-            if currentObj != None:
-                self.run_hooks('_pre_write_record_hook', data_values)
+            self.run_hooks('_pre_write_record_hook', data_values)
         except:
             self.odooenv.cr.rollback()
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1,
@@ -592,7 +597,6 @@ class CSVProcessor(ExpressionProcessorMixin, CSVImporterMixin, LineIteratorProce
         for row in reader:
             yield (idx, row)
             idx += 1
-
 #-------------------------------------------------------------------------------------
 # Process XL* Only
 
