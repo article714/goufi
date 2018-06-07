@@ -179,7 +179,7 @@ class AbstractProcessor(object):
             except:
                 self.target_model = None
 
-        if self.target_model == None:
+        if self.target_model == None and not self.parent_config.tab_support:
 
             self.logger.warning("No target model set on configuration, attempt to find it from file name")
 

@@ -7,6 +7,8 @@ Created on 23 february 2017
 @license: AGPL v3
 '''
 
+import logging
+
 from odoo import models, fields, _, api
 
 
@@ -234,8 +236,9 @@ Function must return the value to be assigned to mapping or None"""),
                     if len(found) == 1:
                         values['parent_configuration'] = found[0].parent_configuration.id
         except Exception as e:
-            logging.exception(u"Not able to check values when creating column mapping %s : %s",
-                              str(type(e)), unicode(e))
+            logging.exception("Not able to check values when creating column mapping %s : %s" %
+                              (str(type(e)), unicode(e)))
+
         return super(ColumnMapping, self).create(values)
 
     def write(self, values):
