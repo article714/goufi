@@ -22,7 +22,7 @@
 				<field name="is_contextual_expression_mapping"/>
 				<field name="is_function_call"/>
 				<field name="is_constant_expression"/>
-				<field name="is_update_marker"/>
+				<field name="is_change_marker"/>
 				<field name="is_deletion_marker"/>
 				<field name="is_archival_marker"/>
 			</tree>
