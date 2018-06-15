@@ -45,7 +45,7 @@
 					<group name="Group" string="Group" attrs="{'invisible':[('col_group_support','=',False)]}">
 						<field name="member_of"/>
 					</group>
-					<group name="mapping_configuration" string="Expression" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True)]}">
+					<group name="mapping_configuration" string="Expression" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True),('is_change_marker','=',True)]}">
 						<field name="mapping_expression" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True)]}" />
 						<field name="target_object" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True)]}" />
 						<field name="target_field" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True)]}" />
