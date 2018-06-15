@@ -85,7 +85,7 @@ There can be several columns used as criteria
 
     # is column a changer marker
 
-    is_change_marker = fields.Boolean(string=_(u"Does column contain a changer marker?"),
+    is_change_marker = fields.Boolean(string=_(u"Does column contain a change marker?"),
                                       help=_(u"If True, the selected record (if found) will be deleted"),
                                       default=False)
     update_if_expression = fields.Char(string=_(u"Update if value matches"),
