@@ -332,7 +332,7 @@ class ExpressionProcessorMixin(object):
         # Process update markers
         TO_BE_UPDATED = True
         for f in self.updateMarkers:
-            if val in data_values:
+            if f in data_values:
                 TO_BE_UPDATED = (re.match(self.updateMarkers[f], toString(data_values[f])) != None)
 
         if not TO_BE_UPDATED:
