@@ -172,6 +172,7 @@ class ExpressionProcessorMixin(object):
         self.mandatoryFields = {}
         self.idFields = {}
         self.delOrArchMarkers = {}
+        self.updateMarkers = {}
         self.col2fields = {}
         self.column_groups = {}
         self.allMappings = {}
@@ -275,6 +276,9 @@ class ExpressionProcessorMixin(object):
                 self.delOrArchMarkers[val.name] = (
                     val.is_deletion_marker, val.delete_if_expression, val.is_archival_marker)
 
+            if val.is_change_marker:
+                self.updateMarkers[val.name] = val.update_if_expression
+
         return numbOfFields
 
     #-------------------------------------------------------------------------------------
@@ -324,6 +328,15 @@ class ExpressionProcessorMixin(object):
                         del data_values[val]
             except:
                 self.logger.exception("Failed to compute value from function call: %s", toString(val))
+
+        # Process update markers
+        TO_BE_UPDATED = True
+        for f in self.updateMarkers:
+            if val in data_values:
+                TO_BE_UPDATED = (re.match(self.updateMarkers[f], toString(data_values[f])) != None)
+
+        if not TO_BE_UPDATED:
+            return
 
         # Many To One Fields, might be mandatory, so needs to be treated first and added to StdRow
         for f in self.allMappings[MappingType.Many2One]:
@@ -380,7 +393,7 @@ class ExpressionProcessorMixin(object):
                     config = self.delOrArchMarkers[f]
                     if config[0]:
                         # deletion config
-                        TO_BE_DELETED = (re.match(config[1], data_values[f]) != None)
+                        TO_BE_DELETED = (re.match(config[1], toString(data_values[f])) != None)
                         TO_BE_ARCHIVED = TO_BE_DELETED and config[2]
                         if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
                             self.logger.error(DEFAULT_LOG_STRING, line_index + 1,
@@ -388,7 +401,7 @@ class ExpressionProcessorMixin(object):
                             TO_BE_ARCHIVED = False
                     else:
                         # archival config
-                        TO_BE_ARCHIVED = (re.match(config[1], data_values[f]) != None)
+                        TO_BE_ARCHIVED = (re.match(config[1], toString(data_values[f])) != None)
                         if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
                             self.logger.error(DEFAULT_LOG_STRING, line_index + 1,
                                               "This kind of records can not be archived")
@@ -509,10 +522,12 @@ class ExpressionProcessorMixin(object):
                                       u"missing value for mandatory column: %s" % f)
                     return False
             actual_values = self.map_values(data_values)
-            if currentObj == None:
-                currentObj = self.target_model.create(actual_values)
-            else:
-                currentObj.write(actual_values)
+
+            if TO_BE_UPDATED:
+                if currentObj == None:
+                    currentObj = self.target_model.create(actual_values)
+                else:
+                    currentObj.write(actual_values)
 
             self.odooenv.cr.commit()
         except ValueError as e:

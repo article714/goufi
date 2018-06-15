@@ -83,6 +83,16 @@ There can be several columns used as criteria
                                   help=_(u"""There must be a value for this column"""),
                                   default=False)
 
+    # is column a changer marker
+
+    is_change_marker = fields.Boolean(string=_(u"Does column contain a changer marker?"),
+                                      help=_(u"If True, the selected record (if found) will be deleted"),
+                                      default=False)
+    update_if_expression = fields.Char(string=_(u"Update if value matches"),
+                                       help=_(
+                                           u"Must contain a regular expression to which the column value must match to be evaluated as True, and the record be updated"),
+                                       required=False, default=_(u"Yes"), size=64)
+
     # is column a deletion marker
     is_deletion_marker = fields.Boolean(string=_(u"Does column contain a deletion marker?"),
                                         help=_(u"If True, the selected record (if found) will be deleted"),
@@ -90,7 +100,7 @@ There can be several columns used as criteria
 
     delete_if_expression = fields.Char(string=_(u"Delete if value matches"),
                                        help=_(
-                                           u"Must contain a regular expression that the column value must match to be evaluated as True and the record be deleted"),
+                                           u"Must contain a regular expression to which the column value must match to be evaluated as True, and the record be deleted"),
                                        required=False, default=_(u"Yes"), size=64)
 
     archive_if_not_deleted = fields.Boolean(string=_(u"Archive if not deleted?"),
@@ -104,7 +114,7 @@ There can be several columns used as criteria
 
     archive_if_expression = fields.Char(string=_(u"Archive if value matches"),
                                         help=_(
-                                            u"Must contain a regular expression that the column value must match to be evaluated as True and the record be archived"),
+                                            u"Must contain a regular expression to which the column value must match to be evaluated as True, and the record be archived"),
                                         required=False, default=_(u"Yes"), size=64)
 
     # is a constant expression
@@ -222,6 +232,12 @@ Function must return the value to be assigned to mapping or None"""),
         if 'is_identifier' in values:
             if values['is_identifier']:
                 values['is_mandatory'] = True
+                values['is_deletion_marker'] = False
+                values['is_archival_marker'] = False
+                values['is_constant_expression'] = False
+        if 'is_change_marker' in values:
+            if values['is_change_marker']:
+                values['is_mandatory'] = False
                 values['is_deletion_marker'] = False
                 values['is_archival_marker'] = False
                 values['is_constant_expression'] = False
