@@ -75,7 +75,8 @@
 						<field name="date_start_processing"  attrs="{'readonly':True}" />
 						<field name="date_stop_processing"  attrs="{'readonly':True}" />
 						<field name="processing_result"  attrs="{'readonly':True}" />
-						<field name="processing_logs"  attrs="{'readonly':True}" />
+            			<field name="log_filename" invisible="1"/>
+						<field name="processing_logs"  widget="binary" filename="log_filename" attrs="{'readonly':True}" />
 					</group>
 				</sheet>
                 <div class="oe_chatter">

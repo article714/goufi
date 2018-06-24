@@ -13,13 +13,16 @@
                 <field name="sequence" widget="handle"/>
 				<field name="col_group_support" invisible='1'/>
 				<field name="name"/>
+				<field name="target_object"/>
 				<field name="member_of" invisible="('col_group_support','=',False)"/>
 				<field name="mapping_expression"/>
 				<field name="display_target" readonly='1'/>
 				<field name="is_identifier"/>
+				<field name="is_mandatory"/>
 				<field name="is_contextual_expression_mapping"/>
 				<field name="is_function_call"/>
 				<field name="is_constant_expression"/>
+				<field name="is_change_marker"/>
 				<field name="is_deletion_marker"/>
 				<field name="is_archival_marker"/>
 			</tree>
@@ -42,7 +45,7 @@
 					<group name="Group" string="Group" attrs="{'invisible':[('col_group_support','=',False)]}">
 						<field name="member_of"/>
 					</group>
-					<group name="mapping_configuration" string="Expression" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True)]}">
+					<group name="mapping_configuration" string="Expression" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True),('is_change_marker','=',True)]}">
 						<field name="mapping_expression" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True)]}" />
 						<field name="target_object" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True)]}" />
 						<field name="target_field" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True)]}" />
@@ -51,6 +54,10 @@
 						<field name="is_contextual_expression_mapping" />
 						<field name="is_function_call"/>
 						<field name="is_constant_expression"/>
+					</group>
+					<group name="change_detection" string="Change Detection" attrs="{'invisible':['|','|',('is_identifier','=',True),('is_archival_marker','=',True),('is_archival_marker','=',True)]}">
+						<field name="is_change_marker"/>
+						<field name="update_if_expression" attrs="{'invisible':[('is_change_marker','=',False)]}"/>
 					</group>
 					<group name="deletion_configuration" string="Deletion" attrs="{'invisible':['|',('is_identifier','=',True),('is_archival_marker','=',True)]}">
 						<field name="is_deletion_marker"/>

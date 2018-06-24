@@ -77,7 +77,24 @@ class ImportFile(models.Model):
 
     processing_result = fields.Text()
 
+    log_filename = fields.Char(string=_(u'Log file name'), help=('logfile name, used for download'), store=False,
+                               compute='_get_logfile_name')
     processing_logs = fields.Binary(string=_(u'Processing logs'), prefetch=False, attachment=False)
+
+    #-------------------------------
+    # file processing
+
+    @api.depends('import_config', 'filename', 'date_start_processing')
+    def _get_logfile_name(self):
+        for record in self:
+            try:
+                filename_TS = record.date_start_processing
+                name_complement = path.basename(record.filename)
+                filename = "goufi_%s_%s_%s" % (
+                    name_complement, filename_TS, '.log')
+            except:
+                filename = 'goufi_process_log.log'
+            record.log_filename = filename
 
     #-------------------------------
     # file processing
