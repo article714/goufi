@@ -7,4 +7,5 @@ Created on 23 deb. 2018
 @license: AGPL v3
 '''
 
-from tests import test_import_file
+from . import test_import_configuration
+from . import test_import_file
