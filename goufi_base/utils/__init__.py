@@ -8,5 +8,5 @@ Created on 23 deb. 2018
 '''
 
 from . import converters
+from . import recordsets
 from .converters import dateToOdooString
-
