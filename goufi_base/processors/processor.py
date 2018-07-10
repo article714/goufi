@@ -392,7 +392,7 @@ class LineIteratorProcessor(AbstractProcessor):
             # process Rows
             for row in self.get_rows(import_file):
                 try:
-                    result = self.run_hooks('_pre_conditions_hook', import_file, values)
+                    result = self.run_hooks('_pre_conditions_hook', import_file, row[1])
                     if result:
                         self.process_values(row[0], row[1])
                 except Exception as e:
