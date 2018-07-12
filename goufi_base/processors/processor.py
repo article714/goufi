@@ -107,6 +107,8 @@ class AbstractProcessor(object):
         if hook_name in self.hooks:
             for hook in self.hooks[hook_name]:
                 result = hook(self, *args, **kwargs)
+        else:
+            return True
         return result
 
     #-------------------------------------------------------------------------------------
