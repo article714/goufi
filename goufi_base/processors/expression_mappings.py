@@ -13,6 +13,7 @@ from enum import IntEnum, unique
 import re
 
 from odoo.addons.goufi_base.utils.converters import toString, dateToOdooString
+from odoo.addons.goufi_base.utils.recordsets import does_need_update
 
 from .csv_support_mixins import CSVImporterMixin
 from .processor import LineIteratorProcessor
@@ -326,6 +327,11 @@ class ExpressionProcessorMixin(object):
                         data_values[val] = value
                     else:
                         del data_values[val]
+                else:
+                    function = self.allMappings[MappingType.FunctionCall][val][1]
+                    value = function()
+                    if value != None:
+                        data_values[val] = value
             except:
                 self.logger.exception("Failed to compute value from function call: %s", toString(val))
 
@@ -472,8 +478,9 @@ class ExpressionProcessorMixin(object):
                         self.logger.warning(DEFAULT_LOG_STRING, line_index + 1,
                                             "Archiving record as it can not be deleted (line n. %d)" % (line_index + 1,))
                         try:
-                            currentObj.write({'active': False})
-                            currentObj.active = False
+                            if currentObj.active:
+                                currentObj.write({'active': False})
+                                currentObj.active = False
                         except Exception as e:
                             self.odooenv.cr.rollback()
                             self.logger.warning(

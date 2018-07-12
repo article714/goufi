@@ -107,6 +107,8 @@ class AbstractProcessor(object):
         if hook_name in self.hooks:
             for hook in self.hooks[hook_name]:
                 result = hook(self, *args, **kwargs)
+        else:
+            return True
         return result
 
     #-------------------------------------------------------------------------------------
@@ -392,7 +394,9 @@ class LineIteratorProcessor(AbstractProcessor):
             # process Rows
             for row in self.get_rows(import_file):
                 try:
-                    self.process_values(row[0], row[1])
+                    result = self.run_hooks('_pre_conditions_hook', import_file, row[1])
+                    if result:
+                        self.process_values(row[0], row[1])
                 except Exception as e:
                     self.logger.exception(u"Error when processing line N° %d", row[0])
                     self.errorCount += 1
@@ -555,7 +559,9 @@ class MultiSheetLineIterator(AbstractProcessor):
                                     self.errorCount += 1
                                     break
                                 try:
-                                    self.process_values(idx, values)
+                                    result = self.run_hooks('_pre_conditions_hook', import_file, values)
+                                    if result:
+                                        self.process_values(idx, values)
                                 except Exception as e:
                                     self.errorCount += 1
                                     self.logger.exception(u"Error when processing line N°%d in %s", idx + 1, tab[0])

@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 23 deb. 2018
+Created on februrary 23, 2018
 
 @author: C. Guychard
 @copyright: ©2018 Article 714
 @license: AGPL v3
 '''
 
-from odoo import exceptions
 import logging
 import sys
 import unittest
+
+from odoo import exceptions
 
 
 def log_handler_by_class(logger, handler_cls):
@@ -31,4 +32,3 @@ def remove_logging_handler(logger_name, handler_cls):
     logger = logging.getLogger(logger_name)
     for handler in log_handler_by_class(logger, handler_cls):
         logger.removeHandler(handler)
-

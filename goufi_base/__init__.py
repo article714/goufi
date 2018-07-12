@@ -9,4 +9,5 @@ Created on 23 deb. 2018
 
 from . import models
 from . import processors
+from . import tests
 from . import utils

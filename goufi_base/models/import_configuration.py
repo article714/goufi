@@ -164,6 +164,8 @@ class ImportConfiguration(models.Model):
     # file detection
 
     def detect_files(self, cr=None, uid=None, context=None, cur_dir=None):
+        self.ensure_one()
+
         file_model = self.env['goufi.import_file']
         delete_files_val = self.env['ir.config_parameter'].get_param('goufi.delete_obsolete_files')
         delete_files = True if delete_files_val == 'True' else False
@@ -206,7 +208,7 @@ class ImportConfiguration(models.Model):
                     filesize = os.path.getsize(cur_path)
                     str_date = dateToOdooString(datetime.now())
 
-                    existing_found = file_model.search([('filename', '=', cur_path)])
+                    existing_found = file_model.search([('filename', '=', cur_path), ('import_config', '=', self.id)])
                     nb_found = len(existing_found)
 
                     if nb_found == 1:
