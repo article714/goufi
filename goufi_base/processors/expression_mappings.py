@@ -10,6 +10,7 @@ Created on 23 deb. 2018
 from copy import copy
 from datetime import datetime, date
 from enum import IntEnum, unique
+import logging
 import re
 
 from odoo.addons.goufi_base.utils.converters import toString, dateToOdooString
@@ -127,9 +128,19 @@ class ExpressionProcessorMixin(object):
         self.target_model = None
 
         self.m2o_create_if_no_target_instance = ()
+        self.odoo_context = False
         for param in parent_config.processor_parameters:
             if param.name == u'm2o_create_if_no_target_instance':
                 self.m2o_create_if_no_target_instance = param.value.split(',')
+            if param.name == u'context':
+                context = dict(self.odooenv.context)
+                try:
+                    additional_values = eval(param.value)
+                    for key in additional_values:
+                        context[key] = additional_values[key]
+                except:
+                    logging.error("GOUFI: failed to évaluate parameter (context): %s", str(param.value))
+                self.odoo_context = context
         self.target_model = None
 
     #-------------------------------------------------------------------------------------
@@ -532,9 +543,15 @@ class ExpressionProcessorMixin(object):
 
             if TO_BE_UPDATED:
                 if currentObj == None:
-                    currentObj = self.target_model.create(actual_values)
+                    if self.odoo_context:
+                        currentObj = self.target_model.with_context(self.odoo_context).create(actual_values)
+                    else:
+                        currentObj = self.target_model.create(actual_values)
                 else:
-                    currentObj.write(actual_values)
+                    if self.odoo_context:
+                        currentObj = self.target_model.with_context(self.odoo_context).write(actual_values)
+                    else:
+                        currentObj.write(actual_values)
 
             self.odooenv.cr.commit()
         except ValueError as e:
