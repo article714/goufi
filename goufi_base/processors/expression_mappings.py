@@ -10,6 +10,7 @@ Created on 23 deb. 2018
 from copy import copy
 from datetime import datetime, date
 from enum import IntEnum, unique
+import logging
 import re
 
 from odoo.addons.goufi_base.utils.converters import toString, dateToOdooString
@@ -127,12 +128,23 @@ class ExpressionProcessorMixin(object):
         self.target_model = None
 
         self.m2o_create_if_no_target_instance = ()
-        self.m2o_update_only_if_different = False
+        self.update_only_if_different = False
+        self.odoo_context = False
         for param in parent_config.processor_parameters:
             if param.name == u'm2o_create_if_no_target_instance':
                 self.m2o_create_if_no_target_instance = param.value.split(',')
-            if param.name == u'm2o_update_only_if_different':
-                self.m2o_update_only_if_different = eval(param.value)
+            if param.name == u'update_only_if_different':
+                self.update_only_if_different = eval(param.value)
+            if param.name == u'context':
+                context = dict(self.odooenv.context)
+                try:
+                    additional_values = eval(param.value)
+                    for key in additional_values:
+                        context[key] = additional_values[key]
+                except:
+                    logging.error("GOUFI: failed to évaluate parameter (context): %s", str(param.value))
+                self.odoo_context = context
+
         self.target_model = None
 
     #-------------------------------------------------------------------------------------
@@ -537,7 +549,7 @@ class ExpressionProcessorMixin(object):
                 if currentObj == None:
                     currentObj = self.target_model.create(actual_values)
                 else:
-                    if self.m2o_update_only_if_different:
+                    if self.update_only_if_different:
                         do_update = does_need_update(actual_values, currentObj)
                     else:
                         do_update = True
