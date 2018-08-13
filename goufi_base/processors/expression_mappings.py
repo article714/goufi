@@ -127,9 +127,12 @@ class ExpressionProcessorMixin(object):
         self.target_model = None
 
         self.m2o_create_if_no_target_instance = ()
+        self.m2o_update_only_if_different = False
         for param in parent_config.processor_parameters:
             if param.name == u'm2o_create_if_no_target_instance':
                 self.m2o_create_if_no_target_instance = param.value.split(',')
+            if param.name == u'm2o_update_only_if_different':
+                self.m2o_update_only_if_different = eval(param.value)
         self.target_model = None
 
     #-------------------------------------------------------------------------------------
@@ -534,7 +537,12 @@ class ExpressionProcessorMixin(object):
                 if currentObj == None:
                     currentObj = self.target_model.create(actual_values)
                 else:
-                    currentObj.write(actual_values)
+                    if self.m2o_update_only_if_different:
+                        do_update = does_need_update(actual_values, currentObj)
+                    else:
+                        do_update = True
+                    if do_update:
+                        currentObj.write(actual_values)
 
             self.odooenv.cr.commit()
         except ValueError as e:
