@@ -128,10 +128,13 @@ class ExpressionProcessorMixin(object):
         self.target_model = None
 
         self.m2o_create_if_no_target_instance = ()
+        self.m2o_update_only_if_different = False
         self.odoo_context = False
         for param in parent_config.processor_parameters:
             if param.name == u'm2o_create_if_no_target_instance':
                 self.m2o_create_if_no_target_instance = param.value.split(',')
+            if param.name == u'm2o_update_only_if_different':
+                self.m2o_update_only_if_different = eval(param.value)
             if param.name == u'context':
                 context = dict(self.odooenv.context)
                 try:
@@ -543,14 +546,13 @@ class ExpressionProcessorMixin(object):
 
             if TO_BE_UPDATED:
                 if currentObj == None:
-                    if self.odoo_context:
-                        currentObj = self.target_model.with_context(self.odoo_context).create(actual_values)
-                    else:
-                        currentObj = self.target_model.create(actual_values)
+                    currentObj = self.target_model.create(actual_values)
                 else:
-                    if self.odoo_context:
-                        currentObj = self.target_model.with_context(self.odoo_context).write(actual_values)
+                    if self.m2o_update_only_if_different:
+                        do_update = does_need_update(actual_values, currentObj)
                     else:
+                        do_update = True
+                    if do_update:
                         currentObj.write(actual_values)
 
             self.odooenv.cr.commit()
