@@ -30,22 +30,20 @@ def does_need_update(values, recordset):
             # Value to compare depends on field type
             val = None
             if field['type'] == 'many2one':
-                logging.warning("COMPARING Many2ONE: %s ==  %s / %s", str(rec_val.id), str(values[key]), str(field['type']))
-
                 result = result or not (rec_val.id == values[key])
             elif  field['type'] == 'boolean':
                 result = result or not (str(rec_val) == values[key])
             elif  field['type'] == 'date':
                 try:
                     val = dateToOdooString(toDate(values[key]), force_date=True)
-                    result = result or not (val == values[key])
+                    result = result or not (val == rec_val)
                 except:
                     result = True
                     break
             elif field['type'] == 'datetime':
                 try:
                     val = dateToOdooString(toDate(values[key]))
-                    result = result or not (val == values[key])
+                    result = result or not (val == rec_val)
                 except:
                     result = True
                     break
