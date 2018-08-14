@@ -24,7 +24,7 @@ def does_need_update(values, recordset):
     target_fields = recordset.fields_get()
     for record in recordset:
         for key in values:
-            field = target_fields(key)
+            field = target_fields[key]
             rec_val = getattr(record, key, None)
             # Value to compare depends on field type
             val = None
