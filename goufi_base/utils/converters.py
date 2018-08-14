@@ -64,8 +64,10 @@ def toDate(value):
     return val_date
 
 
-def dateToOdooString(val):
+def dateToOdooString(val, force_date=False):
     if isinstance(val, datetime):
+        if force_date:
+            return val.strftime(DEFAULT_SERVER_DATE_FORMAT)
         return val.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
     elif isinstance(val, date):
         return val.strftime(DEFAULT_SERVER_DATE_FORMAT)
