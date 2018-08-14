@@ -9,10 +9,10 @@ Created on 23 deb. 2018
 
 from copy import copy
 from datetime import datetime, date
-from enum import IntEnum, unique
 import logging
 import re
 
+from enum import IntEnum, unique
 from odoo.addons.goufi_base.utils.converters import toString, dateToOdooString
 from odoo.addons.goufi_base.utils.recordsets import does_need_update
 
@@ -20,14 +20,13 @@ from .csv_support_mixins import CSVImporterMixin
 from .processor import LineIteratorProcessor
 from .xl_base_processor import XLImporterBaseProcessor
 
-
 #---------------------------------------------------------
 # Global values
 DEFAULT_LOG_STRING = u" [ line %d ] -> %s"
 
-
 #---------------------------------------------------------
 # utility function(s)
+
 
 @unique
 class MappingType(IntEnum):
@@ -128,13 +127,13 @@ class ExpressionProcessorMixin(object):
         self.target_model = None
 
         self.m2o_create_if_no_target_instance = ()
-        self.m2o_update_only_if_different = False
+        self.update_only_if_different = False
         self.odoo_context = False
         for param in parent_config.processor_parameters:
             if param.name == u'm2o_create_if_no_target_instance':
                 self.m2o_create_if_no_target_instance = param.value.split(',')
-            if param.name == u'm2o_update_only_if_different':
-                self.m2o_update_only_if_different = eval(param.value)
+            if param.name == u'update_only_if_different':
+                self.update_only_if_different = eval(param.value)
             if param.name == u'context':
                 context = dict(self.odooenv.context)
                 try:
@@ -398,7 +397,7 @@ class ExpressionProcessorMixin(object):
                             del data_values[f]
 
                     else:
-                        self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u" found %d values for %s  ,unable to reference %s -> %s" %
+                        self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u" found %d values for %s  ,unable to reference %s -> %s" % 
                                             (len(vals), toString(data_values[f]), toString(config[1]), toString(vals)))
                         del data_values[f]
 
@@ -475,7 +474,7 @@ class ExpressionProcessorMixin(object):
             if len(found) == 1:
                 currentObj = found[0]
             elif len(found) > 1:
-                self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"FOUND TOO MANY RESULT FOR " + toString(self.target_model) +
+                self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"FOUND TOO MANY RESULT FOR " + toString(self.target_model) + 
                                     " with " + toString(search_criteria) + "=>   [" + toString(len(found)) + "]")
                 return
             else:
@@ -510,7 +509,7 @@ class ExpressionProcessorMixin(object):
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"Not able to archive record (line n. %d) : %s" %
+                    self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"Not able to archive record (line n. %d) : %s" % 
                                         (line_index + 1, toString(e),))
         elif CAN_BE_ARCHIVED:
             if not currentObj == None:
@@ -520,7 +519,7 @@ class ExpressionProcessorMixin(object):
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"Not able to activate record (line n. %d) : %s" %
+                    self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"Not able to activate record (line n. %d) : %s" % 
                                         (line_index + 1, toString(e),))
 
         # Pre Write Hooks
@@ -548,7 +547,7 @@ class ExpressionProcessorMixin(object):
                 if currentObj == None:
                     currentObj = self.target_model.create(actual_values)
                 else:
-                    if self.m2o_update_only_if_different:
+                    if self.update_only_if_different:
                         do_update = does_need_update(actual_values, currentObj)
                     else:
                         do_update = True
@@ -596,7 +595,7 @@ class ExpressionProcessorMixin(object):
             self.odooenv.cr.commit()
         except ValueError as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Wrong values where updating object: " +
+            self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Wrong values where updating object: " + 
                                   self.target_model.name + " -> " + toString(data_values))
             self.logger.error("                    MSG: %s", toString(e))
             currentObj = None
@@ -608,7 +607,7 @@ class ExpressionProcessorMixin(object):
         # Post Write Hooks
         try:
             if currentObj != None:
-                self.run_hooks('_post_write_record_hook',  currentObj, data_values, actual_values)
+                self.run_hooks('_post_write_record_hook', currentObj, data_values, actual_values)
         except:
             self.odooenv.cr.rollback()
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1,
@@ -637,7 +636,6 @@ class CSVProcessor(ExpressionProcessorMixin, CSVImporterMixin, LineIteratorProce
         for row in reader:
             yield (idx, row)
             idx += 1
-
 
 #-------------------------------------------------------------------------------------
 # Process XL* Only
