@@ -12,8 +12,8 @@ Utility functions to manipulate recordsets
 
 import logging
 
-from goufi_base.utils.converters import toDate, dateToOdooString
 from odoo import models, fields
+from odoo.addons.goufi_base.utils.converters import toDate, dateToOdooString
 
 
 #-------------------------------------------------------------------------------------
