@@ -10,8 +10,6 @@ Utility functions to manipulate recordsets
 @license: AGPL v3
 '''
 
-import logging
-
 from odoo import models, fields
 from odoo.addons.goufi_base.utils.converters import toDate, dateToOdooString
 
@@ -26,7 +24,6 @@ def does_need_update(values, recordset):
         for key in values:
             field = target_fields[key]
             rec_val = getattr(record, key, None)
-            logging.warning("COMPARING: %s ==  %s / %s", str(rec_val), str(values[key]), str(field['type']))
             # Value to compare depends on field type
             val = None
             if field['type'] == 'many2one':
@@ -55,12 +52,8 @@ def does_need_update(values, recordset):
                 
                 val = values[key]
                 
-                logging.warning("COMPARING CHAR: %s %s => %s (%s)", str(rec_val), str(values[key]), str(type(rec_val)) + "/" + str(type(val)), str(rec_val == str(val)))
-
                 if not isinstance(val, unicode):
                     try:                
-                        logging.warning("COMPARING CHAR: %s %s => %s (%s)", str(rec_val), str(values[key]), str(type(rec_val)) + "/" + str(type(values[key])), str(rec_val == str(val)))
-
                         result = result or not (rec_val == unicode(val))
                     except:
                         result = True
@@ -70,7 +63,6 @@ def does_need_update(values, recordset):
             else:
                 result = result or not (rec_val == values[key])
             # Comparing
-            logging.warning("COMPARED: %s %s => %s", str(rec_val), str(values[key]), str(result))
             if result:
                 break
     return result
