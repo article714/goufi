@@ -31,6 +31,8 @@ def does_need_update(values, recordset):
             val = None
             result = result or (rec_val != values[key])
             if field['type'] == 'many2one':
+                logging.warning("COMPARING Many2ONE: %s ==  %s / %s", str(rec_val.id), str(values[key]), str(field['type']))
+
                 result = result or not (rec_val.id == values[key])
             elif  field['type'] == 'boolean':
                 result = result or not (str(rec_val) == values[key])
@@ -55,5 +57,7 @@ def does_need_update(values, recordset):
             else:
                 result = result or not (rec_val == values[key])
             # Comparing
-            logging.warning("COMPARING: %s %s => %s", str(rec_val), str(values[key]), str(result))
+            logging.warning("COMPARED: %s %s => %s", str(rec_val), str(values[key]), str(result))
+            if result:
+                break
     return result
