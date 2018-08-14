@@ -26,33 +26,34 @@ def does_need_update(values, recordset):
         for key in values:
             field = target_fields[key]
             rec_val = getattr(record, key, None)
+            logging.warning("COMPARING: %s ==  %s / %s", str(rec_val), str(values[key]), str(field['type']))
             # Value to compare depends on field type
             val = None
             result = result or (rec_val != values[key])
-            if  isinstance(field, fields.Many2one):
+            if field['type'] == 'many2one':
                 result = result or not (rec_val.id == values[key])
-            elif  isinstance(field, fields.Boolean):
+            elif  field['type'] == 'boolean':
                 result = result or not (str(rec_val) == values[key])
-            elif  isinstance(field, fields.Date):
+            elif  field['type'] == 'date':
                 try:
                     val = dateToOdooString(toDate(values[key]), force_date=True)
                     result = result or not (val == values[key])
                 except:
                     result = True
                     break
-            elif isinstance(field, fields.Datetime):
+            elif field['type'] == 'datetime':
                 try:
                     val = dateToOdooString(toDate(values[key]))
                     result = result or not (val == values[key])
                 except:
                     result = True
                     break
-            elif isinstance(field, (fields.Many2many, fields.One2many)):
+            elif field['type'] in('many2many', 'one2many'):
                 # no way to check => true
                 result = True
                 break
             else:
                 result = result or not (rec_val == values[key])
             # Comparing
-            logging.warning("COMPARING: %s %s ", str(rec_val), str(values[key]), str(result))
+            logging.warning("COMPARING: %s %s => %s", str(rec_val), str(values[key]), str(result))
     return result
