@@ -52,8 +52,15 @@ def does_need_update(values, recordset):
                 result = True
                 break
             elif field['type'] == 'char':
+                
+                val = values[key]
+                
+                logging.warning("COMPARING CHAR: %s %s => %s (%s)", str(rec_val), str(values[key]), str(type(rec_val)) + "/" + str(type(val)), str(rec_val == str(val)))
+
                 if not isinstance(val, unicode):
-                    try:
+                    try:                
+                        logging.warning("COMPARING CHAR: %s %s => %s (%s)", str(rec_val), str(values[key]), str(type(rec_val)) + "/" + str(type(values[key])), str(rec_val == str(val)))
+
                         result = result or not (rec_val == unicode(val))
                     except:
                         result = True
