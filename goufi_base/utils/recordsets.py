@@ -51,8 +51,8 @@ def does_need_update(values, recordset):
                 # no way to check => true
                 result = True
                 break
-            elif field['type'] == 'char'):
-                if not isinstance(val,str):
+            elif field['type'] == 'char':
+                if not isinstance(val, str):
                     try:
                         result = result or not (rec_val == str(val))
                     except:
