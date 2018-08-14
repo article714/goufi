@@ -54,6 +54,5 @@ def does_need_update(values, recordset):
             else:
                 result = result or not (rec_val == values[key])
             # Comparing
-            result = result or not (rec_val == values[key])
             logging.warning("COMPARING: %s %s ", str(rec_val), str(values[key]), str(result))
     return result
