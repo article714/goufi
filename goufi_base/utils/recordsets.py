@@ -29,7 +29,6 @@ def does_need_update(values, recordset):
             logging.warning("COMPARING: %s ==  %s / %s", str(rec_val), str(values[key]), str(field['type']))
             # Value to compare depends on field type
             val = None
-            result = result or (rec_val != values[key])
             if field['type'] == 'many2one':
                 logging.warning("COMPARING Many2ONE: %s ==  %s / %s", str(rec_val.id), str(values[key]), str(field['type']))
 
