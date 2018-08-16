@@ -22,3 +22,5 @@ encoding//goufi_base/tests/test_import_configuration.py=utf-8
 encoding//goufi_base/tests/test_import_file.py=utf-8
 encoding//goufi_export/__manifest__.py=utf-8
 encoding//goufi_queue/__manifest__.py=utf-8
+encoding//goufi_base/utils/converters.py=utf-8
+encoding//goufi_base/utils/recordsets.py=utf-8

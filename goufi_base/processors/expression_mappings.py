@@ -20,14 +20,13 @@ from .csv_support_mixins import CSVImporterMixin
 from .processor import LineIteratorProcessor
 from .xl_base_processor import XLImporterBaseProcessor
 
-
 #---------------------------------------------------------
 # Global values
 DEFAULT_LOG_STRING = u" [ line %d ] -> %s"
 
-
 #---------------------------------------------------------
 # utility function(s)
+
 
 @unique
 class MappingType(IntEnum):
@@ -609,7 +608,7 @@ class ExpressionProcessorMixin(object):
         # Post Write Hooks
         try:
             if currentObj != None:
-                self.run_hooks('_post_write_record_hook',  currentObj, data_values, actual_values)
+                self.run_hooks('_post_write_record_hook', currentObj, data_values, actual_values)
         except:
             self.odooenv.cr.rollback()
             self.logger.exception(DEFAULT_LOG_STRING, line_index + 1,
