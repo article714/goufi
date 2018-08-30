@@ -9,16 +9,17 @@ Created on 23 deb. 2018
 
 from copy import copy
 from datetime import datetime, date
+from enum import IntEnum, unique
 import logging
 import re
 
-from enum import IntEnum, unique
 from odoo.addons.goufi_base.utils.converters import toString, dateToOdooString
 from odoo.addons.goufi_base.utils.recordsets import does_need_update
 
 from .csv_support_mixins import CSVImporterMixin
 from .processor import LineIteratorProcessor
 from .xl_base_processor import XLImporterBaseProcessor
+
 
 #---------------------------------------------------------
 # Global values
@@ -190,6 +191,7 @@ class ExpressionProcessorMixin(object):
         self.col2fields = {}
         self.column_groups = {}
         self.allMappings = {}
+        self.valuePreprocessing = {}
         numbOfFields = 0
 
         # We should have a model now
@@ -223,6 +225,18 @@ class ExpressionProcessorMixin(object):
 
             if val.target_field.name in target_fields:
                 self.col2fields[val.name] = val.target_field.name
+
+                # Value preprocessing
+
+                if val.preprocess_expression and len(val.preprocess_expression) > 2:
+                    try:
+                        self.valuePreprocessing[val.name] = eval(val.preprocess_expression)
+                    except:
+                        self.logger.error(u"Wrong pre-processing  expression: (%s) %s",
+                                          val.name, val.preprocess_expression)
+                        return -1
+
+                # All the peculiar config
 
                 if val.is_constant_expression:
                     mappingType = MappingType.Constant
@@ -318,6 +332,19 @@ class ExpressionProcessorMixin(object):
         if self.target_model == None:
             return False
 
+        # Pre-processing of data
+        for val in data_values:
+            if val in self.valuePreprocessing:
+                function = self.valuePreprocessing[val]
+                try:
+                    value = function(data_values[val])
+                except:
+                    value = None
+                if value != None:
+                    data_values[val] = value
+                else:
+                    del data_values[val]
+
         # Process Constant values
         for val in self.allMappings[MappingType.Constant]:
             data_values[val] = self.allMappings[MappingType.Constant][val][1]
@@ -397,7 +424,7 @@ class ExpressionProcessorMixin(object):
                             del data_values[f]
 
                     else:
-                        self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u" found %d values for %s  ,unable to reference %s -> %s" % 
+                        self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u" found %d values for %s  ,unable to reference %s -> %s" %
                                             (len(vals), toString(data_values[f]), toString(config[1]), toString(vals)))
                         del data_values[f]
 
@@ -474,7 +501,7 @@ class ExpressionProcessorMixin(object):
             if len(found) == 1:
                 currentObj = found[0]
             elif len(found) > 1:
-                self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"FOUND TOO MANY RESULT FOR " + toString(self.target_model) + 
+                self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"FOUND TOO MANY RESULT FOR " + toString(self.target_model) +
                                     " with " + toString(search_criteria) + "=>   [" + toString(len(found)) + "]")
                 return
             else:
@@ -509,7 +536,7 @@ class ExpressionProcessorMixin(object):
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"Not able to archive record (line n. %d) : %s" % 
+                    self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"Not able to archive record (line n. %d) : %s" %
                                         (line_index + 1, toString(e),))
         elif CAN_BE_ARCHIVED:
             if not currentObj == None:
@@ -519,7 +546,7 @@ class ExpressionProcessorMixin(object):
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"Not able to activate record (line n. %d) : %s" % 
+                    self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"Not able to activate record (line n. %d) : %s" %
                                         (line_index + 1, toString(e),))
 
         # Pre Write Hooks
@@ -595,7 +622,7 @@ class ExpressionProcessorMixin(object):
             self.odooenv.cr.commit()
         except ValueError as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Wrong values where updating object: " + 
+            self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Wrong values where updating object: " +
                                   self.target_model.name + " -> " + toString(data_values))
             self.logger.error("                    MSG: %s", toString(e))
             currentObj = None
