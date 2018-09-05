@@ -1,0 +1,5 @@
+# List the external  one per line (pip format)
+openpyxl>2.4
+xlrd>1.0
+unicodecsv
+enum34
