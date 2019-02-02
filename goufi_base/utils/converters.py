@@ -16,7 +16,7 @@ from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMA
 from odoo.tools.misc import ustr
 #-------------------------------------------------------------------------------------
 # CONSTANTS
-XLS_DATE_REF = date(1900, 1, 1)
+XLS_DATE_REF = date(1899, 12, 30)
 
 
 #-------------------------------------------------------------------------------------
