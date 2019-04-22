@@ -1,1 +1,6 @@
 **/*.pyc
+**/.idea
+**/.vscode
+**/.project
+**/.pydevproject
+**/.settings
