@@ -33,7 +33,7 @@ class TabMapping(models.Model):
     default_header_line_index = fields.Integer(string=_(u"Default Header line"),
                                                help=_(
                                                    u"Provides the index of the header line in import file. Header line contains name of columns to be mapped."),
-                                               required=True, default=0)
+                                               required=True, default=1)
 
     parent_configuration = fields.Many2one(string=_(u"Parent configuration"),
                                            comodel_name="goufi.import_configuration")

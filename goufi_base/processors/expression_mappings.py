@@ -145,11 +145,12 @@ class ExpressionProcessorMixin(object):
                 self.odoo_context = context
         self.target_model = None
 
-    #-------------------------------------------------------------------------------------
-    # maps a line of data from column/mapping name to field name
-    # and change non json-compatible values
-
+    # -------------------------------------------------------------------------
     def map_values(self, row):
+        """
+        maps a line of data from column/mapping name to field name
+        and change non json-compatible values
+        """
         result = copy(row)
         keys = [x for x in row.keys()]
         for f in keys:
@@ -175,10 +176,11 @@ class ExpressionProcessorMixin(object):
 
         return result
 
-    #-------------------------------------------------------------------------------------
-    # Process mappings configuration hook for each tab
+    #-------------------------------------------------------------------------
     def prepare_mapping_hook(self, tab_name="Unknown", colmappings=None):
-
+        """
+        Process mappings configuration hook for each tab
+        """
         if colmappings == None:
             self.logger.error("Not able to process mappings")
             return -1

@@ -59,7 +59,7 @@ class ImportConfiguration(models.Model):
                                                help=u"Provides the index of the header line in \
                                                        import file. Header line contains name of \
                                                            columns to be mapped.",
-                                               required=True, default=0)
+                                               required=True, default=1)
 
     default_partner_id = fields.Many2one(string=_(u'Related Partner'),
                                          help=_("The partner that provided the Data"),
