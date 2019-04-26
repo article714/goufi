@@ -16,6 +16,7 @@
 				<field name="target_object"/>
 				<field name="member_of" invisible="('col_group_support','=',False)"/>
 				<field name="mapping_expression"/>
+				<field name="preprocess_expression"/>
 				<field name="display_target" readonly='1'/>
 				<field name="is_identifier"/>
 				<field name="is_mandatory"/>
@@ -47,6 +48,7 @@
 					</group>
 					<group name="mapping_configuration" string="Expression" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True),('is_change_marker','=',True)]}">
 						<field name="mapping_expression" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True)]}" />
+						<field name="preprocess_expression" attrs="{'invisible':['|','|','|',('is_deletion_marker','=',True),('is_archival_marker','=',True),('is_constant_expression','=',True),('is_contextual_expression_mapping','=',True),('is_function_call','=',True)]}"/>
 						<field name="target_object" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True)]}" />
 						<field name="target_field" attrs="{'invisible':['|',('is_deletion_marker','=',True),('is_archival_marker','=',True)]}" />
 						<field name="is_mandatory" />

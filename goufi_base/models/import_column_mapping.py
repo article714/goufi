@@ -57,6 +57,12 @@ class ColumnMapping(models.Model):
                                      help=_(u"Expression used to process column content, meaning depends on chosen processor."),
                                      required=False, track_visibility='onchange')
 
+    # expression
+    preprocess_expression = fields.Char(string=_(u'Data Pre-processing'),
+                                        help=_(
+                                            u"Expression used to pre-process column content, before using it (eval should return a function (e.g. lambda or processor function"),
+                                        required=False, track_visibility='onchange')
+
     # is column part of a group
 
     member_of = fields.Many2one(string=_(u"Group"),

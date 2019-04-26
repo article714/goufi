@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 10.0-20180122\n"
+"Project-Id-Version: Odoo Server 10.0-20180903\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 16:59+0000\n"
-"PO-Revision-Date: 2018-02-27 18:24+0100\n"
+"POT-Creation-Date: 2018-09-04 15:22+0000\n"
+"PO-Revision-Date: 2018-09-04 17:24+0200\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -15,24 +15,24 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: \n"
 "Language: fr\n"
-"X-Generator: Poedit 1.8.7.1\n"
+"X-Generator: Poedit 2.0.6\n"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_configuration.py:45
+#: code:addons/goufi_base/models/import_configuration.py:54
 #: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_working_dir
 #, python-format
 msgid " Directory where temp and log files will be put"
 msgstr "Répertoire de stockage des fichiers de traces et fichiers temporaires"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_configuration.py:35
+#: code:addons/goufi_base/models/import_configuration.py:39
 #: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_filename_pattern
 #, python-format
 msgid " The pattern that a file should respect to be detected as being processed by the current configuration "
 msgstr " The pattern that a file should respect to be detected as being processed by the current configuration "
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_configuration.py:39
+#: code:addons/goufi_base/models/import_configuration.py:44
 #: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_files_location
 #, python-format
 msgid ""
@@ -43,10 +43,69 @@ msgstr ""
 "                                 "
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:29
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_active
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_active
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_configuration_is_active
+msgid "Active"
+msgstr "Actif"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_file.py:44
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_date_addition
 #, python-format
 msgid "Addition date"
 msgstr "Date d'ajout"
+
+#. module: goufi_base
+#: model:ir.ui.menu,name:goufi_base.goufi_import_files_menu
+msgid "All Files"
+msgstr "Tous les fichiers"
+
+#. module: goufi_base
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_config
+msgid "Apply"
+msgstr "Appliquer"
+
+#. module: goufi_base
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_column_mapping_form
+msgid "Archival"
+msgstr "Archivage"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:112
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_archive_if_not_deleted
+#, python-format
+msgid "Archive if not deleted?"
+msgstr "Archiver si non supprimé?"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:121
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_archive_if_expression
+#, python-format
+msgid "Archive if value matches"
+msgstr "Archive if value matches"
+
+#. module: goufi_base
+#: model:ir.filters,name:goufi_base.filter_import_file_archived
+msgid "Archived Imports"
+msgstr "Archived Imports"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/goufi_config.py:22
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_config_settings_delete_obsolete_files
+#, python-format
+msgid "Are obsolete (non-existant) files deleted?"
+msgstr "Are obsolete (non-existant) files deleted?"
+
+#. module: goufi_base
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_config
+msgid "Cancel"
+msgstr "Annuler"
+
+#. module: goufi_base
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_column_mapping_form
+msgid "Change Detection"
+msgstr "Change Detection"
 
 #. module: goufi_base
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_column_mapping_form
@@ -54,14 +113,18 @@ msgid "Column"
 msgstr "Colonne"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_configuration.py:69
-#: code:addons/goufi_base/models/import_tab_mapping.py:37
+#: code:addons/goufi_base/models/import_configuration.py:123
+#: code:addons/goufi_base/models/import_tab_mapping.py:52
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_column_mappings
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_column_mappings
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_column_mapping_tree
 #, python-format
 msgid "Column mappings"
 msgstr "Mapping de colonne"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_column_mapping.py:40
+#: code:addons/goufi_base/models/import_column_mapping.py:48
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_name
 #, python-format
 msgid "Column name"
 msgstr "Nom de la colonne"
@@ -80,27 +143,25 @@ msgstr "Nom du groupe de colonnes"
 
 #. module: goufi_base
 #: model:ir.ui.menu,name:goufi_base.goufi_admin_menu
+#: model:ir.ui.menu,name:goufi_base.goufi_config_menu
 msgid "Configuration"
 msgstr "Configuration"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_configuration.py:32
+#: code:addons/goufi_base/models/import_configuration.py:34
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_name
 #, python-format
 msgid "Configuration name"
 msgstr "Nom de la configuration"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_parent_configuration
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_parent_configuration
-msgid "Configuration parente"
-msgstr "Configuration parente"
-
-#. module: goufi_base
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_create_uid
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_group_create_uid
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_config_settings_create_uid
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_create_uid
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_create_uid
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_create_uid
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_processor_parameter_create_uid
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_create_uid
 msgid "Created by"
 msgstr "Créé par"
@@ -108,29 +169,63 @@ msgstr "Créé par"
 #. module: goufi_base
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_create_date
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_group_create_date
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_config_settings_create_date
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_create_date
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_create_date
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_create_date
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_processor_parameter_create_date
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_create_date
 msgid "Created on"
 msgstr "Créé le"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_date_addition
-msgid "Date d'ajout"
-msgstr "Date d'ajout"
+#: code:addons/goufi_base/models/import_column_mapping.py:61
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_preprocess_expression
+#, python-format
+msgid "Data Pre-processing"
+msgstr "Data Pre-processing"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_configuration.py:49
-#: code:addons/goufi_base/models/import_tab_mapping.py:30
+#: code:addons/goufi_base/models/import_configuration.py:58
+#: code:addons/goufi_base/models/import_tab_mapping.py:33
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_default_header_line_index
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_default_header_line_index
 #, python-format
 msgid "Default Header line"
 msgstr "Index de la ligne d'en-tête (par défaut)"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_date_updated
-msgid "Dernière mise à jour le"
-msgstr "Dernière mise à jour le"
+#: code:addons/goufi_base/models/goufi_config.py:26
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_config_settings_goufi_default_language
+#, python-format
+msgid "Default language"
+msgstr "Default language"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/goufi_config.py:27
+#: model:ir.model.fields,help:goufi_base.field_goufi_config_settings_goufi_default_language
+#, python-format
+msgid "Default language to be used for import"
+msgstr "Default language to be used for import"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:107
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_delete_if_expression
+#, python-format
+msgid "Delete if value matches"
+msgstr "Delete if value matches"
+
+#. module: goufi_base
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_column_mapping_form
+msgid "Deletion"
+msgstr "Deletion"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_configuration.py:36
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_description
+#, python-format
+msgid "Description"
+msgstr "Description"
 
 #. module: goufi_base
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_configuration_form
@@ -140,76 +235,176 @@ msgstr "Rechercher des fichiers"
 #. module: goufi_base
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_display_name
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_group_display_name
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_config_settings_display_name
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_display_name
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_display_name
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_display_name
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_processor_parameter_display_name
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_display_name
 msgid "Display Name"
 msgstr "Nom affiché"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_column_mapping.py:61
+#: code:addons/goufi_base/models/goufi_config.py:19
+#: model:ir.model.fields,help:goufi_base.field_goufi_config_settings_config_needs_partner
+#, python-format
+msgid "Do we need to provide partner to identify origin of imported data"
+msgstr "Do we need to provide partner to identify origin of imported data"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:94
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_is_change_marker
+#, python-format
+msgid "Does column contain a change marker?"
+msgstr "Does column contain a change marker?"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:103
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_is_deletion_marker
 #, python-format
 msgid "Does column contain a deletion marker?"
 msgstr "Does column contain a deletion marker?"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_processor.py:26
+#: code:addons/goufi_base/models/import_column_mapping.py:117
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_is_archival_marker
+#, python-format
+msgid "Does column contain an archival marker?"
+msgstr "Does column contain an archival marker?"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:74
+#: code:addons/goufi_base/models/import_configuration.py:130
+#: code:addons/goufi_base/models/import_processor.py:34
+#: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_col_group_support
+#: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_col_group_support
+#: model:ir.model.fields,help:goufi_base.field_goufi_import_processor_col_group_support
+#, python-format
+msgid "Does the processor can process (iterable) group of columns"
+msgstr "Does the processor can process (iterable) group of columns"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_processor.py:30
 #: model:ir.model.fields,help:goufi_base.field_goufi_import_processor_tab_support
 #, python-format
 msgid "Does the processor can process multiple tabs"
 msgstr "Does the processor can process multiple tabs"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_column_mapping.py:75
+#: code:addons/goufi_base/models/import_tab_mapping.py:49
+#: model:ir.model.fields,help:goufi_base.field_goufi_tab_mapping_needs_col_mappings
+#, python-format
+msgid "Does the processor needs column mappings for this Tab"
+msgstr "Does the processor needs column mappings for this Tab"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_tab_mapping.py:44
+#: model:ir.model.fields,help:goufi_base.field_goufi_tab_mapping_ignore_tab
+#, python-format
+msgid "Does the processor should explicitely ignore this tab"
+msgstr "Does the processor should explicitely ignore this tab"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_configuration.py:68
+#: code:addons/goufi_base/models/import_file.py:40
+#: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_needs_partner
+#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_needs_partner
+#, python-format
+msgid "Does the selected configuration needs a partner reference"
+msgstr "Does the selected configuration needs a partner reference"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:179
 #: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_tab_support
 #, python-format
 msgid "Does the selected parent configuration's pocessor can process multiple tabs"
 msgstr "Does the selected parent configuration's pocessor can process multiple tabs"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_configuration.py:79
+#: code:addons/goufi_base/models/import_configuration.py:81
+#: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_has_parameters
+#, python-format
+msgid "Does the selected processor accept parameters"
+msgstr "Does the selected processor accept parameters"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_configuration.py:138
 #: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_tab_support
 #, python-format
 msgid "Does the selected processor can process multiple tabs"
 msgstr "Does the selected processor can process multiple tabs"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_configuration.py:58
+#: code:addons/goufi_base/models/import_configuration.py:77
 #: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_needs_mappings
 #, python-format
-msgid "Does the selected processor needs column mappings"
-msgstr "Does the selected processor needs column mappings"
+msgid "Does the selected processor need column mappings"
+msgstr "Does the selected processor need column mappings"
 
 #. module: goufi_base
 #: code:addons/goufi_base/models/import_processor.py:22
+#: model:ir.model.fields,help:goufi_base.field_goufi_import_processor_has_parameters
+#, python-format
+msgid "Does this processor accepts parameters"
+msgstr "Does this processor accepts parameters"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_processor.py:26
 #: model:ir.model.fields,help:goufi_base.field_goufi_import_processor_needs_mappings
 #, python-format
 msgid "Does this processor needs column mappings"
 msgstr "Does this processor needs column mappings"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_files_location
-msgid "Emplacement des fichiers"
-msgstr "Emplacement des fichiers"
+#: model:ir.actions.act_window,name:goufi_base.goufi_import_file_processed_with_error_show_action
+msgid "Ended with errors"
+msgstr "Ended with errors"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_processing_status
-msgid "Etat du traitement"
-msgstr "Etat du traitement"
+#: code:addons/goufi_base/processors/odoo_xls_import.py:111
+#, python-format
+msgid "Error cell found while reading XLS/XLSX file: %s"
+msgstr "Error cell found while reading XLS/XLSX file: %s"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_column_mapping.py:46
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_column_mapping_form
+msgid "Expression"
+msgstr "Expression"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:128
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_is_constant_expression
+#, python-format
+msgid "Expression is a constant"
+msgstr "Expression is a constant"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:136
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_is_function_call
+#, python-format
+msgid "Expression is a function to call"
+msgstr "Expression is a function to call"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:62
+#: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_preprocess_expression
+#, python-format
+msgid "Expression used to pre-process column content, before using it (eval should return a function (e.g. lambda or processor function"
+msgstr "Expression used to pre-process column content, before using it (eval should return a function (e.g. lambda or processor function"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:57
 #: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_mapping_expression
 #, python-format
 msgid "Expression used to process column content, meaning depends on chosen processor."
 msgstr "Expression used to process column content, meaning depends on chosen processor."
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_to_process
-msgid "Fichier à traiter"
-msgstr "Fichier à traiter"
+#: model:ir.actions.act_window,name:goufi_base.goufi_import_file_failed_show_action
+#: model:ir.filters,name:goufi_base.filter_import_file_failed
+#: model:ir.ui.menu,name:goufi_base.goufi_import_failed_menu
+msgid "Failed Imports"
+msgstr "Failed Imports"
 
 #. module: goufi_base
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_form
@@ -217,32 +412,42 @@ msgid "File"
 msgstr "Fichier"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:37
+#: code:addons/goufi_base/models/import_file.py:55
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_to_process
 #, python-format
-msgid "File is to be processed"
-msgstr "Fichier à traiter"
+msgid "File has to be processed"
+msgstr "File has to be processed"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:39
+#: code:addons/goufi_base/models/import_file.py:61
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_process_when_updated
 #, python-format
 msgid "File is to be re-processed when updated"
 msgstr "Traiter à chaque mise à jour"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:23
+#: code:addons/goufi_base/models/import_file.py:31
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_filename
 #, python-format
 msgid "File name"
 msgstr "Nom du fichier"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_configuration.py:34
+#: code:addons/goufi_base/models/import_configuration.py:38
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_filename_pattern
 #, python-format
 msgid "File name pattern"
 msgstr "Modèle de nom de fichier (expr. régulière)"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:25
+#: code:addons/goufi_base/models/import_file.py:57
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_needs_to_be_processed
+#, python-format
+msgid "File needs to be processed"
+msgstr "File needs to be processed"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_file.py:33
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_filesize
 #, python-format
 msgid "File size"
@@ -254,16 +459,23 @@ msgid "File(s) detection"
 msgstr "Détection des fichiers"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_configuration.py:38
+#: code:addons/goufi_base/models/import_configuration.py:43
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_files_location
 #, python-format
 msgid "Files Location"
 msgstr "Emplacement des fichiers"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:41
+#: code:addons/goufi_base/models/import_file.py:63
+#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_header_line_index
 #, python-format
 msgid "Fixes the index of the header line in import file"
 msgstr "Impose l'index de la ligne d'en-tête du fichier"
+
+#. module: goufi_base
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_form
+msgid "Forced Processing"
+msgstr "Forced Processing"
 
 #. module: goufi_base
 #: model:res.groups,name:goufi_base.group_goufi_admin
@@ -271,12 +483,32 @@ msgid "Goufi Admins"
 msgstr "Administrateur de l'import de fichier (Goufi)"
 
 #. module: goufi_base
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_config
+msgid "Goufi Configuration"
+msgstr "Goufi Configuration"
+
+#. module: goufi_base
 #: model:res.groups,name:goufi_base.group_goufi_user
 msgid "Goufi User"
 msgstr "Utilisateur de l'import de fichier (Goufi)"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_column_mapping.py:51
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_config
+msgid "Goufi configuration"
+msgstr "Goufi configuration"
+
+#. module: goufi_base
+#: model:ir.actions.server,name:goufi_base.goufi_detect_files_action
+msgid "Goufi: Detection of files to import"
+msgstr "Goufi: Detection of files to import"
+
+#. module: goufi_base
+#: model:ir.actions.act_window,name:goufi_base.action_view_configuration
+msgid "Goufi: configuration"
+msgstr "Goufi: configuration"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:68
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_member_of
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_column_mapping_form
 #, python-format
@@ -291,7 +523,17 @@ msgid "Group of columns, used to defined advanced mapping"
 msgstr "Group of columns, used to defined advanced mapping"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:41
+#: code:addons/goufi_base/models/import_configuration.py:80
+#: code:addons/goufi_base/models/import_processor.py:21
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_has_parameters
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_has_parameters
+#, python-format
+msgid "Has parameters"
+msgstr "Has parameters"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_file.py:63
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_header_line_index
 #, python-format
 msgid "Header line"
 msgstr "Ligne d'en-tête"
@@ -299,15 +541,58 @@ msgstr "Ligne d'en-tête"
 #. module: goufi_base
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_group_id
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_id
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_config_settings_id
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_id
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_id
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_id
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_processor_parameter_id
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_id
 msgid "ID"
-msgstr "Identifiant"
+msgstr "ID"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_configuration.py:28
+#: code:addons/goufi_base/models/import_column_mapping.py:118
+#: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_is_archival_marker
+#, python-format
+msgid "If True, the selected record (if found) will be archived"
+msgstr "If True, the selected record (if found) will be archived"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:95
+#: code:addons/goufi_base/models/import_column_mapping.py:104
+#: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_is_change_marker
+#: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_is_deletion_marker
+#, python-format
+msgid "If True, the selected record (if found) will be deleted"
+msgstr "If True, the selected record (if found) will be deleted"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:147
+#: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_is_contextual_expression_mapping
+#, python-format
+msgid "If this mapping is a contextual expression, then it  is computed from processor properties, not from import file"
+msgstr "If this mapping is a contextual expression, then it  is computed from processor properties, not from import file"
+
+#. module: goufi_base
+#: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_active
+#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_configuration_is_active
+msgid "If unchecked, it will allow you to hide the configuration without removing it."
+msgstr "If unchecked, it will allow you to hide the configuration without removing it."
+
+#. module: goufi_base
+#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_active
+msgid "If unchecked, it will allow you to hide the file without removing it."
+msgstr "If unchecked, it will allow you to hide the file without removing it."
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_tab_mapping.py:43
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_ignore_tab
+#, python-format
+msgid "Ignore"
+msgstr "Ignore"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_configuration.py:27
 #: model:ir.model,name:goufi_base.model_goufi_import_configuration
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_column_mapping_form
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_configuration_form
@@ -317,14 +602,12 @@ msgstr "Configuration d'import"
 
 #. module: goufi_base
 #: model:ir.ui.menu,name:goufi_base.goufi_import_config_menu
-#: model:ir.ui.view,arch_db:goufi_base.view_goufi_column_mapping_tree
-#: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_configuration_form
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_configuration_tree
 msgid "Import Configurations"
 msgstr "Configurations d'import"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:19
+#: code:addons/goufi_base/models/import_file.py:23
 #: model:ir.model,name:goufi_base.model_goufi_import_file
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_form
 #, python-format
@@ -341,9 +624,23 @@ msgstr "Fichiers à importer"
 #. module: goufi_base
 #: code:addons/goufi_base/models/import_processor.py:15
 #: model:ir.model,name:goufi_base.model_goufi_import_processor
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_processor_form
 #, python-format
 msgid "Import Processor"
 msgstr "Moteur d'import"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/processor_parameter.py:15
+#: model:ir.model,name:goufi_base.model_goufi_processor_parameter
+#, python-format
+msgid "Import Processor Parameter"
+msgstr "Import Processor Parameter"
+
+#. module: goufi_base
+#: model:ir.ui.menu,name:goufi_base.goufi_import_processor_menu
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_processor_tree
+msgid "Import Processors"
+msgstr "Import Processors"
 
 #. module: goufi_base
 #: model:ir.actions.act_window,name:goufi_base.goufi_import_configuration_show_action
@@ -351,40 +648,71 @@ msgid "Import configurations"
 msgstr "Import configurations"
 
 #. module: goufi_base
+#: model:ir.actions.act_window,name:goufi_base.goufi_tab_mapping_show_action
+msgid "Import configurations - tab mappings"
+msgstr "Import configurations - tab mappings"
+
+#. module: goufi_base
+#: model:ir.actions.act_window,name:goufi_base.goufi_import_file_new_show_action
+#: model:ir.actions.act_window,name:goufi_base.goufi_import_file_pending_show_action
+#: model:ir.actions.act_window,name:goufi_base.goufi_import_file_running_show_action
 #: model:ir.actions.act_window,name:goufi_base.goufi_import_file_show_action
 msgid "Import files"
 msgstr "Fichiers à importer"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_configuration.py:53
+#: code:addons/goufi_base/models/import_configuration.py:72
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_processor
 #, python-format
 msgid "Import processor"
 msgstr "Moteur d'import"
 
 #. module: goufi_base
-#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_header_line_index
-msgid "Impose l'index de la ligne d'en-tête du fichier"
-msgstr "Impose l'index de la ligne d'en-tête du fichier"
+#: model:ir.actions.act_window,name:goufi_base.goufi_import_processor_show_action
+msgid "Import processors"
+msgstr "Import processors"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_default_header_line_index
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_default_header_line_index
-msgid "Index de la ligne d'en-tête (par défaut)"
-msgstr "Index de la ligne d'en-tête (par défaut)"
+#: model:ir.ui.menu,name:goufi_base.goufi_import_with_errors_menu
+msgid "Imports with errors"
+msgstr "Imports with errors"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_column_mapping.py:57
+#: code:addons/goufi_base/models/import_column_mapping.py:146
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_is_contextual_expression_mapping
+#, python-format
+msgid "Is a contextual expression mapping "
+msgstr "Is a contextual expression mapping "
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:79
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_is_identifier
 #, python-format
 msgid "Is column part of identifiers?"
 msgstr "Is column part of identifiers?"
 
 #. module: goufi_base
+#: code:addons/goufi_base/models/import_configuration.py:104
+#: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_context_language
+#, python-format
+msgid "Language to be used for import"
+msgstr "Language to be used for import"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_configuration.py:103
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_context_language
+#, python-format
+msgid "Language to use"
+msgstr "Language to use"
+
+#. module: goufi_base
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping___last_update
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_group___last_update
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_config_settings___last_update
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration___last_update
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file___last_update
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor___last_update
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_processor_parameter___last_update
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping___last_update
 msgid "Last Modified on"
 msgstr "Dernière Modification le"
@@ -392,9 +720,11 @@ msgstr "Dernière Modification le"
 #. module: goufi_base
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_group_write_uid
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_write_uid
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_config_settings_write_uid
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_write_uid
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_write_uid
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_write_uid
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_processor_parameter_write_uid
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_write_uid
 msgid "Last Updated by"
 msgstr "Dernière mise à jour par"
@@ -402,57 +732,58 @@ msgstr "Dernière mise à jour par"
 #. module: goufi_base
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_group_write_date
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_write_date
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_config_settings_write_date
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_write_date
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_write_date
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_write_date
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_processor_parameter_write_date
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_write_date
 msgid "Last Updated on"
 msgstr "Dernière mise à jour le"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:31
+#: code:addons/goufi_base/models/import_file.py:46
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_date_updated
 #, python-format
 msgid "Last updated on"
 msgstr "Dernière mise à jour le"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_header_line_index
-msgid "Ligne d'en-tête"
-msgstr "Ligne d'en-tête"
+#: code:addons/goufi_base/models/import_file.py:80
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_log_filename
+#, python-format
+msgid "Log file name"
+msgstr "Log file name"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_processing_logs
-msgid "Lots du traitement"
-msgstr "Lots du traitement"
+#: code:addons/goufi_base/models/import_column_mapping.py:88
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_is_mandatory
+#, python-format
+msgid "Mandatory column"
+msgstr "Mandatory column"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_column_mapping.py:45
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_configuration_form
+msgid "Mapping Configurations"
+msgstr "Mapping Configurations"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:56
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_mapping_expression
 #, python-format
 msgid "Mapping Expression"
 msgstr "Mapping Expression"
 
 #. module: goufi_base
-#: model:ir.ui.view,arch_db:goufi_base.view_goufi_column_mapping_form
-msgid "Mapping configuration"
-msgstr "Mapping configuration"
-
-#. module: goufi_base
-#: code:addons/goufi_base/models/import_configuration.py:70
-#: code:addons/goufi_base/models/import_configuration.py:84
-#: code:addons/goufi_base/models/import_tab_mapping.py:38
+#: code:addons/goufi_base/models/import_configuration.py:124
+#: code:addons/goufi_base/models/import_configuration.py:143
+#: code:addons/goufi_base/models/import_tab_mapping.py:53
 #: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_column_mappings
 #: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_tab_mappings
 #: model:ir.model.fields,help:goufi_base.field_goufi_tab_mapping_column_mappings
 #, python-format
 msgid "Mapping configuration needed by this processor"
 msgstr "Mapping configuration needed by this processor"
-
-#. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_column_mappings
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_column_mappings
-msgid "Mapping de colonne"
-msgstr "Mapping de colonne"
 
 #. module: goufi_base
 #: code:addons/goufi_base/models/import_column_mapping.py:35
@@ -462,44 +793,65 @@ msgid "Mappings configuration for a given column"
 msgstr "Mappings configuration for a given column"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_tab_mapping.py:17
+#: code:addons/goufi_base/models/import_tab_mapping.py:16
 #: model:ir.model,name:goufi_base.model_goufi_tab_mapping
 #, python-format
 msgid "Mappings configuration for a tab"
 msgstr "Mappings configuration for a tab"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_processor.py:29
+#: code:addons/goufi_base/models/import_processor.py:37
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_processor_module
 #, python-format
 msgid "Module containing Processor Class"
 msgstr "Module containing Processor Class"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_filename_pattern
-msgid "Modèle de nom de fichier (expr. régulière)"
-msgstr "Modèle de nom de fichier (expr. régulière)"
+#: code:addons/goufi_base/models/import_column_mapping.py:122
+#: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_archive_if_expression
+#, python-format
+msgid "Must contain a regular expression to which the column value must match to be evaluated as True, and the record be archived"
+msgstr "Must contain a regular expression to which the column value must match to be evaluated as True, and the record be archived"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_processor
-msgid "Moteur d'import"
-msgstr "Moteur d'import"
+#: code:addons/goufi_base/models/import_column_mapping.py:108
+#: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_delete_if_expression
+#, python-format
+msgid "Must contain a regular expression to which the column value must match to be evaluated as True, and the record be deleted"
+msgstr "Must contain a regular expression to which the column value must match to be evaluated as True, and the record be deleted"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:98
+#: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_update_if_expression
+#, python-format
+msgid "Must contain a regular expression to which the column value must match to be evaluated as True, and the record be updated"
+msgstr "Must contain a regular expression to which the column value must match to be evaluated as True, and the record be updated"
 
 #. module: goufi_base
 #: code:addons/goufi_base/models/import_processor.py:19
+#: code:addons/goufi_base/models/processor_parameter.py:19
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_name
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_processor_parameter_name
 #, python-format
 msgid "Name"
 msgstr "Nom"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_processor.py:31
+#: code:addons/goufi_base/models/import_processor.py:39
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_processor_class
 #, python-format
 msgid "Name of Processor Class"
 msgstr "Nom de la classe (python) du moteur"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_column_mapping.py:41
+#: code:addons/goufi_base/models/import_column_mapping.py:42
+#: sql_constraint:goufi.column_mapping:0
+#, python-format
+msgid "Name of the column must be unique per configuration/tab \n"
+msgstr "Name of the column must be unique per configuration/tab \n"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:49
 #: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_name
 #, python-format
 msgid "Name of the column to map"
@@ -520,8 +872,15 @@ msgid "Name of the tab to process with this mapping"
 msgstr "Name of the tab to process with this mapping"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_configuration.py:57
-#: code:addons/goufi_base/models/import_processor.py:21
+#: code:addons/goufi_base/models/import_tab_mapping.py:48
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_needs_col_mappings
+#, python-format
+msgid "Needs column mappings"
+msgstr "Needs column mappings"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_configuration.py:76
+#: code:addons/goufi_base/models/import_processor.py:25
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_needs_mappings
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_needs_mappings
 #, python-format
@@ -529,36 +888,34 @@ msgid "Needs mappings"
 msgstr "Nécessite du paramétrage"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_name
-msgid "Nom"
-msgstr "Nom"
+#: code:addons/goufi_base/models/import_configuration.py:67
+#: code:addons/goufi_base/models/import_file.py:39
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_needs_partner
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_needs_partner
+#, python-format
+msgid "Needs partner"
+msgstr "Needs partner"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_name
-msgid "Nom de la colonne"
-msgstr "Nom de la colonne"
+#: model:ir.ui.menu,name:goufi_base.goufi_import_new_menu
+msgid "New Files"
+msgstr "New Files"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_name
-msgid "Nom de la configuration"
-msgstr "Nom de la configuration"
+#: model:ir.filters,name:goufi_base.filter_import_file_new
+msgid "New Import Files"
+msgstr "New Import Files"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_filename
-msgid "Nom du fichier"
-msgstr "Nom du fichier"
+#: code:addons/goufi_base/models/import_column_mapping.py:220
+#, python-format
+msgid "None"
+msgstr "None"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_target_object
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_target_object
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_target_object
-msgid "Objet cible"
-msgstr "Objet cible"
-
-#. module: goufi_base
-#: code:addons/goufi_base/models/import_column_mapping.py:65
-#: code:addons/goufi_base/models/import_configuration.py:65
-#: code:addons/goufi_base/models/import_tab_mapping.py:26
+#: code:addons/goufi_base/models/import_column_mapping.py:153
+#: code:addons/goufi_base/models/import_configuration.py:119
+#: code:addons/goufi_base/models/import_tab_mapping.py:29
 #: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_target_object
 #: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_target_object
 #: model:ir.model.fields,help:goufi_base.field_goufi_tab_mapping_target_object
@@ -567,23 +924,47 @@ msgid "Odoo object that will be targeted by import: create, update or delete ins
 msgstr "Odoo object that will be targeted by import: create, update or delete instances"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_column_mapping.py:79
+#: code:addons/goufi_base/models/import_column_mapping.py:168
+#: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_target_field
+#, python-format
+msgid "Odoo object's field that will be targeted by import: create, update or delete instances"
+msgstr "Odoo object's field that will be targeted by import: create, update or delete instances"
+
+#. module: goufi_base
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_processor_parameter_form
+msgid "Parameter"
+msgstr "Parameter"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_configuration.py:111
+#: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_processor_parameters
+#, python-format
+msgid "Parameters that will be passed to processor"
+msgstr "Parameters that will be passed to processor"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:183
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_parent_tab
 #, python-format
 msgid "Parent Tab (when multi tabs)"
 msgstr "Onglet parent"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_column_mapping.py:71
-#: code:addons/goufi_base/models/import_tab_mapping.py:34
+#: code:addons/goufi_base/models/import_column_mapping.py:175
+#: code:addons/goufi_base/models/import_tab_mapping.py:38
+#: code:addons/goufi_base/models/processor_parameter.py:25
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_parent_configuration
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_processor_parameter_parent_configuration
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_parent_configuration
 #, python-format
 msgid "Parent configuration"
 msgstr "Configuration parente"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_partner_id
-msgid "Partenaire associé"
-msgstr "Partenaire associé"
+#: model:ir.filters,name:goufi_base.filter_import_file_pending
+#: model:ir.ui.menu,name:goufi_base.goufi_import_pending_menu
+msgid "Pending Files"
+msgstr "En attente"
 
 #. module: goufi_base
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_form
@@ -592,23 +973,20 @@ msgstr "Traiter le fichier"
 
 #. module: goufi_base
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_configuration_form
-msgid "Process all file(s)"
-msgstr "Traiter les fichiers"
-
-#. module: goufi_base
-#: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_configuration_form
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_form
 msgid "Processing configuration"
 msgstr "Paramètres de traitement"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:45
+#: code:addons/goufi_base/models/import_file.py:68
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_date_stop_processing
 #, python-format
 msgid "Processing ended on"
 msgstr "Traitement terminé à"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:55
+#: code:addons/goufi_base/models/import_file.py:82
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_processing_logs
 #, python-format
 msgid "Processing logs"
 msgstr "Lots du traitement"
@@ -619,20 +997,51 @@ msgid "Processing result"
 msgstr "Résultat du traitement"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:44
+#: code:addons/goufi_base/models/import_file.py:67
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_date_start_processing
 #, python-format
 msgid "Processing started on"
 msgstr "Traitement démarré à"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:51
+#: code:addons/goufi_base/models/import_file.py:76
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_processing_status
 #, python-format
 msgid "Processing status"
 msgstr "Etat du traitement"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_configuration.py:50
-#: code:addons/goufi_base/models/import_tab_mapping.py:31
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_processor_form
+msgid "Processor"
+msgstr "Moteur d'import"
+
+#. module: goufi_base
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_processor_parameter_form
+msgid "Processor Parameter"
+msgstr "Paramètre du moteur"
+
+#. module: goufi_base
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_processor_parameter_tree
+msgid "Processor Parameters"
+msgstr "Processor Parameters"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_configuration.py:110
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_processor_parameters
+#, python-format
+msgid "Processor parameters"
+msgstr "Processor parameters"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/goufi_config.py:18
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_config_settings_config_needs_partner
+#, python-format
+msgid "Provide partner to identify origin of imported data"
+msgstr "Provide partner to identify origin of imported data"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_configuration.py:59
+#: code:addons/goufi_base/models/import_tab_mapping.py:34
 #: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_default_header_line_index
 #: model:ir.model.fields,help:goufi_base.field_goufi_tab_mapping_default_header_line_index
 #, python-format
@@ -640,24 +1049,75 @@ msgid "Provides the index of the header line in import file. Header line contain
 msgstr "Provides the index of the header line in import file. Header line contains name of columns to be mapped."
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:27
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_processor_form
+msgid "Python info"
+msgstr "Python info"
+
+#. module: goufi_base
+#: model:ir.filters,name:goufi_base.filter_import_file_recurrent
+msgid "Recurrent Imports"
+msgstr "Recurrent Imports"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_configuration.py:49
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_recursive_search
+#, python-format
+msgid "Recursive search"
+msgstr "Recursive search"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_configuration.py:63
+#: code:addons/goufi_base/models/import_file.py:35
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_default_partner_id
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_partner_id
 #, python-format
 msgid "Related Partner"
 msgstr "Partenaire associé"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_file.py:35
+#: code:addons/goufi_base/models/import_file.py:50
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_import_config
 #, python-format
 msgid "Related import configuration"
 msgstr "Paramétrage de l'import"
 
 #. module: goufi_base
+#: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_form
+msgid "Reset status"
+msgstr "Reset status"
+
+#. module: goufi_base
+#: model:ir.filters,name:goufi_base.filter_import_file_running
+msgid "Running Imports"
+msgstr "Imports en cours"
+
+#. module: goufi_base
+#: model:ir.ui.menu,name:goufi_base.goufi_import_running_menu
+msgid "Running Processes"
+msgstr "Running Processes"
+
+#. module: goufi_base
 #: code:addons/goufi_base/models/import_column_mapping.py:52
+#: code:addons/goufi_base/models/import_tab_mapping.py:25
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_sequence
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_sequence
+#, python-format
+msgid "Sequence"
+msgstr "Séquence"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:69
 #: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_member_of
 #, python-format
 msgid "Set of columns this one belongs to"
 msgstr "Groupe d'appartenance"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:113
+#: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_archive_if_not_deleted
+#, python-format
+msgid "Should we archive record if deletion fail?"
+msgstr "Should we archive record if deletion fail?"
 
 #. module: goufi_base
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_form
@@ -665,9 +1125,20 @@ msgid "Source"
 msgstr "Origine"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_column_mapping.py:74
-#: code:addons/goufi_base/models/import_configuration.py:78
-#: code:addons/goufi_base/models/import_processor.py:25
+#: code:addons/goufi_base/models/import_column_mapping.py:73
+#: code:addons/goufi_base/models/import_configuration.py:129
+#: code:addons/goufi_base/models/import_processor.py:33
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_col_group_support
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_col_group_support
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_col_group_support
+#, python-format
+msgid "Supports column groups"
+msgstr "Supports column groups"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:178
+#: code:addons/goufi_base/models/import_configuration.py:137
+#: code:addons/goufi_base/models/import_processor.py:29
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_tab_support
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_tab_support
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_processor_tab_support
@@ -687,7 +1158,7 @@ msgid "Tab Mapping - Import Configuration"
 msgstr "Tab Mapping - Import Configuration"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_configuration.py:83
+#: code:addons/goufi_base/models/import_configuration.py:142
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_tab_mappings
 #, python-format
 msgid "Tab mappings"
@@ -701,29 +1172,141 @@ msgid "Tab name"
 msgstr "Tab name"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_column_mapping.py:64
-#: code:addons/goufi_base/models/import_configuration.py:64
-#: code:addons/goufi_base/models/import_tab_mapping.py:25
+#: code:addons/goufi_base/models/import_column_mapping.py:188
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_display_target
+#, python-format
+msgid "Target Field"
+msgstr "Target Field"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:167
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_target_field
+#, python-format
+msgid "Target field"
+msgstr "Target field"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:188
+#: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_display_target
+#, python-format
+msgid "Target field for target object"
+msgstr "Target field for target object"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:152
+#: code:addons/goufi_base/models/import_configuration.py:118
+#: code:addons/goufi_base/models/import_tab_mapping.py:28
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_target_object
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_target_object
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_tab_mapping_target_object
 #, python-format
 msgid "Target object"
 msgstr "Objet cible"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_date_start_processing
-msgid "Traitement démarré à"
-msgstr "Traitement démarré à"
+#: code:addons/goufi_base/models/import_column_mapping.py:129
+#: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_is_constant_expression
+#, python-format
+msgid "The mapping expression is a string constant"
+msgstr "The mapping expression is a string constant"
 
 #. module: goufi_base
-#: model:ir.model.fields,field_description:goufi_base.field_goufi_import_file_date_stop_processing
-msgid "Traitement terminé à"
-msgstr "Traitement terminé à"
+#: code:addons/goufi_base/models/import_configuration.py:64
+#: code:addons/goufi_base/models/import_file.py:36
+#: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_default_partner_id
+#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_partner_id
+#, python-format
+msgid "The partner that provided the Data"
+msgstr "The partner that provided the Data"
 
 #. module: goufi_base
-#: code:addons/goufi_base/models/import_configuration.py:44
+#: code:addons/goufi_base/models/import_column_mapping.py:137
+#: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_is_function_call
+#, python-format
+msgid ""
+"The value assigned to target property is the result of a function call.\n"
+"Expression is the name of the function to call (must be a processor's method)\n"
+"The function must have prototype: def aFunction(self,value)\n"
+"Function must return the value to be assigned to mapping or None"
+msgstr ""
+"The value assigned to target property is the result of a function call.\n"
+"Expression is the name of the function to call (must be a processor's method)\n"
+"The function must have prototype: def aFunction(self,value)\n"
+"Function must return the value to be assigned to mapping or None"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:80
+#: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_is_identifier
+#, python-format
+msgid ""
+"The value of the mapping is used to find existing records in Odoo database.\n"
+"If a record is found with given value in 'key field' (i.e. field given in expression), the record is updated with data.\n"
+"If no record is found, a new one is created.\n"
+"\n"
+"There can be several columns used as criteria\n"
+msgstr ""
+"The value of the mapping is used to find existing records in Odoo database.\n"
+"If a record is found with given value in 'key field' (i.e. field given in expression), the record is updated with data.\n"
+"If no record is found, a new one is created.\n"
+"\n"
+"There can be several columns used as criteria\n"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:89
+#: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_is_mandatory
+#, python-format
+msgid "There must be a value for this column"
+msgstr "There must be a value for this column"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:97
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_column_mapping_update_if_expression
+#, python-format
+msgid "Update if value matches"
+msgstr "Update if value matches"
+
+#. module: goufi_base
+#: model:ir.filters,name:goufi_base.filter_import_file_updated
+msgid "Updated Files"
+msgstr "Updated Files"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:53
+#: code:addons/goufi_base/models/import_tab_mapping.py:26
+#: model:ir.model.fields,help:goufi_base.field_goufi_column_mapping_sequence
+#: model:ir.model.fields,help:goufi_base.field_goufi_tab_mapping_sequence
+#, python-format
+msgid "Used to order mappings. Lower is better."
+msgstr "Used to order mappings. Lower is better."
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/processor_parameter.py:21
+#: model:ir.model.fields,field_description:goufi_base.field_goufi_processor_parameter_value
+#, python-format
+msgid "Value"
+msgstr "Valeur"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/goufi_config.py:23
+#: model:ir.model.fields,help:goufi_base.field_goufi_config_settings_delete_obsolete_files
+#, python-format
+msgid "When this parameter is True, import_files are deleted, else, they are archived"
+msgstr "When this parameter is True, import_files are deleted, else, they are archived"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_configuration.py:53
 #: model:ir.model.fields,field_description:goufi_base.field_goufi_import_configuration_working_dir
 #, python-format
 msgid "Working directory"
 msgstr "Répertoire de travail"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_column_mapping.py:100
+#: code:addons/goufi_base/models/import_column_mapping.py:110
+#: code:addons/goufi_base/models/import_column_mapping.py:124
+#, python-format
+msgid "Yes"
+msgstr "Yes"
 
 #. module: goufi_base
 #: selection:goufi.import_file,processing_status:0
@@ -732,8 +1315,23 @@ msgstr "Terminé"
 
 #. module: goufi_base
 #: selection:goufi.import_file,processing_status:0
+msgid "ended with errors"
+msgstr "ended with errors"
+
+#. module: goufi_base
+#: selection:goufi.import_file,processing_status:0
 msgid "failure"
 msgstr "Echec"
+
+#. module: goufi_base
+#: model:ir.model,name:goufi_base.model_goufi_config_settings
+msgid "goufi.config.settings"
+msgstr "goufi.config.settings"
+
+#. module: goufi_base
+#: model:ir.model.fields,help:goufi_base.field_goufi_import_file_log_filename
+msgid "logfile name, used for download"
+msgstr "logfile name, used for download"
 
 #. module: goufi_base
 #: selection:goufi.import_file,processing_status:0
@@ -742,8 +1340,20 @@ msgstr "Nouveau"
 
 #. module: goufi_base
 #: selection:goufi.import_file,processing_status:0
+msgid "pending"
+msgstr "pending"
+
+#. module: goufi_base
+#: selection:goufi.import_file,processing_status:0
 msgid "running"
 msgstr "En cours"
+
+#. module: goufi_base
+#: code:addons/goufi_base/models/import_configuration.py:50
+#: model:ir.model.fields,help:goufi_base.field_goufi_import_configuration_recursive_search
+#, python-format
+msgid "should we search for files in sub-directories"
+msgstr "should we search for files in sub-directories"
 
 #. module: goufi_base
 #: model:ir.ui.view,arch_db:goufi_base.view_goufi_import_file_form

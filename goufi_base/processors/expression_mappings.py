@@ -143,7 +143,6 @@ class ExpressionProcessorMixin(object):
                 except:
                     logging.error("GOUFI: failed to évaluate parameter (context): %s", str(param.value))
                 self.odoo_context = context
-
         self.target_model = None
 
     #-------------------------------------------------------------------------------------
@@ -191,6 +190,7 @@ class ExpressionProcessorMixin(object):
         self.col2fields = {}
         self.column_groups = {}
         self.allMappings = {}
+        self.valuePreprocessing = {}
         numbOfFields = 0
 
         # We should have a model now
@@ -224,6 +224,18 @@ class ExpressionProcessorMixin(object):
 
             if val.target_field.name in target_fields:
                 self.col2fields[val.name] = val.target_field.name
+
+                # Value preprocessing
+
+                if val.preprocess_expression and len(val.preprocess_expression) > 2:
+                    try:
+                        self.valuePreprocessing[val.name] = eval(val.preprocess_expression)
+                    except:
+                        self.logger.error(u"Wrong pre-processing  expression: (%s) %s",
+                                          val.name, val.preprocess_expression)
+                        return -1
+
+                # All the peculiar config
 
                 if val.is_constant_expression:
                     mappingType = MappingType.Constant
@@ -318,6 +330,19 @@ class ExpressionProcessorMixin(object):
 
         if self.target_model == None:
             return False
+
+        # Pre-processing of data
+        for val in data_values:
+            if val in self.valuePreprocessing:
+                function = self.valuePreprocessing[val]
+                try:
+                    value = function(data_values[val])
+                except:
+                    value = None
+                if value != None:
+                    data_values[val] = value
+                else:
+                    del data_values[val]
 
         # Process Constant values
         for val in self.allMappings[MappingType.Constant]:
@@ -630,7 +655,6 @@ class CSVProcessor(ExpressionProcessorMixin, CSVImporterMixin, LineIteratorProce
         ExpressionProcessorMixin.__init__(self, parent_config)
         CSVImporterMixin.__init__(self, parent_config)
 
-    # line generator
     def get_rows(self, import_file=None):
 
         reader = self._open_csv(import_file, asDict=True)

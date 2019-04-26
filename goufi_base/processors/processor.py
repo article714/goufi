@@ -47,6 +47,15 @@ class AbstractProcessor(object):
     # self.hooks '_prepare_mapping_hook'=> prepare_mapping_hook(self,tab_name="Unknown",, colmappings=None):
 
     #-------------------------------------------------------------------------------------
+    # Some utility function that we might use in data transformations
+
+    def remove_all_spaces(self, value):
+        try:
+            return value.strip().replace(u' ', '')
+        except:
+            return value
+
+    #-------------------------------------------------------------------------------------
     def __init__(self, parent_config):
         """
         Constructor
