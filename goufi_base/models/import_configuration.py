@@ -55,9 +55,10 @@ class ImportConfiguration(models.Model):
                               required=True, default="/odoo/file_imports/_work"
                               )
 
-    default_header_line_index = fields.Integer(string=_(u"Default Header line"),
-                                               help=_(
-                                                   u"Provides the index of the header line in import file. Header line contains name of columns to be mapped."),
+    default_header_line_index = fields.Integer(string=u"Default Header line",
+                                               help=u"Provides the index of the header line in \
+                                                       import file. Header line contains name of \
+                                                           columns to be mapped.",
                                                required=True, default=0)
 
     default_partner_id = fields.Many2one(string=_(u'Related Partner'),
@@ -74,11 +75,14 @@ class ImportConfiguration(models.Model):
                                 required=True)
 
     needs_mappings = fields.Boolean(string=_(u"Needs mappings"),
-                                    help=_(u"Does the selected processor need column mappings"),
+                                    help=_(u"Does the selected processor need \
+                                        column/tab mappings"),
                                     related="processor.needs_mappings")
 
+
     has_parameters = fields.Boolean(string=_(u"Has parameters"),
-                                    help=_(u"Does the selected processor accept parameters"),
+                                    help=_(u"Does the selected processor accept \
+                                        parameters"),
                                     related="processor.has_parameters",
                                     read_only=True)
 
@@ -138,6 +142,11 @@ class ImportConfiguration(models.Model):
                                  help=_(u"Does the selected processor can process multiple tabs"),
                                  related="processor.tab_support",
                                  read_only=True)
+
+    single_mapping = fields.Boolean(string=_(u"Single mapping for all tabs"),
+                                    help=_(u"Does the selected processor use \
+                                        the same mappings for all tabs"),
+                                    related="processor.needs_mappings")
 
     tab_mappings = fields.One2many(string=_(u"Tab mappings"),
                                    help=_(u"Mapping configuration needed by this processor"),
