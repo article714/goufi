@@ -19,7 +19,7 @@ TODO
 
 **Credits:** .
 """,
-    'depends': ['goufi_base', 'queue'],
+    'depends': ['goufi_base', 'queue_job'],
     'data': [],
     'installable': True,
     'images': [],
