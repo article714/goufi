@@ -10,10 +10,6 @@ Utility functions to manipulate recordsets
 @license: AGPL v3
 '''
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 10.0
 from odoo import models, fields
 from odoo.addons.goufi_base.utils.converters import toDate, dateToOdooString
 
