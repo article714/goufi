@@ -43,7 +43,7 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
 
     def _open_xlsx(self, import_file):
         # returns Workbook
-        return load_workbook(import_file.filename, read_only=True, keep_vba=False, guess_types=False, data_only=True)
+        return load_workbook(import_file.filename, read_only=True, keep_vba=False, data_only=True)
 
     #-------------------------------------------------------------------------------------
     def get_book(self, import_file):

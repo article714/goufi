@@ -483,8 +483,12 @@ class MultiSheetLineIterator(AbstractProcessor):
                     # OK: no tab support => i.e. single tab sometime
                     return result
                 elif tab_name != None:
-                    found = tabmap_model.search(
-                        [('parent_configuration', '=', parent_config.id), ('name', '=', tab_name)], limit=1)
+                    if parent_config.single_mapping:
+                        found = tabmap_model.search(
+                            [('parent_configuration', '=', parent_config.id)], limit=1)
+                    else:
+                        found = tabmap_model.search(
+                            [('parent_configuration', '=', parent_config.id), ('name', '=', tab_name)], limit=1)
                     if len(found) == 1:
                         current_tab = found[0]
                         try:
@@ -535,7 +539,7 @@ class MultiSheetLineIterator(AbstractProcessor):
         for tab in self.get_tabs(import_file):
             try:
                 nb_mappings = self.prepare_mappings_for_tab(import_file, tab)
-                if nb_mappings > 0:
+                if nb_mappings is not None and nb_mappings > 0:
                     idx = 0
                     header = None
 
@@ -555,6 +559,7 @@ class MultiSheetLineIterator(AbstractProcessor):
 
                     # Process Rows
                     for row in self.get_rows(tab):
+
                         try:
                             if idx == self.header_line_idx:
                                 # process header for tab
@@ -570,6 +575,7 @@ class MultiSheetLineIterator(AbstractProcessor):
                                 try:
                                     result = self.run_hooks('_pre_conditions_hook', import_file, values)
                                     if result:
+                                        self.logger.error("GO PROCESS: %s %s ",str(idx),str(values))
                                         self.process_values(idx, values)
                                 except Exception as e:
                                     self.errorCount += 1
