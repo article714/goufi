@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 Created on 23 deb. 2018
 
 @author: C. Guychard
 @copyright: ©2018 Article 714
 @license: AGPL v3
-'''
+"""
 
 from copy import copy
 from datetime import datetime, date
@@ -20,11 +20,11 @@ from .csv_support_mixins import CSVImporterMixin
 from .processor import LineIteratorProcessor
 from .xl_base_processor import XLImporterBaseProcessor
 
-#---------------------------------------------------------
+# ---------------------------------------------------------
 # Global values
 DEFAULT_LOG_STRING = u" [ line %d ] -> %s"
 
-#---------------------------------------------------------
+# ---------------------------------------------------------
 # utility function(s)
 
 
@@ -37,7 +37,8 @@ class MappingType(IntEnum):
     Constant = 4
     FunctionCall = 5
 
-#-------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------
 # MAIN CLASS
 
 
@@ -114,7 +115,9 @@ class ExpressionProcessorMixin(object):
         self.errorCount = 0
 
         # hooks
-        self.register_hook('_prepare_mapping_hook', ExpressionProcessorMixin.prepare_mapping_hook)
+        self.register_hook(
+            "_prepare_mapping_hook", ExpressionProcessorMixin.prepare_mapping_hook
+        )
 
         # variables use during processing
         self.mandatoryFields = {}
@@ -130,18 +133,21 @@ class ExpressionProcessorMixin(object):
         self.update_only_if_different = False
         self.odoo_context = False
         for param in parent_config.processor_parameters:
-            if param.name == u'm2o_create_if_no_target_instance':
-                self.m2o_create_if_no_target_instance = param.value.split(',')
-            if param.name == u'update_only_if_different':
+            if param.name == u"m2o_create_if_no_target_instance":
+                self.m2o_create_if_no_target_instance = param.value.split(",")
+            if param.name == u"update_only_if_different":
                 self.update_only_if_different = eval(param.value)
-            if param.name == u'context':
+            if param.name == u"context":
                 context = dict(self.odooenv.context)
                 try:
                     additional_values = eval(param.value)
                     for key in additional_values:
                         context[key] = additional_values[key]
                 except:
-                    logging.error("GOUFI: failed to évaluate parameter (context): %s", str(param.value))
+                    logging.error(
+                        "GOUFI: failed to évaluate parameter (context): %s",
+                        str(param.value),
+                    )
                 self.odoo_context = context
         self.target_model = None
 
@@ -159,24 +165,24 @@ class ExpressionProcessorMixin(object):
                 val = result[f]
                 if val == "False" or val == "True":
                     val = eval(val)
-                elif (isinstance(val, datetime) or isinstance(val, date)):
+                elif isinstance(val, datetime) or isinstance(val, date):
                     val = dateToOdooString(val)
                 elif val == None:
-                    del(result[f])
+                    del result[f]
                     continue
                 # replace actual col name by actual field name
                 col = self.col2fields[f]
                 if col != f:
                     result[col] = val
-                    del(result[f])
+                    del result[f]
                 else:
                     result[f] = val
             else:
-                del(result[f])
+                del result[f]
 
         return result
 
-    #-------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     def prepare_mapping_hook(self, tab_name="Unknown", colmappings=None):
         """
         Process mappings configuration hook for each tab
@@ -200,18 +206,23 @@ class ExpressionProcessorMixin(object):
             self.logger.error("MODEL NOT FOUND ")
             return -1
         else:
-            self.logger.info("#-----------------------------------------------------------------------------")
-            self.logger.info("NEW SHEET [%s]:  Import data for model %s",
-                             tab_name, toString(self.target_model))
+            self.logger.info(
+                "#-----------------------------------------------------------------------------"
+            )
+            self.logger.info(
+                "NEW SHEET [%s]:  Import data for model %s",
+                tab_name,
+                toString(self.target_model),
+            )
 
         # List of fields in target model
         target_fields = None
         if self.target_model == None:
-            raise Exception('FAILED', u"FAILED => NO TARGET MODEL FOUND")
+            raise Exception("FAILED", u"FAILED => NO TARGET MODEL FOUND")
         else:
             target_fields = self.target_model.fields_get_keys()
 
-        #***********************************
+        # ***********************************
         # process column mappings
         if colmappings == None:
             self.logger.warning("NO Column mappings provided => fail")
@@ -231,10 +242,15 @@ class ExpressionProcessorMixin(object):
 
                 if val.preprocess_expression and len(val.preprocess_expression) > 2:
                     try:
-                        self.valuePreprocessing[val.name] = eval(val.preprocess_expression)
+                        self.valuePreprocessing[val.name] = eval(
+                            val.preprocess_expression
+                        )
                     except:
-                        self.logger.error(u"Wrong pre-processing  expression: (%s) %s",
-                                          val.name, val.preprocess_expression)
+                        self.logger.error(
+                            u"Wrong pre-processing  expression: (%s) %s",
+                            val.name,
+                            val.preprocess_expression,
+                        )
                         return -1
 
                 # All the peculiar config
@@ -242,52 +258,75 @@ class ExpressionProcessorMixin(object):
                 if val.is_constant_expression:
                     mappingType = MappingType.Constant
                     if val.mapping_expression and len(val.mapping_expression) > 0:
-                        self.allMappings[mappingType][val.name] = [val.target_field.name, val.mapping_expression]
+                        self.allMappings[mappingType][val.name] = [
+                            val.target_field.name,
+                            val.mapping_expression,
+                        ]
                     else:
-                        self.logger.error("Wrong mapping expression: too short (%s)", val.name)
+                        self.logger.error(
+                            "Wrong mapping expression: too short (%s)", val.name
+                        )
                 elif val.is_contextual_expression_mapping:
                     mappingType = MappingType.ContextEval
                     if val.mapping_expression and len(val.mapping_expression) > 2:
-                        self.allMappings[mappingType][val.name] = [val.target_field.name, val.mapping_expression]
+                        self.allMappings[mappingType][val.name] = [
+                            val.target_field.name,
+                            val.mapping_expression,
+                        ]
                     else:
-                        self.logger.error("Wrong mapping expression: too short (%s)", val.name)
+                        self.logger.error(
+                            "Wrong mapping expression: too short (%s)", val.name
+                        )
                 elif val.is_function_call:
                     mappingType = MappingType.FunctionCall
-                    if val.mapping_expression and len(val.mapping_expression) > 2 and hasattr(self, val.mapping_expression):
+                    if (
+                        val.mapping_expression
+                        and len(val.mapping_expression) > 2
+                        and hasattr(self, val.mapping_expression)
+                    ):
                         self.allMappings[mappingType][val.name] = [
-                            val.target_field.name, getattr(self, val.mapping_expression)]
+                            val.target_field.name,
+                            getattr(self, val.mapping_expression),
+                        ]
                     else:
-                        self.logger.error(u"Wrong mapping expression for %s: too short or method does not exist (%s)",
-                                          val.name, str(val.mapping_expression))
+                        self.logger.error(
+                            u"Wrong mapping expression for %s: too short or method does not exist (%s)",
+                            val.name,
+                            str(val.mapping_expression),
+                        )
                 elif val.mapping_expression and len(val.mapping_expression) > 2:
-                    if re.match(r'\*.*', val.mapping_expression):
+                    if re.match(r"\*.*", val.mapping_expression):
                         mappingType = MappingType.One2Many
-                        v = val.mapping_expression.replace('*', '')
-                        vals = [0, val.target_field.name] + v.split('/')
-                        if re.match(r'.*\&.*', vals[2]):
-                            (_fieldname, cond) = vals[2].split('&')
+                        v = val.mapping_expression.replace("*", "")
+                        vals = [0, val.target_field.name] + v.split("/")
+                        if re.match(r".*\&.*", vals[2]):
+                            (_fieldname, cond) = vals[2].split("&")
                             vals[2] = _fieldname
                             try:
                                 vals.append(eval(cond))
                             except:
-                                self.logger.exception("Could not parse given conditions %s", str(cond))
+                                self.logger.exception(
+                                    "Could not parse given conditions %s", str(cond)
+                                )
                         self.allMappings[mappingType][val.name] = vals
-                    elif re.match(r'\+.*', val.mapping_expression):
+                    elif re.match(r"\+.*", val.mapping_expression):
                         mappingType = MappingType.One2Many
-                        v = val.mapping_expression.replace('+', '')
-                        vals = [1, val.target_field.name] + v.split('/')
+                        v = val.mapping_expression.replace("+", "")
+                        vals = [1, val.target_field.name] + v.split("/")
                         self.allMappings[mappingType][val.name] = vals
-                    elif re.match(r'\>.*', val.mapping_expression):
+                    elif re.match(r"\>.*", val.mapping_expression):
                         mappingType = MappingType.Many2One
-                        v = val.mapping_expression.replace('>', '')
-                        vals = [val.target_field.name] + v.split('/')
-                        if re.match(r'.*\&.*', vals[2]):
-                            (_fieldname, cond) = vals[2].split('&')
+                        v = val.mapping_expression.replace(">", "")
+                        vals = [val.target_field.name] + v.split("/")
+                        if re.match(r".*\&.*", vals[2]):
+                            (_fieldname, cond) = vals[2].split("&")
                             vals[2] = _fieldname
                             try:
                                 vals.append(eval(cond))
                             except:
-                                self.logger.exception("Could not parse given conditions %s", str(cond))
+                                self.logger.exception(
+                                    "Could not parse given conditions %s", str(cond)
+                                )
                         self.allMappings[mappingType][val.name] = vals
                 else:
                     mappingType = MappingType.Standard
@@ -303,14 +342,17 @@ class ExpressionProcessorMixin(object):
 
             if val.is_deletion_marker or val.is_archival_marker:
                 self.delOrArchMarkers[val.name] = (
-                    val.is_deletion_marker, val.delete_if_expression, val.is_archival_marker)
+                    val.is_deletion_marker,
+                    val.delete_if_expression,
+                    val.is_archival_marker,
+                )
 
             if val.is_change_marker:
                 self.updateMarkers[val.name] = val.update_if_expression
 
         return numbOfFields
 
-    #-------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------
     # Process line values
     def process_values(self, line_index, data_values):
 
@@ -321,12 +363,12 @@ class ExpressionProcessorMixin(object):
         # List of fields in target model
         target_fields = None
         if self.target_model == None:
-            raise Exception('FAILED', u"FAILED => NO TARGET MODEL FOUND")
+            raise Exception("FAILED", u"FAILED => NO TARGET MODEL FOUND")
         else:
             target_fields = self.target_model.fields_get_keys()
 
         # Detects if record needs to be deleted or archived
-        CAN_BE_ARCHIVED = ('active' in target_fields)
+        CAN_BE_ARCHIVED = "active" in target_fields
 
         search_criteria = []
 
@@ -356,7 +398,9 @@ class ExpressionProcessorMixin(object):
                 value = eval(self.allMappings[MappingType.ContextEval][val][1])
                 data_values[val] = value
             except Exception as e:
-                self.logger.exception("Failed to evaluate expression from context: %s ", str(val))
+                self.logger.exception(
+                    "Failed to evaluate expression from context: %s ", str(val)
+                )
 
         # Process Function Call values
         for val in self.allMappings[MappingType.FunctionCall]:
@@ -374,13 +418,17 @@ class ExpressionProcessorMixin(object):
                     if value != None:
                         data_values[val] = value
             except:
-                self.logger.exception("Failed to compute value from function call: %s", toString(val))
+                self.logger.exception(
+                    "Failed to compute value from function call: %s", toString(val)
+                )
 
         # Process update markers
         TO_BE_UPDATED = True
         for f in self.updateMarkers:
             if f in data_values:
-                TO_BE_UPDATED = (re.match(self.updateMarkers[f], toString(data_values[f])) != None)
+                TO_BE_UPDATED = (
+                    re.match(self.updateMarkers[f], toString(data_values[f])) != None
+                )
 
         if not TO_BE_UPDATED:
             return
@@ -397,17 +445,17 @@ class ExpressionProcessorMixin(object):
                         cond = []
                         for v in config[3]:
                             cond.append(v)
-                        cond.append((config[2], '=', data_values[f]))
+                        cond.append((config[2], "=", data_values[f]))
                     else:
-                        cond = [(config[2], '=', data_values[f])]
+                        cond = [(config[2], "=", data_values[f])]
 
                     # search in active and archived records if model contains an 'active' property
 
                     search_model = self.odooenv[config[1]]
-                    if 'active' in search_model.fields_get_keys():
-                        cond.append('|')
-                        cond.append(('active', '=', True))
-                        cond.append(('active', '=', False))
+                    if "active" in search_model.fields_get_keys():
+                        cond.append("|")
+                        cond.append(("active", "=", True))
+                        cond.append(("active", "=", False))
 
                     # do search for a record
                     vals = self.odooenv[config[1]].search(cond, limit=1)
@@ -418,15 +466,32 @@ class ExpressionProcessorMixin(object):
                     elif f in self.m2o_create_if_no_target_instance:
                         # Create if not found on m2one
                         try:
-                            data_values[f] = self.odooenv[config[1]].create({config[2]: data_values[f]}).id
+                            data_values[f] = (
+                                self.odooenv[config[1]]
+                                .create({config[2]: data_values[f]})
+                                .id
+                            )
                         except:
-                            self.logger.error(DEFAULT_LOG_STRING, line_index + 1, u" failed to create a new record for %s   for model  %s" % (
-                                toString(data_values[f]), toString(config[1])))
+                            self.logger.error(
+                                DEFAULT_LOG_STRING,
+                                line_index + 1,
+                                u" failed to create a new record for %s   for model  %s"
+                                % (toString(data_values[f]), toString(config[1])),
+                            )
                             del data_values[f]
 
                     else:
-                        self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u" found %d values for %s  ,unable to reference %s -> %s" %
-                                            (len(vals), toString(data_values[f]), toString(config[1]), toString(vals)))
+                        self.logger.warning(
+                            DEFAULT_LOG_STRING,
+                            line_index + 1,
+                            u" found %d values for %s  ,unable to reference %s -> %s"
+                            % (
+                                len(vals),
+                                toString(data_values[f]),
+                                toString(config[1]),
+                                toString(vals),
+                            ),
+                        )
                         del data_values[f]
 
         # TODO: Document this!
@@ -440,18 +505,28 @@ class ExpressionProcessorMixin(object):
                     config = self.delOrArchMarkers[f]
                     if config[0]:
                         # deletion config
-                        TO_BE_DELETED = (re.match(config[1], toString(data_values[f])) != None)
+                        TO_BE_DELETED = (
+                            re.match(config[1], toString(data_values[f])) != None
+                        )
                         TO_BE_ARCHIVED = TO_BE_DELETED and config[2]
                         if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
-                            self.logger.error(DEFAULT_LOG_STRING, line_index + 1,
-                                              "This kind of records can not be archived")
+                            self.logger.error(
+                                DEFAULT_LOG_STRING,
+                                line_index + 1,
+                                "This kind of records can not be archived",
+                            )
                             TO_BE_ARCHIVED = False
                     else:
                         # archival config
-                        TO_BE_ARCHIVED = (re.match(config[1], toString(data_values[f])) != None)
+                        TO_BE_ARCHIVED = (
+                            re.match(config[1], toString(data_values[f])) != None
+                        )
                         if TO_BE_ARCHIVED and not CAN_BE_ARCHIVED:
-                            self.logger.error(DEFAULT_LOG_STRING, line_index + 1,
-                                              "This kind of records can not be archived")
+                            self.logger.error(
+                                DEFAULT_LOG_STRING,
+                                line_index + 1,
+                                "This kind of records can not be archived",
+                            )
                             TO_BE_ARCHIVED = False
 
             # compute search criteria
@@ -478,22 +553,30 @@ class ExpressionProcessorMixin(object):
                     if k in data_values:
                         value = data_values[k]
                 else:
-                    self.logger.error(DEFAULT_LOG_STRING, line_index + 1, u"Wrong identifier column %s" % k)
+                    self.logger.error(
+                        DEFAULT_LOG_STRING,
+                        line_index + 1,
+                        u"Wrong identifier column %s" % k,
+                    )
                     return 0
 
-                if value != None and value != str(''):
-                    search_criteria.append((keyfield, '=', value))
+                if value != None and value != str(""):
+                    search_criteria.append((keyfield, "=", value))
                 else:
-                    self.logger.warning(DEFAULT_LOG_STRING, line_index + 1,
-                                        "GOUFI: Do not process line n.%d, as Id column (%s) is empty" % (line_index + 1, k))
+                    self.logger.warning(
+                        DEFAULT_LOG_STRING,
+                        line_index + 1,
+                        "GOUFI: Do not process line n.%d, as Id column (%s) is empty"
+                        % (line_index + 1, k),
+                    )
                     self.errorCount += 1
                     return
 
             # ajout d'une clause pour rechercher tous les enregistrements
             if CAN_BE_ARCHIVED:
-                search_criteria.append('|')
-                search_criteria.append(('active', '=', True))
-                search_criteria.append(('active', '=', False))
+                search_criteria.append("|")
+                search_criteria.append(("active", "=", True))
+                search_criteria.append(("active", "=", False))
 
             # recherche d'un enregistrement existant
             if len(search_criteria) > 0:
@@ -502,8 +585,17 @@ class ExpressionProcessorMixin(object):
             if len(found) == 1:
                 currentObj = found[0]
             elif len(found) > 1:
-                self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"FOUND TOO MANY RESULT FOR " + toString(self.target_model) +
-                                    " with " + toString(search_criteria) + "=>   [" + toString(len(found)) + "]")
+                self.logger.warning(
+                    DEFAULT_LOG_STRING,
+                    line_index + 1,
+                    u"FOUND TOO MANY RESULT FOR "
+                    + toString(self.target_model)
+                    + " with "
+                    + toString(search_criteria)
+                    + "=>   ["
+                    + toString(len(found))
+                    + "]",
+                )
                 return
             else:
                 currentObj = None
@@ -516,47 +608,66 @@ class ExpressionProcessorMixin(object):
                 except:
                     if TO_BE_ARCHIVED:
                         self.odooenv.cr.rollback()
-                        self.logger.warning(DEFAULT_LOG_STRING, line_index + 1,
-                                            "Archiving record as it can not be deleted (line n. %d)" % (line_index + 1,))
+                        self.logger.warning(
+                            DEFAULT_LOG_STRING,
+                            line_index + 1,
+                            "Archiving record as it can not be deleted (line n. %d)"
+                            % (line_index + 1,),
+                        )
                         try:
                             if currentObj.active:
-                                currentObj.write({'active': False})
+                                currentObj.write({"active": False})
                                 currentObj.active = False
                         except Exception as e:
                             self.odooenv.cr.rollback()
                             self.logger.warning(
-                                DEFAULT_LOG_STRING, line_index + 1, u"Not able to archive record (line n. %d) : %s" % (line_index + 1, toString(e),))
+                                DEFAULT_LOG_STRING,
+                                line_index + 1,
+                                u"Not able to archive record (line n. %d) : %s"
+                                % (line_index + 1, toString(e)),
+                            )
                 currentObj = None
                 self.odooenv.cr.commit()
             return True
         elif TO_BE_ARCHIVED:
             if not currentObj == None:
                 try:
-                    currentObj.write({'active': False})
+                    currentObj.write({"active": False})
                     currentObj.active = False
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"Not able to archive record (line n. %d) : %s" %
-                                        (line_index + 1, toString(e),))
+                    self.logger.warning(
+                        DEFAULT_LOG_STRING,
+                        line_index + 1,
+                        u"Not able to archive record (line n. %d) : %s"
+                        % (line_index + 1, toString(e)),
+                    )
         elif CAN_BE_ARCHIVED:
             if not currentObj == None:
                 try:
-                    currentObj.write({'active': True})
+                    currentObj.write({"active": True})
                     currentObj.active = True
                     self.odooenv.cr.commit()
                 except Exception as e:
                     self.odooenv.cr.rollback()
-                    self.logger.warning(DEFAULT_LOG_STRING, line_index + 1, u"Not able to activate record (line n. %d) : %s" %
-                                        (line_index + 1, toString(e),))
+                    self.logger.warning(
+                        DEFAULT_LOG_STRING,
+                        line_index + 1,
+                        u"Not able to activate record (line n. %d) : %s"
+                        % (line_index + 1, toString(e)),
+                    )
 
         # Pre Write Hooks
         try:
-            self.run_hooks('_pre_write_record_hook', data_values)
+            self.run_hooks("_pre_write_record_hook", data_values)
         except:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING, line_index + 1,
-                                  u" Error raised during _pre_write_record_hook processing")
+            self.logger.exception(
+                DEFAULT_LOG_STRING,
+                line_index + 1,
+                u" Error raised during _pre_write_record_hook processing",
+            )
 
         # Create Object if it does not yet exist, else, write updates
         actual_values = None
@@ -566,8 +677,11 @@ class ExpressionProcessorMixin(object):
             for f in self.mandatoryFields:
                 if f not in data_values:
                     self.errorCount += 1
-                    self.logger.error(DEFAULT_LOG_STRING, line_index + 1,
-                                      u"missing value for mandatory column: %s" % f)
+                    self.logger.error(
+                        DEFAULT_LOG_STRING,
+                        line_index + 1,
+                        u"missing value for mandatory column: %s" % f,
+                    )
                     return False
             actual_values = self.map_values(data_values)
 
@@ -585,14 +699,24 @@ class ExpressionProcessorMixin(object):
             self.odooenv.cr.commit()
         except ValueError as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" wrong values where creating/updating object: %s -> %s [%s] " % (
-                str(self.target_model), toString(actual_values), toString(currentObj)))
+            self.logger.exception(
+                DEFAULT_LOG_STRING,
+                line_index + 1,
+                u" wrong values where creating/updating object: %s -> %s [%s] "
+                % (
+                    str(self.target_model),
+                    toString(actual_values),
+                    toString(currentObj),
+                ),
+            )
             self.logger.error(u"                    MSG: %s", toString(e))
             currentObj = None
         except:
             self.odooenv.cr.rollback()
             self.errorCount += 1
-            self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Generic Error raised Exception")
+            self.logger.exception(
+                DEFAULT_LOG_STRING, line_index + 1, u" Generic Error raised Exception"
+            )
             currentObj = None
 
         # One2Many Fields,
@@ -600,7 +724,7 @@ class ExpressionProcessorMixin(object):
         try:
             for f in self.allMappings[MappingType.One2Many]:
                 if f in data_values:
-                    members = data_values[f].split(';')
+                    members = data_values[f].split(";")
                     config = self.allMappings[MappingType.One2Many][f]
                     if len(members) > 0 and currentObj != None:
                         if config[0] == 1:
@@ -609,12 +733,20 @@ class ExpressionProcessorMixin(object):
                             if len(m) > 0:
                                 # References records in  One2Many
                                 if config[0] == 0:
-                                    vals = self.odooenv[config[1]].search([(config[2], '=', m)], limit=1)
+                                    vals = self.odooenv[config[1]].search(
+                                        [(config[2], "=", m)], limit=1
+                                    )
                                     if len(vals) == 1:
-                                        currentObj.write({config[2]: [(4, vals[0].id, False)]})
+                                        currentObj.write(
+                                            {config[2]: [(4, vals[0].id, False)]}
+                                        )
                                     else:
                                         self.logger.warning(
-                                            DEFAULT_LOG_STRING, line_index + 1, u"found %d  values for %s =>   unable to reference" % (len(vals), toString(m)))
+                                            DEFAULT_LOG_STRING,
+                                            line_index + 1,
+                                            u"found %d  values for %s =>   unable to reference"
+                                            % (len(vals), toString(m)),
+                                        )
 
                                 # Creates records in  One2Many
                                 elif config[0] == 1:
@@ -623,29 +755,42 @@ class ExpressionProcessorMixin(object):
             self.odooenv.cr.commit()
         except ValueError as e:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Wrong values where updating object: " +
-                                  self.target_model.name + " -> " + toString(data_values))
+            self.logger.exception(
+                DEFAULT_LOG_STRING,
+                line_index + 1,
+                u" Wrong values where updating object: "
+                + self.target_model.name
+                + " -> "
+                + toString(data_values),
+            )
             self.logger.error("                    MSG: %s", toString(e))
             currentObj = None
         except:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING, line_index + 1, u" Generic Error raised Exception")
+            self.logger.exception(
+                DEFAULT_LOG_STRING, line_index + 1, u" Generic Error raised Exception"
+            )
             currentObj = None
 
         # Post Write Hooks
         try:
             if currentObj != None:
-                self.run_hooks('_post_write_record_hook', currentObj, data_values, actual_values)
+                self.run_hooks(
+                    "_post_write_record_hook", currentObj, data_values, actual_values
+                )
         except:
             self.odooenv.cr.rollback()
-            self.logger.exception(DEFAULT_LOG_STRING, line_index + 1,
-                                  u" Error raised during _post_write_record_hook processing")
+            self.logger.exception(
+                DEFAULT_LOG_STRING,
+                line_index + 1,
+                u" Error raised during _post_write_record_hook processing",
+            )
 
         # Finally commit
         self.odooenv.cr.commit()
 
 
-#-------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 # Process CSV Only
 class CSVProcessor(ExpressionProcessorMixin, CSVImporterMixin, LineIteratorProcessor):
     """
@@ -665,7 +810,8 @@ class CSVProcessor(ExpressionProcessorMixin, CSVImporterMixin, LineIteratorProce
             yield (idx, row)
             idx += 1
 
-#-------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------
 # Process XL* Only
 
 
@@ -673,7 +819,8 @@ class XLProcessor(ExpressionProcessorMixin, XLImporterBaseProcessor):
     """
     Processes xls and xlsx files
     """
-    #----------------------------------------------------------
+
+    # ----------------------------------------------------------
 
     def __init__(self, parent_config):
         XLImporterBaseProcessor.__init__(self, parent_config)
