@@ -673,9 +673,6 @@ class MultiSheetLineIterator(AbstractProcessor):
                                         "_pre_conditions_hook", import_file, values
                                     )
                                     if result:
-                                        self.logger.error(
-                                            "GO PROCESS: %s %s ", str(idx), str(values)
-                                        )
                                         self.process_values(idx, values)
                                 except Exception as e:
                                     self.errorCount += 1
