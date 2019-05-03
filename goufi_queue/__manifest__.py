@@ -4,13 +4,13 @@
 # @license: AGPL v3
 
 {
-    'name': u'Goufi: Queuing extension',
-    'version': u'10.0.1.0.0',
-    'category': u'Applications',
-    'author': u'Article714',
-    'license': u'AGPL-3',
-    'website': u'https://www.article714.org',
-    'description': u"""
+    "name": u"Goufi: Queuing extension",
+    "version": u"10.0.1.0.0",
+    "category": u"Applications",
+    "author": u"Article714",
+    "license": u"AGPL-3",
+    "website": u"https://www.article714.org",
+    "description": u"""
 Goufi: support for queuing of import tasks
 ==========================================
 
@@ -19,9 +19,9 @@ TODO
 
 **Credits:** .
 """,
-    'depends': ['goufi_base', 'queue_job'],
-    'data': [],
-    'installable': True,
-    'images': [],
-    'application': False,
+    "depends": ["goufi_base", "queue_job"],
+    "data": [],
+    "installable": True,
+    "images": [],
+    "application": False,
 }

@@ -7,11 +7,11 @@ Created on 3 mai 2018
 @license: AGPL v3
 '''
 
-
 import re
 
-from odoo.addons.goufi_base.utils.converters import toString
 from odoo.tools.misc import ustr
+
+from odoo.addons.goufi_base.utils.converters import toString
 
 from .csv_support_mixins import CSVImporterMixin
 from .processor import AbstractProcessor
@@ -66,20 +66,24 @@ class OdooCSVProcessor(CSVImporterMixin, AbstractProcessor):
                 self.end_processing(import_file, False, 'failure', "Cannot load CSV reader")
                 return False
 
-            fields = reader.next()
-
-            if not ('id' in fields):
-                self.logger.error("Import specification does not contain 'id', Cannot continue.")
-                return False
-
+            first = True
             datas = []
+            fields = ()
             for line in reader:
-                if not (line and any(line)):
-                    continue
-                try:
-                    datas.append(map(ustr, line))
-                except Exception:
-                    self.logger.error("Cannot import the line: %s", line)
+                if first:
+                    fields = line
+                    first = False
+                else:
+                    if not ('id' in fields):
+                        self.logger.error("Import specification does not contain 'id', Cannot continue.")
+                        return False
+
+                    if not (line and any(line)):
+                        continue
+                    try:
+                        datas.append([ustr(v) for v in line])
+                    except:
+                        self.logger.error("Cannot import the line: %s", line)
 
             result = self.target_model.load(fields, datas)
             if any(msg['type'] == 'error' for msg in result['messages']):

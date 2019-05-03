@@ -20,7 +20,6 @@ from .csv_support_mixins import CSVImporterMixin
 from .processor import LineIteratorProcessor
 from .xl_base_processor import XLImporterBaseProcessor
 
-
 #---------------------------------------------------------
 # Global values
 DEFAULT_LOG_STRING = u" [ line %d ] -> %s"
@@ -142,15 +141,17 @@ class ExpressionProcessorMixin(object):
                     for key in additional_values:
                         context[key] = additional_values[key]
                 except:
-                    logging.error("GOUFI: failed to évaluate parameter (context): %s", str(param.value))
+                    logging.error("GOUFI: failed to évaluate parameter (context): %s", 
+                                  str(param.value))
                 self.odoo_context = context
         self.target_model = None
 
-    #-------------------------------------------------------------------------------------
-    # maps a line of data from column/mapping name to field name
-    # and change non json-compatible values
-
+    # -------------------------------------------------------------------------
     def map_values(self, row):
+        """
+        maps a line of data from column/mapping name to field name
+        and change non json-compatible values
+        """
         result = copy(row)
         keys = [x for x in row.keys()]
         for f in keys:
@@ -176,10 +177,11 @@ class ExpressionProcessorMixin(object):
 
         return result
 
-    #-------------------------------------------------------------------------------------
-    # Process mappings configuration hook for each tab
+    #-------------------------------------------------------------------------
     def prepare_mapping_hook(self, tab_name="Unknown", colmappings=None):
-
+        """
+        Process mappings configuration hook for each tab
+        """
         if colmappings == None:
             self.logger.error("Not able to process mappings")
             return -1
