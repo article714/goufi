@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 Created on 17 may 2018
 
 @author: C. Guychard
 @copyright: ©2018 Article 714
 @license: AGPL v3
-'''
+"""
 
 """
 a set of classes to be used in mixins for processor that provide support for importing XLS* files
@@ -23,29 +23,31 @@ from odoo.addons.goufi_base.utils.converters import toString
 from .processor import MultiSheetLineIterator
 
 
-#-------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 # CONSTANTS
-XL_AUTHORIZED_EXTS = ('xlsx', 'xls')
+XL_AUTHORIZED_EXTS = ("xlsx", "xls")
 
 
 class XLImporterBaseProcessor(MultiSheetLineIterator):
-
     def __init__(self, parent_config):
         super(XLImporterBaseProcessor, self).__init__(parent_config)
         self.book = None
-    #-------------------------------------------------------------------------------------
+
+    # -------------------------------------------------------------------------------------
 
     def _open_xls(self, import_file):
         # returns Book
         return open_workbook(import_file.filename)
 
-    #-------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------
 
     def _open_xlsx(self, import_file):
         # returns Workbook
-        return load_workbook(import_file.filename, read_only=True, keep_vba=False, data_only=True)
+        return load_workbook(
+            import_file.filename, read_only=True, keep_vba=False, data_only=True
+        )
 
-    #-------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------
     def get_book(self, import_file):
         """
         Method that actually process data
@@ -54,9 +56,9 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
         self.logger.info(" process XLS* file: " + toString(import_file.filename))
         try:
 
-            if import_file.filename.endswith('.xls'):
+            if import_file.filename.endswith(".xls"):
                 result = self._open_xls(import_file)
-            elif import_file.filename.endswith('.xlsx'):
+            elif import_file.filename.endswith(".xlsx"):
                 # retu
                 result = self._open_xlsx(import_file)
             return result
@@ -67,7 +69,7 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
             self.errorCount += 1
             return False
 
-    #-------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------
     # tab generator
     def get_tabs(self, import_file=None):
         if isinstance(self.book, Book):
@@ -79,7 +81,7 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
         else:
             self.logger.error("Unrecognized Book type....")
 
-    #-------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------
     # line generator
     def get_rows(self, tab=None):
         if isinstance(self.book, Book):
@@ -88,7 +90,7 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
                 notempty = False
                 rv = tab[1].row_values(index)
                 for v in rv:
-                    notempty = notempty or (v != None and v != '')
+                    notempty = notempty or (v != None and v != "")
                 if notempty:
                     yield (index, tab[1].row(index))
         elif isinstance(self.book, Workbook):
@@ -98,14 +100,16 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
                 notempty = False
                 for c in row:
                     v = c.value
-                    notempty = notempty or (not isinstance(c, EmptyCell) and v != None and v != '')
+                    notempty = notempty or (
+                        not isinstance(c, EmptyCell) and v != None and v != ""
+                    )
                 if notempty:
                     yield (index, row)
                 index += 1
         else:
             self.logger.error("Unrecognized Book type....")
 
-    #-------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------
     # Process header for tab
     def process_tab_header(self, tab=None, headerrow=None):
 
@@ -125,7 +129,7 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
             self.logger.error("Unrecognized Book type....")
             return None
 
-    #-------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------
     # Provides a dictionary of values in a row
     def get_row_values(self, tab=None, row=None):
 
@@ -141,7 +145,7 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
             self.logger.error("Unrecognized Book type....")
             return None
 
-    #-------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------
     # Provides a dictionary of values in a row
     def get_row_values_as_dict(self, tab=None, row=None, tabheader=None):
 
@@ -158,7 +162,7 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
                 colname = None
                 if not isinstance(c, EmptyCell) and not c.column == None:
                     if c.column <= len(tabheader):
-                        if tabheader[c.column - 1] != '':
+                        if tabheader[c.column - 1] != "":
                             colname = tabheader[c.column - 1]
                 if colname != None:
                     values[colname] = c.value
@@ -167,15 +171,15 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
             self.logger.error("Unrecognized Book type....")
             return None
 
-    #-------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------
     def process_file(self, import_file, force=False):
-        ext = import_file.filename.split('.')[-1]
-        if (ext in XL_AUTHORIZED_EXTS):
+        ext = import_file.filename.split(".")[-1]
+        if ext in XL_AUTHORIZED_EXTS:
             super(XLImporterBaseProcessor, self).process_file(import_file, force)
         else:
             self.logger.error("Cannot process file: Wrong extension -> %s", ext)
 
-    #-------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------
     def process_data(self, import_file):
         """
         Method that actually process data

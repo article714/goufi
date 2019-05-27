@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''
+"""
 Created on 23 deb. 2018
 
 Utility functions to convert data
@@ -8,18 +8,19 @@ Utility functions to convert data
 @author: C. Guychard
 @copyright: ©2018 Article 714
 @license: AGPL v3
-'''
+"""
 
 from datetime import date, timedelta, datetime
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT
 
 from odoo.tools.misc import ustr
-#-------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------
 # CONSTANTS
 XLS_DATE_REF = date(1899, 12, 30)
 
 
-#-------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 #  Utility: Transfo des chaines en unicode
 def toString(value):
     avalue = ""
@@ -31,10 +32,11 @@ def toString(value):
         try:
             avalue = ustr("" + str(value))
         except UnicodeDecodeError:
-            avalue = unicode(value.decode('iso-8859-1'))
+            avalue = unicode(value.decode("iso-8859-1"))
     return avalue
 
-#-------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------
 #  Utility: Transfo de chaine en date
 
 
@@ -50,12 +52,12 @@ def toDate(value):
 
     if val_date == None:
         try:
-            val_date = datetime.strptime(value, '%d/%m/%Y')
+            val_date = datetime.strptime(value, "%d/%m/%Y")
         except Exception:
             val_date = None
         try:
             if val_date == None:
-                val_date = datetime.strptime(value, '%Y-%m-%d 00:00:00')
+                val_date = datetime.strptime(value, "%Y-%m-%d 00:00:00")
         except Exception:
             val_date = None
 
@@ -73,7 +75,7 @@ def dateToOdooString(val, force_date=False):
         return toString(val)
 
 
-#-------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 #  Utility: Transfo de valeur en float
 def toFloat(value):
 
@@ -85,7 +87,7 @@ def toFloat(value):
     return val
 
 
-#-------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 # translate string to Int
 # None, unparseable or empty string is -1
 def toInt(s):
