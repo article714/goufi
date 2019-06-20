@@ -57,7 +57,9 @@ class ImportFile(models.Model):
     )
 
     date_updated = fields.Datetime(
-        string=_(u"Last updated on"), track_visibility="onchange", required=True
+        string=_(u"Last updated on"),
+        track_visibility="onchange",
+        required=True,
     )
 
     # parametrage du traitement
@@ -72,7 +74,9 @@ class ImportFile(models.Model):
     configuration_is_active = fields.Boolean(related="import_config.active")
 
     to_process = fields.Boolean(
-        string=_(u"File has to be processed"), default=True, track_visibility="onchange"
+        string=_(u"File has to be processed"),
+        default=True,
+        track_visibility="onchange",
     )
 
     needs_to_be_processed = fields.Boolean(
@@ -134,10 +138,14 @@ class ImportFile(models.Model):
     def _get_logfile_name(self):
         for record in self:
             try:
-                filename_TS = record.date_start_processing
+                filename_ts = record.date_start_processing.strftime("%Y-%m-%d")
                 name_complement = path.basename(record.filename)
-                filename = "goufi_%s_%s_%s" % (name_complement, filename_TS, ".log")
-            except:
+                filename = "goufi_%s_%s_%s" % (
+                    name_complement,
+                    filename_ts,
+                    ".log",
+                )
+            except Exception:
                 filename = "goufi_process_log.log"
             record.log_filename = filename
 
@@ -167,12 +175,7 @@ class ImportFile(models.Model):
                         ).timetuple()
                     )
                     if record.date_stop_processing:
-                        lastproc_time = timegm(
-                            datetime.strptime(
-                                record.date_stop_processing,
-                                DEFAULT_SERVER_DATETIME_FORMAT,
-                            ).timetuple()
-                        )
+                        lastproc_time = record.date_stop_processing.timestamp()
                     else:
                         lastproc_time = 0
 
@@ -199,7 +202,9 @@ class ImportFile(models.Model):
                 # File is active and config also
                 if len(record.import_config) > 0:
                     result = (
-                        result and (record.active) and (record.import_config.active)
+                        result
+                        and (record.active)
+                        and (record.import_config.active)
                     )
                 else:
                     result = False
@@ -208,12 +213,17 @@ class ImportFile(models.Model):
                 needs_partner_val = self.env["ir.config_parameter"].get_param(
                     "goufi.config_needs_partner"
                 )
-                config_needs_partner = True if needs_partner_val == "True" else False
+                config_needs_partner = (
+                    True if needs_partner_val == "True" else False
+                )
                 if config_needs_partner:
                     if len(record.import_config) > 0:
                         result = result and (
                             (len(record.partner_id) > 0)
-                            or (len(record.import_config.default_partner_id) > 0)
+                            or (
+                                len(record.import_config.default_partner_id)
+                                > 0
+                            )
                         )
                     else:
                         result = result and (len(record.partner_id) > 0)
@@ -256,7 +266,9 @@ class ImportFile(models.Model):
                 if lang == False:
                     lang = aFile.import_config._get_default_language()
                 if lang:
-                    aFile.with_context({"lang": lang.code})._process_a_file(force=False)
+                    aFile.with_context({"lang": lang.code})._process_a_file(
+                        force=False
+                    )
                 else:
                     aFile._process_a_file(force=False)
 

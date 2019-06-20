@@ -15,18 +15,21 @@ import re
 
 from odoo.exceptions import ValidationError
 
-from odoo.addons.goufi_base.models.import_configuration import ImportConfiguration
+from odoo.addons.goufi_base.models.import_configuration import (
+    ImportConfiguration,
+)
 from odoo.addons.goufi_base.models.import_file import ImportFile
 from odoo.addons.goufi_base.utils.converters import toString
 
+from odoo import _
 
 # -------------------------------------------------------------------------------------
 # STATIC GLOBAL Properties
-procLogFmt = logging.Formatter(
+PROC_LOG_FORMATTER = logging.Formatter(
     "%(asctime)s -(%(filename)s,%(lineno)d) - [%(levelname)s] - %(message)s"
 )
 
-_reHeader = re.compile(r"[0-9]+[\_\.]")
+RE_HEADER = re.compile(r"[0-9]+[\_\.]")
 
 # -------------------------------------------------------------------------------------
 # list of hooks and consolidation functions
@@ -54,7 +57,7 @@ class AbstractProcessor(object):
     def remove_all_spaces(self, value):
         try:
             return value.strip().replace(u" ", "")
-        except:
+        except Exception:
             return value
 
     # -------------------------------------------------------------------------------------
@@ -85,7 +88,7 @@ class AbstractProcessor(object):
 
             # set language in context
             lang = parent_config.context_language
-            if lang == False:
+            if not lang:
                 lang = parent_config._get_default_language()
 
             # setup links with odoo environment
@@ -93,7 +96,9 @@ class AbstractProcessor(object):
             if isinstance(parent_config, ImportConfiguration):
                 self.parent_config = parent_config
                 if lang:
-                    self.odooenv = self.parent_config.env(context={"lang": lang.code})
+                    self.odooenv = self.parent_config.env(
+                        context={"lang": lang.code}
+                    )
                 else:
                     self.odooenv = self.parent_config.env
             else:
@@ -105,7 +110,7 @@ class AbstractProcessor(object):
 
     # -------------------------------------------------------------------------------------
     def register_hook(self, hook_name="never_called", func=None):
-        if func != None and callable(func):
+        if func is not None and callable(func):
             if hook_name not in self.hooks:
                 self.hooks[hook_name] = []
             if func not in self.hooks[hook_name]:
@@ -125,11 +130,12 @@ class AbstractProcessor(object):
     # -------------------------------------------------------------------------------------
     def create_dedicated_filelogger(self, name_complement="hello"):
         """
-        Creates a instance of a dedicated logger that will log to a file the current processing results
+        Creates a instance of a dedicated logger that will log to a file the current
+        processing results
 
         """
 
-        if self.logger != None:
+        if self.logger is not None:
             logging.warning("GOUFI: logger for current instance is not new")
         else:
             self.logger = logging.getLogger("GoufiIP.%s" % name_complement)
@@ -157,7 +163,7 @@ class AbstractProcessor(object):
                     % (logpath, name_complement, filename_TS, ".log"),
                     mode="w",
                 )
-                fh.setFormatter(procLogFmt)
+                fh.setFormatter(PROC_LOG_FORMATTER)
                 fh.setLevel(logging.INFO)
                 self.logger.addHandler(fh)
                 self.logger_fh = fh
@@ -173,8 +179,10 @@ class AbstractProcessor(object):
         """
         close existing logger and reset self.logger to default one
         """
-        if self.logger_fh != None:
-            self.logger.warning("Will flush and close log file %s", str(self.logger))
+        if self.logger_fh is not None:
+            self.logger.warning(
+                "Will flush and close log file %s", str(self.logger)
+            )
             self.logger_fh.flush()
             # deletes log file
             filename = self.logger_fh.baseFilename
@@ -185,7 +193,7 @@ class AbstractProcessor(object):
                 remove(filename)
             except OSError:
                 pass
-        if self.logger != None:
+        if self.logger is not None:
             self.logger = None
 
     # -------------------------------------------------------------------------------------
@@ -194,7 +202,9 @@ class AbstractProcessor(object):
 
         if self.target_model == None:
             try:
-                self.target_model = self.odooenv[self.parent_config.target_object.model]
+                self.target_model = self.odooenv[
+                    self.parent_config.target_object.model
+                ]
             except:
                 self.target_model = None
 
@@ -207,8 +217,8 @@ class AbstractProcessor(object):
             bname = path.basename(import_file.filename)
             modelname = ".".join(bname.split(".")[:-1])
 
-            if _reHeader.match(modelname):
-                modelname = _reHeader.sub("", modelname)
+            if RE_HEADER.match(modelname):
+                modelname = RE_HEADER.sub("", modelname)
 
             try:
                 self.target_model = self.odooenv[modelname]
@@ -228,7 +238,9 @@ class AbstractProcessor(object):
         Method that prepares the processing
         """
         # init
-        self.logger.info("Start processing of file " + toString(import_file.filename))
+        self.logger.info(
+            "Start processing of file " + toString(import_file.filename)
+        )
         self.errorCount = 0
 
         # update import_file data
@@ -247,6 +259,8 @@ class AbstractProcessor(object):
         Should return True on success and False on failure
         """
         raise ValidationError("GOUFI: un-implemented process_data method")
+
+        return False
 
     # -------------------------------------------------------------------------------------
     def end_processing(
@@ -303,12 +317,14 @@ class AbstractProcessor(object):
                     if self.start_processing(import_file):
                         try:
                             result = self.process_data(import_file)
-                            result = (result == None) or (result == True)
+                            result = (result is None) or (result == True)
                             # reports result
                             if result:
                                 if self.errorCount == 0:
                                     self.end_processing(
-                                        import_file, success=result, status="ended"
+                                        import_file,
+                                        success=result,
+                                        status="ended",
                                     )
                                 else:
                                     self.end_processing(
@@ -338,7 +354,8 @@ class AbstractProcessor(object):
                                 import_file,
                                 success=False,
                                 status="failure",
-                                any_message="Error: Generic Exception (%s)" % str(e),
+                                any_message="Error: Generic Exception (%s)"
+                                % str(e),
                             )
                             self.odooenv.cr.commit()
 
@@ -375,8 +392,12 @@ class AbstractProcessor(object):
                 )
                 self.odooenv.cr.commit()
         else:
-            self.logger.error("GOUFI: cannot import : no import_file provided !")
-            logging.exception("GOUFI: cannot import : no import_file provided !")
+            self.logger.error(
+                "GOUFI: cannot import : no import_file provided !"
+            )
+            logging.exception(
+                "GOUFI: cannot import : no import_file provided !"
+            )
 
 
 # -------------------------------------------------------------------------------------
@@ -430,13 +451,16 @@ class LineIteratorProcessor(AbstractProcessor):
 
         if self.parent_config:
             if self.parent_config.target_object:
-                self.target_model = self.odooenv[self.parent_config.target_object.model]
+                self.target_model = self.odooenv[
+                    self.parent_config.target_object.model
+                ]
         if self.target_model == None:
             # Search for target model
             self.search_target_model_from_filename(import_file)
         if self.target_model == None:
             self.logger.exception(
-                "Not able to guess target model: " + toString(import_file.filename)
+                "Not able to guess target model: "
+                + toString(import_file.filename)
             )
             return False
 
@@ -446,7 +470,9 @@ class LineIteratorProcessor(AbstractProcessor):
             # Pre-process Rows Hook
             try:
                 if "_pre_process_rows_hook" in self.hooks:
-                    result = self.run_hooks("_pre_process_rows_hook", import_file)
+                    result = self.run_hooks(
+                        "_pre_process_rows_hook", import_file
+                    )
                     if not result:
                         self.logger.error(
                             u"Failure during processing of _pre_process_rows_hook"
@@ -464,11 +490,15 @@ class LineIteratorProcessor(AbstractProcessor):
             # process Rows
             for row in self.get_rows(import_file):
                 try:
-                    result = self.run_hooks("_pre_conditions_hook", import_file, row[1])
+                    result = self.run_hooks(
+                        "_pre_conditions_hook", import_file, row[1]
+                    )
                     if result:
                         self.process_values(row[0], row[1])
                 except Exception as e:
-                    self.logger.exception(u"Error when processing line N° %d", row[0])
+                    self.logger.exception(
+                        u"Error when processing line N° %d", row[0]
+                    )
                     self.errorCount += 1
                     self.odooenv.cr.rollback()
                     return -1
@@ -499,33 +529,39 @@ class MultiSheetLineIterator(AbstractProcessor):
     # must return a tuple (tabname, Object)
     def get_tabs(self, import_file=None):
 
-        raise ValidationError("GOUFI: un-implemented get_tabs method")
+        raise ValidationError(_("GOUFI: un-implemented get_tabs method"))
 
     # -------------------------------------------------------------------------------------
     # line generator
     # must return a tuble(index, Object)
     def get_rows(self, tab=None):
 
-        raise ValidationError("GOUFI: un-implemented get_rows method")
+        raise ValidationError(_("GOUFI: un-implemented get_rows method"))
 
     # -------------------------------------------------------------------------------------
     # Process tab header, in order to provide a list of columns to process
     # must return a list of column titles in header
     def process_tab_header(self, tab=None, headerrow=None):
+        if self:
+            raise ValidationError(_("GOUFI: un-implemented generator method"))
 
-        raise ValidationError("GOUFI: un-implemented generator method")
+        return False
 
     # -------------------------------------------------------------------------------------
     # Provides a dictionary of values in a row
     def get_row_values_as_dict(self, tab=None, row=None, tabheader=None):
+        if self:
+            raise ValidationError("GOUFI: un-implemented generator method")
 
-        raise ValidationError("GOUFI: un-implemented generator method")
+        return False
 
     # -------------------------------------------------------------------------------------
     # Process line values
     def process_values(self, line_index=-1, data_values=()):
+        if self:
+            raise ValidationError("GOUFI: un-implemented generator method")
 
-        raise ValidationError("GOUFI: un-implemented generator method")
+        return False
 
     # -------------------------------------------------------------------------------------
     # prepare mappings configuration for tab processing,
@@ -550,15 +586,20 @@ class MultiSheetLineIterator(AbstractProcessor):
                         )
                     # OK: no tab support => i.e. single tab sometime
                     return result
-                elif tab_name != None:
+                elif tab_name is not None:
                     if parent_config.single_mapping:
                         found = tabmap_model.search(
-                            [("parent_configuration", "=", parent_config.id)], limit=1
+                            [("parent_configuration", "=", parent_config.id)],
+                            limit=1,
                         )
                     else:
                         found = tabmap_model.search(
                             [
-                                ("parent_configuration", "=", parent_config.id),
+                                (
+                                    "parent_configuration",
+                                    "=",
+                                    parent_config.id,
+                                ),
                                 ("name", "=", tab_name),
                             ],
                             limit=1,
@@ -576,7 +617,9 @@ class MultiSheetLineIterator(AbstractProcessor):
                             self.target_model = self.odooenv[
                                 current_tab.target_object.model
                             ]
-                            self.header_line_idx = current_tab.default_header_line_index
+                            self.header_line_idx = (
+                                current_tab.default_header_line_index
+                            )
                             if "_prepare_mapping_hook" in self.hooks:
                                 result = self.run_hooks(
                                     "_prepare_mapping_hook",
@@ -588,19 +631,23 @@ class MultiSheetLineIterator(AbstractProcessor):
 
                         except:
                             self.logger.exception(
-                                "Target model not found for " + toString(tab_name)
+                                "Target model not found for "
+                                + toString(tab_name)
                             )
                             return -1
                     else:
                         self.logger.error(
-                            "Tab configuration not found: " + toString(tab_name)
+                            "Tab configuration not found: "
+                            + toString(tab_name)
                         )
                         return -1
                 else:
                     self.logger.error("No tab name given")
                     return -1
             else:
-                self.logger.error("No configuration found for tab %s", tab_name)
+                self.logger.error(
+                    "No configuration found for tab %s", tab_name
+                )
                 return -1
         else:
             self.logger.error(
@@ -619,7 +666,9 @@ class MultiSheetLineIterator(AbstractProcessor):
 
         if self.parent_config:
             if self.parent_config.target_object:
-                self.target_model = self.odooenv[self.parent_config.target_object.model]
+                self.target_model = self.odooenv[
+                    self.parent_config.target_object.model
+                ]
         if self.target_model == None:
             # Search for target model
             self.search_target_model_from_filename(import_file)
@@ -660,7 +709,7 @@ class MultiSheetLineIterator(AbstractProcessor):
                                 header = self.process_tab_header(tab, row)
                             elif idx > self.header_line_idx:
                                 # process data for tab
-                                if header != None and len(header) > 0:
+                                if header is not None and len(header) > 0:
                                     values = self.get_row_values_as_dict(
                                         tab=tab, row=row, tabheader=header
                                     )
@@ -670,7 +719,9 @@ class MultiSheetLineIterator(AbstractProcessor):
                                     break
                                 try:
                                     result = self.run_hooks(
-                                        "_pre_conditions_hook", import_file, values
+                                        "_pre_conditions_hook",
+                                        import_file,
+                                        values,
                                     )
                                     if result:
                                         self.process_values(idx, values)
@@ -693,11 +744,14 @@ class MultiSheetLineIterator(AbstractProcessor):
                             return False
                 elif nb_mappings < 0:
                     self.logger.error(
-                        "Could not prepare mapping configuration for Tab: %s", tab[0]
+                        "Could not prepare mapping configuration for Tab: %s",
+                        tab[0],
                     )
                     self.errorCount += 1
             except Exception as e:
-                self.logger.exception(u"Error when processing a Tab:  %s", tab[0])
+                self.logger.exception(
+                    u"Error when processing a Tab:  %s", tab[0]
+                )
                 self.errorCount += 1
                 self.odooenv.cr.rollback()
 
