@@ -7,7 +7,6 @@ Created on 23 february 2018
 @license: AGPL v3
 """
 
-from calendar import timegm
 from datetime import datetime
 import logging
 import os
@@ -289,11 +288,7 @@ class ImportConfiguration(models.Model):
                         iFile = existing_found[0]
                         modtime = os.path.getmtime(cur_path)
 
-                        if modtime > timegm(
-                            datetime.strptime(
-                                iFile.date_updated, DEFAULT_SERVER_DATETIME_FORMAT
-                            ).timetuple()
-                        ):
+                        if modtime > iFile.date_updated:
                             iFile.write(
                                 {"date_updated": str_date, "filesize": filesize}
                             )

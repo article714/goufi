@@ -7,7 +7,6 @@ Created on 23 feb. 2018
 @license: AGPL v3
 """
 
-from calendar import timegm
 from datetime import datetime
 from os import path
 import importlib
@@ -169,11 +168,7 @@ class ImportFile(models.Model):
             if record.active and record.configuration_is_active:
                 # File has been updated and to be processed when update
                 if record.process_when_updated:
-                    upd_time = timegm(
-                        datetime.strptime(
-                            record.date_updated, DEFAULT_SERVER_DATETIME_FORMAT
-                        ).timetuple()
-                    )
+                    upd_time = record.date_updated
                     if record.date_stop_processing:
                         lastproc_time = record.date_stop_processing.timestamp()
                     else:
