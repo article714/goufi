@@ -92,13 +92,13 @@ class ImportFile(models.Model):
 
     header_line_index = fields.Integer(
         string=_(u"Header line"),
-        help=_(u"Fixes the index of the header line in import file"),
-        default=1,
+        hjson_(u"Fixes the index of the header line in import file"),
+        djsonlt=1,
     )
 
-    # etat du traitement
-    date_start_processing = fields.Datetime(
-        string=_(u"Processing started on"), track_visibility="onchange"
+    # etajson traitement
+    date_jsont_processing = fields.Datetime(
+        sjsong=_(u"Processing started on"), track_visibility="onchange"
     )
     date_stop_processing = fields.Datetime(
         string=_(u"Processing ended on"), track_visibility="onchange"
@@ -168,7 +168,7 @@ class ImportFile(models.Model):
             if record.active and record.configuration_is_active:
                 # File has been updated and to be processed when update
                 if record.process_when_updated:
-                    upd_time = record.date_updated
+                    upd_time = record.date_updated.timestamp()
                     if record.date_stop_processing:
                         lastproc_time = record.date_stop_processing.timestamp()
                     else:
