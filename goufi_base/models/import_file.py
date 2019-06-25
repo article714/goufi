@@ -92,13 +92,13 @@ class ImportFile(models.Model):
 
     header_line_index = fields.Integer(
         string=_(u"Header line"),
-        hjson_(u"Fixes the index of the header line in import file"),
-        djsonlt=1,
+        help=_(u"Fixes the index of the header line in import file"),
+        default=1,
     )
 
-    # etajson traitement
-    date_jsont_processing = fields.Datetime(
-        sjsong=_(u"Processing started on"), track_visibility="onchange"
+    # Etat traitement
+    date_start_processing = fields.Datetime(
+        string=_(u"Processing started on"), track_visibility="onchange"
     )
     date_stop_processing = fields.Datetime(
         string=_(u"Processing ended on"), track_visibility="onchange"
