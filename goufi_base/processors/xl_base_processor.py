@@ -170,6 +170,7 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
     #-------------------------------------------------------------------------------------
     def process_file(self, import_file, force=False):
         ext = import_file.filename.split('.')[-1]
+        ext=ext.lower()
         if (ext in XL_AUTHORIZED_EXTS):
             super(XLImporterBaseProcessor, self).process_file(import_file, force)
         else:
