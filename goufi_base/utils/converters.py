@@ -45,6 +45,7 @@ def toDate(value):
     try:
         val = float(value)
         val_date = XLS_DATE_REF + timedelta(val)
+        val_date = datetime(val_date.year, val_date.month, val_date.day, 0, 0, 0)
     except Exception:
         val_date = None
 
