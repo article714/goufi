@@ -54,9 +54,9 @@ class XLImporterBaseProcessor(MultiSheetLineIterator):
         self.logger.info(" process XLS* file: " + toString(import_file.filename))
         try:
 
-            if import_file.filename.endswith('.xls'):
+            if import_file.filename.lower().endswith('.xls'):
                 result = self._open_xls(import_file)
-            elif import_file.filename.endswith('.xlsx'):
+            elif import_file.filename.lower().endswith('.xlsx'):
                 # retu
                 result = self._open_xlsx(import_file)
             return result
